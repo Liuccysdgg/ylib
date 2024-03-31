@@ -8,7 +8,7 @@
 ### 下载项目
 
 ```bash
-git clone https://e.coding.net/utigger/ylib/ylib.git
+git clone https://github.com/Liuccysdgg/ylib.git
 ```
 
 ### Windows
