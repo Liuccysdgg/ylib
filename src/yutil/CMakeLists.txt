@@ -1,0 +1,23 @@
+cmake_minimum_required(VERSION 2.8)
+
+# 获取上级目录名做为库名
+get_filename_component(CURRENT_DIR ${CMAKE_CURRENT_SOURCE_DIR} ABSOLUTE)
+get_filename_component(LIBRARY_NAME ${CURRENT_DIR} NAME)
+
+file(GLOB SOURCE_FILES 
+	"${PROJECT_SOURCE_DIR}/include/${LIBRARY_NAME}/*.h"
+	"${PROJECT_SOURCE_DIR}/include/${LIBRARY_NAME}/*.hpp"
+	"${PROJECT_SOURCE_DIR}/src/${LIBRARY_NAME}/src/*.cpp"
+	"${PROJECT_SOURCE_DIR}/src/${LIBRARY_NAME}/src/__3d/*.*"
+)
+
+if(MSVC)
+	include_directories(${PROJECT_SOURCE_DIR}/3rdparty/HP-Socket/Windows/Include)
+endif()
+
+# 创建库
+add_library(${LIBRARY_NAME} ${SOURCE_FILES})
+
+
+########################  安装  ########################
+install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
