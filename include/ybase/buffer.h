@@ -44,9 +44,10 @@ public:
     void append(const char* data, size_t length);
     void append(const ylib::buffer& data);
     void append(std::initializer_list<uchar> char_list);
-
-    void append_c(char value);
-    void append_uc(unsigned char value);
+    template<typename T>
+    void append(const T& value) {
+        append((const char*)&value, sizeof(T));
+    }
 
     void clear();
     void resize(size_t length);

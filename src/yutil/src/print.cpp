@@ -10,15 +10,19 @@ const std::string LINUX_RED = "\033[31m";
 const std::string LINUX_GREEN = "\033[32m";
 const std::string LINUX_YELLOW = "\033[33m";
 const std::string LINUX_BLUE = "\033[34m";
-//#endif
+//#endif 
 void ylib::println(const std::string& text, ylib::ConsoleTextColor color)
 {
+	print(text + "\r\n", color);
+}
+void ylib::print(const std::string& text, ylib::ConsoleTextColor color)
+{
 #ifdef _WIN32
-	if(color == ylib::YELLOW)
+	if (color == ylib::YELLOW)
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 	else
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
-	printf("%s\r\n", text.c_str());
+	printf("%s", text.c_str());
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), ylib::ConsoleTextColor::DEFAULT);
 #else
 	switch (color)
@@ -40,7 +44,7 @@ void ylib::println(const std::string& text, ylib::ConsoleTextColor color)
 		break;
 	default:
 		break;
-	}
+}
 	std::cout << LINUX_RESET << std::endl;
 
 #endif

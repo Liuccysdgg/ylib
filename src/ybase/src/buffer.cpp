@@ -74,15 +74,7 @@ void ylib::buffer::append(std::initializer_list<uchar> char_list)
     this->append((char*)new_buf, idx);
     free(new_buf);
 }
-void ylib::buffer::append_c(char value)
-{
-    append((const char*)&value,1);
-}
 
-void ylib::buffer::append_uc(unsigned char value)
-{
-    append((const char*)&value,1);
-}
 
 void ylib::buffer::clear()
 {
@@ -232,7 +224,7 @@ unsigned char &ylib::buffer::operator[](size_t index) const
     if (index + 1 > m_data.m_use_length)
     {
         std::string msg = "ylib::buffer::operator[] index="+std::to_string(index) + " but data length is "+std::to_string(m_data.m_use_length);
-        throw std::exception(msg.c_str());
+        throw ylib::exception(msg.c_str());
     }
     return m_data.data()[index];
 }
