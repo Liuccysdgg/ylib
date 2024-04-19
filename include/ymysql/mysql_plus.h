@@ -141,4 +141,14 @@ namespace ylib::mysql
 
         }
     };
+
+
+
+    /// <summary>
+    /// 协程调用
+    /// 执行期间会让出协程，并等待再次调度
+    /// </summary>
+    /// <param name="ppst"></param>
+    /// <returns></returns>
+    std::tuple<bool, std::string> co_query(ylib::mysql::prepare_statement* ppst);
 }

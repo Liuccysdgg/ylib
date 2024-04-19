@@ -8,7 +8,7 @@ get_filename_component(LIBRARY_NAME ${CURRENT_DIR} NAME)
     )
 
 if(MSVC)
-	include_directories("D:/3rdparty/mysql-connector-c++-8.2.0-winx64/include/jdbc")
+	include_directories("D:/3rdparty/mysql-connector-c++-8.3.0-winx64/include/jdbc")
 else()
 	include_directories(/usr/local/mysql/connector-c++-8.3.0/include/jdbc)
 endif()

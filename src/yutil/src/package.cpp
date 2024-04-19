@@ -109,7 +109,7 @@ void ylib::package::to(const std::string& password, ylib::buffer& data)
 			signal_name.append(iter->second->name);
 		}
 
-		signal_data.append_uc((uchar)3);
+		signal_data.append<uchar>(3);
 		signal_data.append(bytes::to_buffer((int32)iter->second->data.length()));
 		signal_data.append(iter->second->data);
 		// 打包加密

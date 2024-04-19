@@ -2,7 +2,7 @@
 #include <string.h>
 #include "yutil/system.h"
 #include "yutil/system.h"
-    void ylib_thread_thread(void* lpParam)
+void ylib_thread_thread(void* lpParam)
 	{
 		auto t = (ylib::ithread*)lpParam;
 		t->__thread_handle(lpParam);
@@ -96,6 +96,15 @@
 	thread_pool::~thread_pool()
 	{
 		HP_Destroy_ThreadPool((IHPThreadPool*)m_hp_thread);
+	}
+
+	bool ylib::thread_pool::start(uint32 thread_size)
+	{
+		return false;
+	}
+
+	void ylib::thread_pool::stop()
+	{
 	}
 
 	bool thread_pool::start(uint32 thread_count, uint32 max_queue_size)
