@@ -1,3 +1,4 @@
+#if 0
 #include "yutil/coroution.h"
 #include "HPSocket/HPSocket.h"
 #include "yutil/system.h"
@@ -129,3 +130,4 @@ void ylib::co::scheduler::exec_queue()
         
     }
 }
+#endif

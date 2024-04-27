@@ -278,7 +278,14 @@ void ylib::mysql::prepare_statement::set_datetime(uint32 index, const std::strin
 {
     CHECK_SQL_PPST;
     PRINT_DEBUG_SET_NSTRING;
-    PREPARE_STATEMENT->setDateTime(index,value.c_str());
+    if (value.empty())
+    {
+        PREPARE_STATEMENT->setNull(index, sql::DataType::DATE);
+    }
+    else
+    {
+        PREPARE_STATEMENT->setDateTime(index, value.c_str());
+    }
 }
 
 void ylib::mysql::prepare_statement::set_double(uint32 index, double value)

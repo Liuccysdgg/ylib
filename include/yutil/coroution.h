@@ -1,4 +1,5 @@
 ﻿#pragma once
+#if 0
 #include <coroutine>
 #include <iostream>
 #include <thread>
@@ -77,3 +78,4 @@ namespace ylib::co
         co_thread_pool* m_pool = nullptr;
     };
 }
+#endif

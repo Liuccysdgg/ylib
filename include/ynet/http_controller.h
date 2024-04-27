@@ -51,48 +51,54 @@ using namespace ylib::network::http;
 #define qry_json_double(NAME) request()->parser()->json()[NAME].to<double>(true)
 #define qry_json_short(NAME) request()->parser()->json()[NAME].to<short>(true)
 #define qry_json_bool(NAME) request()->parser()->json()[NAME].to<bool>(true)
-namespace ylib::network::http
+namespace ylib
 {
-    class router;
-    class controller:public network::http::interface_
+    namespace network
     {
-    public:
-        controller();
-        ~controller();
-        network::http::request* request();
-        network::http::response* response();
-
-
-        //min和max为<=或>= ,若填-1则不使用该条件
-        std::string qry_string(const std::string& name, uint32 pmin = 0, uint32 pmax = _UINT_MAX);
-        int32 qry_int32(const std::string& name, int32 pmin = _INT_MIN, int32 pmax = _INT_MAX);
-        uint32 qry_uint32(const std::string& name, uint32 pmin = 0, uint32 pmax = _UINT_MAX);
-        int64 qry_int64(const std::string& name, int64 pmin = _INT64_MIN, int64 pmax = _INT64_MAX);
-        uint64 qry_uint64(const std::string& name, uint64 pmin = 0, uint64 pmax = _UINT64_MAX);
-        double qry_double(const std::string& name, double pmin = _DBL_MIN, double pmax = _DBL_MAX);
-        float qry_float(const std::string& name, float pmin = _FLT_MIN, float pmax = _FLT_MAX);
-        bool qry_empty(const std::string& name);
-        bool qry_bool(const std::string& name);
-        ylib::buffer qry_buffer(const std::string& name);
-
-        // 请求参数
-        bool request_param(const std::string& name,std::string& value);
-
-        // 获取回复JSON
-        inline ylib::json& rpjson(){return response()->sjson["data"];}
-        inline ylib::json& rpcode() { return response()->sjson["code"]; }
-        //inline ylib::json& rp() { return response()->sjson["code"]; }
-        inline void rp(int code, const std::string& msg = "", const ylib::json& data = ylib::json())
+        namespace http
         {
-            response()->sjson["code"] = code; 
-            response()->sjson["msg"] = msg;
-            response()->sjson["data"] = data;
-        };
+            class router;
+            class controller :public network::http::interface_
+            {
+            public:
+                controller();
+                ~controller();
+                network::http::request* request();
+                network::http::response* response();
 
 
-        friend class router;
-    private:
-        network::http::reqpack* m_reqpack;
-    };
+                //min和max为<=或>= ,若填-1则不使用该条件
+                std::string qry_string(const std::string& name, uint32 pmin = 0, uint32 pmax = _UINT_MAX);
+                int32 qry_int32(const std::string& name, int32 pmin = _INT_MIN, int32 pmax = _INT_MAX);
+                uint32 qry_uint32(const std::string& name, uint32 pmin = 0, uint32 pmax = _UINT_MAX);
+                int64 qry_int64(const std::string& name, int64 pmin = _INT64_MIN, int64 pmax = _INT64_MAX);
+                uint64 qry_uint64(const std::string& name, uint64 pmin = 0, uint64 pmax = _UINT64_MAX);
+                double qry_double(const std::string& name, double pmin = _DBL_MIN, double pmax = _DBL_MAX);
+                float qry_float(const std::string& name, float pmin = _FLT_MIN, float pmax = _FLT_MAX);
+                bool qry_empty(const std::string& name);
+                bool qry_bool(const std::string& name);
+                ylib::buffer qry_buffer(const std::string& name);
+
+                // 请求参数
+                bool request_param(const std::string& name, std::string& value);
+
+                // 获取回复JSON
+                inline ylib::json& rpjson() { return response()->sjson["data"]; }
+                inline ylib::json& rpcode() { return response()->sjson["code"]; }
+                //inline ylib::json& rp() { return response()->sjson["code"]; }
+                inline void rp(int code, const std::string& msg = "", const ylib::json& data = ylib::json())
+                {
+                    response()->sjson["code"] = code;
+                    response()->sjson["msg"] = msg;
+                    response()->sjson["data"] = data;
+                };
+
+
+                friend class router;
+            private:
+                network::http::reqpack* m_reqpack = nullptr;
+            };
+        }
+    }
 }
 #endif

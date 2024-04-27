@@ -3,10 +3,14 @@
 #include <stdio.h>
 #include "ybase/define.h"
 
-namespace ylib::mem
+namespace ylib
 {
-    const static uint32 __big_size = 1024 * 1024 * 10;
-    void* malloc(size_t size);
-    void  free(void* src);
-    void* realloc(void* src,size_t length);
+    namespace mem
+    {
+        const static uint32 __big_size = 1024 * 1024 * 10;
+        void* malloc(size_t size);
+        void  free(void* src);
+        void* realloc(void* src, size_t length);
+    }
+    
 }
