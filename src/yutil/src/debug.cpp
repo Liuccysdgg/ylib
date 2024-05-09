@@ -87,4 +87,9 @@ void ylib::debug::detect_exception()
 {
     SetUnhandledExceptionFilter(ExceptionFilter);
 }
+void ylib::debug::vs_console_println(const std::string& value)
+{
+    std::string v2 = value + "\n";
+    OutputDebugString(value.c_str());
+}
 #endif

@@ -41,6 +41,7 @@ public:
     ~buffer();
     void set(const char* data, size_t length);
     void set(const ylib::buffer& data);
+    void append(const std::string& data);
     void append(const char* data, size_t length);
     void append(const ylib::buffer& data);
     void append(std::initializer_list<uchar> char_list);

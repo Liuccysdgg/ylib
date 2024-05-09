@@ -29,6 +29,8 @@ namespace ylib {
             m_pop_size--;
             m_queue.push(example);
         }
+    public:
+        void* env = nullptr;
     protected:
         ylib::queue<void*> m_queue;
         std::mutex m_mutex;
@@ -150,6 +152,8 @@ namespace ylib {
                 {
                     bool init_success = false;
                     example = new EXAMPLE;
+                    //example->pool((void*)this);
+                    ((EXAMPLE*)example)->pool(this);
                     for (uint32 i = 0; i < 3; i++)
                     {
                         auto SR = ((EXAMPLE*)example)->start(m_info);
@@ -172,7 +176,7 @@ namespace ylib {
                     if (init_success)
                     {
                         m_pop_size++;
-                        ((EXAMPLE*)example)->pool(this);
+                       
                         ((EXAMPLE*)example)->task_out();
                         return ((EXAMPLE*)example);
                     }

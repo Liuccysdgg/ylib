@@ -58,7 +58,7 @@ add_subdirectory(src/yutil)
 add_subdirectory(src/yqt)
 add_subdirectory(src/ynet)
 add_subdirectory(src/yqlua)
-add_subdirectory(src/ymysql)
+add_subdirectory(src/ysql)
 ########################  三方库  ########################
 add_subdirectory(3rdparty/zlib)
 add_subdirectory(3rdparty/lua)

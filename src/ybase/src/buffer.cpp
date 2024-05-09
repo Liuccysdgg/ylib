@@ -51,6 +51,11 @@ void ylib::buffer::set(const ylib::buffer& data)
     set((const char*)data.data(), data.length());
 }
 
+void ylib::buffer::append(const std::string& data)
+{
+    append(data.c_str(),data.length());
+}
+
 void ylib::buffer::append(const char* data, size_t length)
 {
     m_data.append((const uchar*)data,length);
