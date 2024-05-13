@@ -310,7 +310,7 @@ bool ylib::file::exist(const std::string &filepath)
 {
     try
     {
-        return std::filesystem::exists(filepath);
+        return std::filesystem::exists(filepath) && std::filesystem::is_regular_file(filepath);
     }
     catch (const std::exception& e)
     {

@@ -1,4 +1,4 @@
-
+cmake_minimum_required(VERSION 3.5)
 
 ########################  项目名称  #######################  
 set(PROJECT_NAME ylib)
@@ -67,6 +67,7 @@ if(MSVC)
 add_subdirectory(3rdparty/libzip)
 endif()
 add_subdirectory(3rdparty/ffmpeg)
+add_subdirectory(3rdparty/cocos2dx)
 ########################  测试用例  ########################
 add_subdirectory(test/ttu)
 

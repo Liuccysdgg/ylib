@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.5)
 if(MSVC)
     # 获取上级目录名做为库名
     get_filename_component(CURRENT_DIR ${CMAKE_CURRENT_SOURCE_DIR} ABSOLUTE)
@@ -11,26 +12,27 @@ if(MSVC)
     # 创建库
     add_library(${LIBRARY_NAME} ${SOURCE_FILES})
 
+    
     if(CMAKE_GENERATOR_PLATFORM STREQUAL "Win32")
         # 为Debug配置设置特定的include目录
         target_include_directories(${LIBRARY_NAME} PUBLIC 
-            $<$<CONFIG:Debug>:"C:/Qt/Qt5.14.2/5.14.2/msvc2017/include">)
+            $<$<CONFIG:Debug>:${PROJECT_SOURCE_DIR}/3rdparty/qt/include>)
         # 为Release配置设置特定的include目录
         target_include_directories(${LIBRARY_NAME} PUBLIC 
-            $<$<CONFIG:Release>:"C:/Qt/Qt5.14.2/5.14.2/msvc2017/include">)
+            $<$<CONFIG:Release>:${PROJECT_SOURCE_DIR}/3rdparty/qt/include>)
         # 为ReleaseMT配置设置特定的include目录
         target_include_directories(${LIBRARY_NAME} PUBLIC 
-            $<$<CONFIG:ReleaseMT>:"C:/Qt/Qt-5.14.2/include">)
+            $<$<CONFIG:ReleaseMT>:${PROJECT_SOURCE_DIR}/3rdparty/qt/include>)
     elseif(CMAKE_GENERATOR_PLATFORM STREQUAL "x64")
         # 为Debug配置设置特定的include目录
         target_include_directories(${LIBRARY_NAME} PUBLIC 
-            $<$<CONFIG:Debug>:"C:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include">)
+            $<$<CONFIG:Debug>:${PROJECT_SOURCE_DIR}/3rdparty/qt/include>)
         # 为Release配置设置特定的include目录
         target_include_directories(${LIBRARY_NAME} PUBLIC 
-            $<$<CONFIG:Release>:"C:/Qt/Qt5.14.2/5.14.2/msvc2017_64/include">)
+            $<$<CONFIG:Release>:${PROJECT_SOURCE_DIR}/3rdparty/qt/include>)
         # 为ReleaseMT配置设置特定的include目录
         target_include_directories(${LIBRARY_NAME} PUBLIC 
-            $<$<CONFIG:ReleaseMT>:"C:/Qt/Qt-5.14.2/include">)
+            $<$<CONFIG:ReleaseMT>:${PROJECT_SOURCE_DIR}/3rdparty/qt/include>)
     endif()
 endif()
 

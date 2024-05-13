@@ -84,7 +84,7 @@ public:
 
     std::string to_hex();
 
-    size_t& cursor() { return m_cursor; }
+    size_t& cursor(){ return m_cursor; }
 private:
     ylib::mem_pool m_data;
     size_t m_cursor = 0;

@@ -577,7 +577,6 @@ bool ylib::network::http::client_plus::request()
 		count++;
 	}
 	
-
 	bool result =  CLIENT->SendRequest(
 		method,
 		m_path.c_str(),

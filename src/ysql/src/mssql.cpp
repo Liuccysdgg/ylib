@@ -9,9 +9,14 @@
 #define CHECK_SQL_PPST if(m_handle == nullptr){throw ylib::exception("current preparedstatement is invalid");}
 #define CHECK_SQL_RESULT if(m_handle == nullptr){throw ylib::exception("current resultset is invalid");}
 
-#define THROW_RET(RESULT,MSG)                                                                                                               \
-    if (RESULT != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO)                                                                                                      \
-    throw ylib::exception(MSG)              
+#define THROW_RET(RESULT,MSG)   \
+{                                                                                                               \
+    auto __ret = RESULT;      \
+    if (__ret != SQL_SUCCESS && __ret != SQL_SUCCESS_WITH_INFO) \
+    {                                                                                                      \
+        throw ylib::exception(MSG); \
+    }              \
+}
 
 
 #define THROW_RET_BIND(RESULT)  THROW_RET(RESULT,"SQLBindParameter Failed,code: " + std::to_string(RESULT))
@@ -90,8 +95,8 @@ ylib::mssql::prepare_statement* ylib::mssql::conn::setsql(const std::string &sql
     CHECK_SQL_CONNECTION;
     clear();
     m_ppst = new prepare_statement;
-    SQLAllocHandle(SQL_HANDLE_STMT, m_handle, &m_ppst->m_handle);
-    SQLPrepare(m_ppst->m_handle, (SQLCHAR*)sql.c_str(), SQL_NTS);
+    THROW_RET(SQLAllocHandle(SQL_HANDLE_STMT, m_handle, &m_ppst->m_handle), "SQLAllocHandle failed");
+    THROW_RET(SQLPrepare(m_ppst->m_handle, (SQLCHAR*)sql.c_str(), SQL_NTS), "SQLPrepare failed.");
     return m_ppst;
 }
 void ylib::mssql::conn::begin()
@@ -261,13 +266,39 @@ uint64 ylib::mssql::prepare_statement::update()
     THROW_RET(ret, "SQLRowCount failed,code: " + std::to_string(ret));
     return numRowsAffected;
 }
+std::string getODBCError(SQLSMALLINT handleType, SQLHANDLE handle) {
+    SQLINTEGER i = 0;
+    SQLINTEGER nativeError;
+    SQLCHAR sqlState[7];
+    SQLCHAR message[1024];
+    SQLSMALLINT textLength;
+    SQLRETURN ret;
+    std::ostringstream errorMsg;
 
+    while (true) {
+        ret = SQLGetDiagRec(handleType, handle, ++i, sqlState, &nativeError, message, sizeof(message), &textLength);
+        if (ret == SQL_NO_DATA) {
+            if (errorMsg.str().empty()) {
+                // 无错误信息可提供
+                errorMsg << "No detailed error information available.";
+            }
+            break;
+        }
+        errorMsg << "Error " << i << ": SQLState=" << sqlState << ", NativeError=" << nativeError << ", Message=" << message << std::endl;
+    }
+
+    return errorMsg.str();
+}
 ylib::mssql::result *ylib::mssql::prepare_statement::query()
 {
     CHECK_SQL_PPST;
     clear();
     auto ret = SQLExecute(m_handle);
-    THROW_RET(ret, "SQLExecute failed,code: " + std::to_string(ret));
+    if (ret != 0)
+    {
+        throw ylib::exception(getODBCError(SQL_HANDLE_STMT,m_handle));
+    }
+    //THROW_RET(ret, "SQLExecute failed,code: " + std::to_string(ret));
     
     m_result = new ylib::mssql::result();
     m_result->m_handle = m_handle;
