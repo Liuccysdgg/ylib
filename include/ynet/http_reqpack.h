@@ -29,7 +29,7 @@ namespace ylib
                 network::http::request* request();
                 network::http::response* response();
 
-                inline const std::string& host()
+                const std::string& host()
                 {
                     /*获取基本请求信息*/
                     return m_host;
@@ -37,39 +37,39 @@ namespace ylib
                 network::http::method method();
                 const std::string& filepath();
                 void filepath(const std::string& path);
-                inline network::http::server* server()
+                network::http::server* server()
                 {
                     return m_server;
                 }
-                inline ylib::buffer& data()
+                ylib::buffer& data()
                 {
                     return m_data;
                 }
-                inline const std::string& url()
+                const std::string& url()
                 {
                     return m_url;
                 }
-                inline const std::string& referrer()
+                const std::string& referrer()
                 {
                     return m_referrer;
                 }
-                inline const uint64& connid()
+                const uint64& connid()
                 {
                     return m_connid;
                 }
-                inline network::http::website* website() {
+                network::http::website* website() {
                     return m_website;
                 }
-                inline void website(network::http::website* website) {
+                void website(network::http::website* website) {
                     m_website = website;
                 }
-                inline timestamp begin_msec() {
+                timestamp begin_msec() {
                     return m_begin_msec;
                 }
-                inline std::string exec_msec() {
+                std::string exec_msec() {
                     return std::to_string(time::now_msec() - m_begin_msec);
                 }
-                inline std::string& remote() {
+                const std::string& remote() {
                     if (m_remote_ipaddress.empty()) {
                         ushort port;
                         m_server->remote(connid(), m_remote_ipaddress, port);

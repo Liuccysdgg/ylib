@@ -3,6 +3,7 @@
 #if USE_NET_HTTP_WEBSITE
 #include <functional>
 #include <map>
+using namespace ylib::network::http;
 namespace ylib
 {
     namespace network

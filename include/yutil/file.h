@@ -16,7 +16,7 @@ namespace ylib
 		/**
 		 * @brief 删除文件
 		 * @param filepath
-		 * @return
+		 * @return 
 		 */
 		bool remove(const std::string& filepath);
 		/**
@@ -119,6 +119,9 @@ namespace ylib
 
 		// 格式化目录
 		std::string format_separator(const std::string& filepath);
+
+		// 最后修改时间
+		timestamp last_write_time(const std::string& filepath);
 
 	}
 	class file_io :public ylib::error_base

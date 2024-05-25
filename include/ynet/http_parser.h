@@ -8,7 +8,7 @@ namespace ylib
     {
         namespace http
         {
-            class parser;
+            class parser; 
             /*************************************************************************
              * class：FORM表单解析器
              *************************************************************************/
@@ -82,6 +82,9 @@ namespace ylib
                  * function：取BODY请求参数名列表
                  ******************************************************************/
                 form_parser* form();
+
+                const std::map<std::string, std::string>& url_param() { return m_url_param; }
+                const std::map<std::string, std::string>& body_param() { return m_body_param; }
             private:
                 /******************************************************************
                  * function：解析URL
@@ -99,6 +102,9 @@ namespace ylib
                  * function：解析URL格式数据
                  ******************************************************************/
                 bool read_url_param(const std::map<std::string, std::string>& map, const std::string& name, std::string& value);
+
+
+ 
             private:
                 // URL参数
                 std::map<std::string, std::string> m_url_param;

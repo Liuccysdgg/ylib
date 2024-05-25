@@ -23,3 +23,7 @@ target_link_libraries(${LIBRARY_NAME} PRIVATE kernel32.lib Shell32.lib)
 else()
 target_link_libraries(${LIBRARY_NAME} PRIVATE m)
 endif()
+
+
+# 设置 Visual Studio 中的文件夹
+set_property(TARGET ${LIBRARY_NAME} PROPERTY FOLDER "3rdparty")

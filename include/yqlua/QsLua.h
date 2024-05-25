@@ -1,5 +1,4 @@
 #pragma once
-#include <QtWidgets/qwidget.h>
 #include <string>
 #include <functional>
 #include <Kaguya/kaguya.hpp>

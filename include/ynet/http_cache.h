@@ -14,7 +14,7 @@ namespace ylib
             public:
                 cache();
                 ~cache();
-                bool start(const ylib::json& config);
+                bool start(const server_cache_config& config);
                 void stop();
                 bool have_send(network::http::reqpack* rp);
                 bool enable();
@@ -24,12 +24,7 @@ namespace ylib
 
                 std::string make_cache_filepath(const std::string& filepath);
             private:
-                bool m_enable;
-                std::string m_filepath;
-
-                std::vector<std::string> m_exts;
-
-                timestamp m_timeout_min;
+                server_cache_config m_config;
 
                 ylib::map<std::string, std::string> m_keys;
             };

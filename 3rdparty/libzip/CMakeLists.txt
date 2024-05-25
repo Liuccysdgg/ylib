@@ -18,3 +18,5 @@ add_library(${LIBRARY_NAME} ${SOURCE_FILES})
 # 将包含目录与目标相关联，这样只有在编译此库时才会包含这些目录
 target_include_directories(${LIBRARY_NAME} PUBLIC "${PROJECT_SOURCE_DIR}/3rdparty/${LIBRARY_NAME}")
 
+# 设置 Visual Studio 中的文件夹
+set_property(TARGET ${LIBRARY_NAME} PROPERTY FOLDER "3rdparty")

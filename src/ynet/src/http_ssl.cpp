@@ -6,18 +6,16 @@
 #include "yutil/file.h"
 
 #define HPSERVER ((IHttpServer*)m_server->hpserver())
-ylib::network::http::ssl::ssl(network::http::server* server,ssl_verify_type verify_type, const std::string& pem_cert, const std::string& pem_key, const std::string& pem_ca, const std::string& password)
+ylib::network::http::ssl::ssl(network::http::server* server, ssl_config config):m_config(config)
 {
-	m_verify_type = verify_type;
-	m_pem_cert =  ylib::file::read(pem_cert).to_string();
-	m_pem_key = ylib::file::read(pem_key).to_string();
-	m_pem_ca = ylib::file::read(pem_ca).to_string();
-	if (m_pem_cert.empty())
-		ylib::log->warn("ssl cert is empty,filepath:"+pem_cert);
-	if (m_pem_key.empty())
-		ylib::log->warn("ssl key is empty,filepath:" + pem_key);
 
-	m_pem_password = password;
+	m_pem_cert_data =  ylib::file::read(m_config.pem_cert).to_string();
+	m_pem_key_data = ylib::file::read(m_config.pem_key).to_string();
+	m_pem_ca_data = ylib::file::read(m_config.pem_ca).to_string();
+	if (m_pem_cert_data.empty())
+		ylib::log->warn("ssl cert is empty,filepath:"+ m_config.pem_cert);
+	if (m_pem_key_data.empty())
+		ylib::log->warn("ssl key is empty,filepath:" + m_config.pem_key);
 	m_server = server;
 	m_index = -1;
 }          
@@ -34,21 +32,21 @@ bool ylib::network::http::ssl::regist()
     if(m_server->m_init_ssl == false){
         m_server->m_init_ssl = true;
         if (HPSERVER->SetupSSLContextByMemory(
-                                              (EnSSLVerifyMode)m_verify_type,
-                                              m_pem_cert.c_str(),
-                                              m_pem_key.c_str(),
-                                              m_pem_password.c_str(),
-											  m_pem_ca.c_str()) == false)
+                                              (EnSSLVerifyMode)m_config.type,
+                                              m_pem_cert_data.c_str(),
+                                              m_pem_key_data.c_str(),
+                                              m_config.pem_password.c_str(),
+											  m_config.pem_ca.c_str()) == false)
         {
             m_lastErrorDesc = "SetupSSLContextByMemory Failed, code:"+std::to_string((uint64)SYS_GetLastError());
             return false;
         }
 
     }
-	m_index = HPSERVER->AddSSLContextByMemory((EnSSLVerifyMode)m_verify_type,
-		m_pem_cert.c_str(),
-		m_pem_key.c_str(),
-		m_pem_password.c_str());
+	m_index = HPSERVER->AddSSLContextByMemory((EnSSLVerifyMode)m_config.type,
+		m_pem_cert_data.c_str(),
+		m_pem_key_data.c_str(),
+		m_config.pem_password.c_str());
 	if(m_index < 0)
 	{
         m_lastErrorDesc = "AddSSLContextByMemory Failed, code:" + std::to_string((uint64)SYS_GetLastError());

@@ -137,7 +137,7 @@ namespace ylib {
                 delete ((EXAMPLE*)example);
             }
         }
-
+        void* get_ptr() { return (void*)get(); }
         EXAMPLE* get()
         {
             std::unique_lock<std::mutex> sp(m_mutex);

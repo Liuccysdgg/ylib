@@ -15,3 +15,7 @@ target_include_directories(${LIBRARY_NAME} PUBLIC "${PROJECT_SOURCE_DIR}/3rdpart
 # 如果需要，可以设置C++标准
 # target_compile_features(${LIBRARY_NAME} PUBLIC cxx_std_11)
 add_subdirectory(luac)
+
+
+# 设置 Visual Studio 中的文件夹
+set_property(TARGET ${LIBRARY_NAME} PROPERTY FOLDER "3rdparty")

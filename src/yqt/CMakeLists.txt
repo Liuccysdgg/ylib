@@ -13,7 +13,6 @@ if(MSVC)
     add_library(${LIBRARY_NAME} ${SOURCE_FILES})
 
     
-    if(CMAKE_GENERATOR_PLATFORM STREQUAL "Win32")
         # 为Debug配置设置特定的include目录
         target_include_directories(${LIBRARY_NAME} PUBLIC 
             $<$<CONFIG:Debug>:${PROJECT_SOURCE_DIR}/3rdparty/qt/include>)
@@ -33,9 +32,10 @@ if(MSVC)
         # 为ReleaseMT配置设置特定的include目录
         target_include_directories(${LIBRARY_NAME} PUBLIC 
             $<$<CONFIG:ReleaseMT>:${PROJECT_SOURCE_DIR}/3rdparty/qt/include>)
-    endif()
 endif()
 
 
 ########################  安装  ########################
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+
+set_property(TARGET ${LIBRARY_NAME} PROPERTY FOLDER "core")

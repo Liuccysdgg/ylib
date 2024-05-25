@@ -8,6 +8,7 @@
 #include "yutil/array.hpp"
 #include "yutil/queue.hpp"
 #include "yutil/thread.h"
+//#include "sol/sol.hpp"
 class IHPThreadPool;
 namespace ylib
 {
@@ -42,6 +43,12 @@ namespace ylib
                 std::function<void* ()> create_controller_callback;
                 // 控制器函数
                 HTTP_CTR_FUNCTION controller_function;
+#if HTTP_LUA_ENGINE == 1
+                // LUA
+                std::string lua_filepath;
+                // LUA虚拟机初始化回调
+                std::function<void(sol::state& state)> lua_init_state;
+#endif
             };
             /*************************************************************************
              * class：路由中专服务
@@ -67,7 +74,7 @@ namespace ylib
                  * return：
                  *      失败可通过 last_error() 返回错误信息。
                  ******************************************************************/
-                bool start(const ylib::json& config);
+                bool start(const router_config& config);
                 /******************************************************************
                  * function：关闭
                  ******************************************************************/
@@ -98,8 +105,15 @@ namespace ylib
                     network::http::HTTP_CTR_FUNCTION function,
                     std::string path,
                     network::http::method method
+                ); 
+#if HTTP_LUA_ENGINE == 1
+                void subscribe(
+                    const std::string& lua_filepath,
+                    std::string path,
+                    network::http::method method,
+                    std::function<void(sol::state& state)> init_state = nullptr
                 );
-
+#endif
                 /******************************************************************
                  * function：其它
                  * desc：未订阅请求触发该回调
@@ -136,6 +150,10 @@ namespace ylib
                 bool is_proxy(reqpack* rp);
                 // 是否为CDN服务
                 bool is_cdn(reqpack* rp);
+#if HTTP_LUA_ENGINE == 1
+                // LUA执行
+                void lua_engine(reqpack *rp,const network::http::subscribe_info& info);
+#endif
             private:
                 // 订阅列表
                 ylib::nolock_array<network::http::subscribe_info*> m_subscribe;
@@ -151,6 +169,7 @@ namespace ylib
                 network::http::interceptor* m_interceptor;
             private:
                 ylib::queue<network::http::reqpack*> m_handle_queue;
+                router_config m_config;
                 // 通过 ithread 继承
                 virtual bool run() override;
             };

@@ -14,6 +14,10 @@
 #include "ynet/http_cdn.h"
 #include "HPSocket/HPSocket.h"
 #include "yutil/system.h"
+#if HTTP_LUA_ENGINE == 1
+#include "httplua/Lrequest.h"
+#include "httplua/Lresponse.h"
+#endif
 ylib::network::http::router::router()
 {
     
@@ -27,19 +31,18 @@ ylib::network::http::router::~router()
     delete m_interceptor;
 }
 
-bool network::http::router::start(const ylib::json &config)
+bool network::http::router::start(const router_config &config)
 {
+    m_config = config;
     //启动线程池
     {
-        uint32 thread_size = config["threadpool"]["size"].to<uint32>();
-        uint32 queue_max = config["threadpool"]["queuemax"].to<uint32>();
-        if (thread_size > 1)
+        if (m_config.threadpool.size > 1)
         {
             m_threadpool = HP_Create_ThreadPool();
             if (this->m_threadpool->Start(
-                thread_size,
-                queue_max,
-                queue_max == 0 ? TRP_WAIT_FOR : TRP_CALL_FAIL, 0) == false)
+                m_config.threadpool.size,
+                m_config.threadpool.queuemax,
+                m_config.threadpool.queuemax == 0 ? TRP_WAIT_FOR : TRP_CALL_FAIL, 0) == false)
             {
                 //销毁Socket任务线程池
                 HP_Destroy_ThreadPool(this->m_threadpool);
@@ -100,7 +103,22 @@ void network::http::router::subscribe(
     svie->create_controller_callback = create_controller_callback;
     svie->controller_function = function;
     m_subscribe.append(svie);
-};
+}
+#if HTTP_LUA_ENGINE == 1
+void ylib::network::http::router::subscribe(const std::string& lua_filepath, std::string path, network::http::method method, std::function<void(sol::state& state)> init_state)
+{
+#if HTTP_ROUTER_PRINT == 1
+    ylib::log->info("[subscribe][ctl][lua] express:" + path + " method:" + method_to_string(method), "router");
+#endif
+    network::http::subscribe_info* svie = new network::http::subscribe_info;
+    svie->controller = false;
+    svie->method = method;
+    svie->express = std::regex(path.c_str());
+    svie->lua_filepath = lua_filepath;
+    svie->lua_init_state = init_state;
+    m_subscribe.append(svie);
+}
+#endif
 void network::http::router::other(std::function<void(network::http::request*,network::http::response*)> callback)
 {
     this->m_callback_other = callback;
@@ -140,12 +158,21 @@ void ylib::network::http::router::__thread_callback(reqpack* rp)
         return;
     /*===============正常请求=================*/
     //拦截器过滤
+    try
     {
         if (m_interceptor->trigger(rp->filepath(), rp) == false)
         {
             // 已拒绝继续执行
             return;
         }
+    }
+    catch (const std::exception& e)
+    {
+#if HTTP_ROUTER_PRINT == 1
+        // 通用异常返回
+        ylib::log->error("(interceptor)business processing exception:" + std::string(e.what()) + ", url:" + rp->filepath() + " ip:" + rp->request()->remote_ipaddress(true), "router");
+#endif
+        rp->response()->send((std::string)e.what(), 500, "Internal Server Error");
     }
     bool execed = false;
     for(size_t i=0;i<m_subscribe.m_count;i++){
@@ -168,13 +195,22 @@ void ylib::network::http::router::__thread_callback(reqpack* rp)
                 else
                 {
                     //普通回调
-                    sub->callback(rp->request(), rp->response());
+                    if (sub->callback != nullptr)
+                    {
+                        sub->callback(rp->request(), rp->response());
+                    }
+                    else
+                    {
+#if HTTP_LUA_ENGINE == 1
+                        lua_engine(rp,*sub);
+#endif
+                    }
                 }
 #if HTTP_ROUTER_PRINT == 1
                 ylib::log->info("["+rp->exec_msec()+" ms] controller url:"+rp->filepath()+" ip:"+rp->request()->remote_ipaddress(true),"router"); 
 #endif
             }
-            catch (const ylib::exception& e)
+            catch (const std::exception& e)
             {
 #if HTTP_ROUTER_PRINT == 1
                 // 通用异常返回
@@ -191,7 +227,7 @@ void ylib::network::http::router::__thread_callback(reqpack* rp)
         //其它回调
         if (m_callback_other != nullptr) {
             m_callback_other(rp->request(), rp->response());
-        }else{
+        }else{ 
             std::string filepath = rp->request()->filepath();
             if(filepath == "/")
                 filepath = "/index.html";
@@ -214,9 +250,9 @@ void ylib::network::http::router::push(reqpack *rp)
 bool ylib::network::http::router::is_cdn(reqpack* rp)
 {
     auto cdn = rp->website()->cdn();
-    if(cdn->enable() == false)
+    if(cdn->config().enable == false)
         return false;
-    if(cdn->manager() == false)
+    if(cdn->config().manager == false)
         return false;
     std::string move_url = cdn->host();
     if(move_url.empty()){
@@ -227,6 +263,38 @@ bool ylib::network::http::router::is_cdn(reqpack* rp)
     rp->response()->redirect(move_url,true);
     return true;
 }
+#if HTTP_LUA_ENGINE == 1
+void ylib::network::http::router::lua_engine(reqpack* rp, const network::http::subscribe_info& sub)
+{
+    sol::state lua;
+    if (sub.lua_init_state != nullptr)
+    {
+        sub.lua_init_state(lua);
+    }
+    
+    try {
+        lua.open_libraries(sol::lib::base);
+        sol::protected_function_result result = lua.script_file(sub.lua_filepath, sol::script_pass_on_error);  // 尝试加载并执行脚本
+        if (!result.valid()) {
+            sol::error err = result;
+            throw ylib::exception(err.what());
+        }
+        Lrequest request(rp->request());
+        Lresponse response(rp->response());
+        request.regist(&lua);
+        response.regist(&lua);
+
+        result = lua["access"](request, response);
+        if (!result.valid()) {
+            sol::error err = result;
+            throw ylib::exception(err.what());
+        }
+    }
+    catch (const sol::error& err) {
+        throw ylib::exception(err.what());
+    }
+}
+#endif
 bool ylib::network::http::router::is_proxy(reqpack* rp)
 {
 #if USE_NET_HTTP_AGENT == 1

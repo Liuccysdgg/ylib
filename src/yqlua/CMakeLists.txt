@@ -36,3 +36,5 @@ endif()
 
 ########################  安装  ########################
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+
+set_property(TARGET ${LIBRARY_NAME} PROPERTY FOLDER "core")

@@ -18,6 +18,11 @@
 #define PREPARE_STATEMENT ((sql::PreparedStatement*)m_handle)
 #define RESULT_SET ((sql::ResultSet*)m_handle)
 #define OPTS (*(sql::ConnectOptionsMap*)m_opts)
+
+
+
+#define DEBUG_LOG_PPST_SET 1
+#define DEBUG_LOG_SETSQL 1
 ylib::mysql::conn::conn()
 {
     m_handle = nullptr;
@@ -116,7 +121,7 @@ void ylib::mysql::conn::task_out()
 {
     try
     {
-        if(m_sw != 0 || CONNECTION->isValid() == false){
+        if(m_sw != 0 || CONNECTION->isValid() == false) {
             close();
             if (start(m_info) == false)
             {
@@ -141,6 +146,9 @@ void ylib::mysql::conn::clear()
 
 ylib::mysql::prepare_statement* ylib::mysql::conn::setsql(const std::string &sql)
 {
+#if DEBUG_LOG_SETSQL == 1
+    std::cout << "setsql : " << sql << std::endl;
+#endif
     CHECK_SQL_CONNECTION;
     clear();
     m_ppst = new prepare_statement;
@@ -263,7 +271,9 @@ void ylib::mysql::prepare_statement::set_bigint(uint32 index, const std::string 
     CHECK_SQL_PPST;
     PRINT_DEBUG_SET_NSTRING;
     PREPARE_STATEMENT->setBigInt(index,value.c_str());
-
+#if DEBUG_LOG_PPST_SET == 1
+    std::cout << "set " << index << " = " << value << std::endl;
+#endif
     //PREPARE_STATEMENT->insert
 }
 
@@ -272,6 +282,9 @@ void ylib::mysql::prepare_statement::set_boolean(uint32 index, bool value)
     CHECK_SQL_PPST;
     PRINT_DEBUG_SET;
     PREPARE_STATEMENT->setBoolean(index,value);
+#if DEBUG_LOG_PPST_SET == 1
+    std::cout << "set " << index << " = " << value << std::endl;
+#endif
 }
 
 void ylib::mysql::prepare_statement::set_datetime(uint32 index, const std::string &value)
@@ -286,6 +299,9 @@ void ylib::mysql::prepare_statement::set_datetime(uint32 index, const std::strin
     {
         PREPARE_STATEMENT->setDateTime(index, value.c_str());
     }
+#if DEBUG_LOG_PPST_SET == 1
+    std::cout << "set " << index << " = " << value << std::endl;
+#endif
 }
 
 void ylib::mysql::prepare_statement::set_double(uint32 index, double value)
@@ -293,6 +309,9 @@ void ylib::mysql::prepare_statement::set_double(uint32 index, double value)
     CHECK_SQL_PPST;
     PRINT_DEBUG_SET;
     PREPARE_STATEMENT->setDouble(index,value);
+#if DEBUG_LOG_PPST_SET == 1
+    std::cout << "set " << index << " = " << value << std::endl;
+#endif
 }
 
 void ylib::mysql::prepare_statement::set_int32(uint32 index, int32 value)
@@ -300,6 +319,9 @@ void ylib::mysql::prepare_statement::set_int32(uint32 index, int32 value)
     CHECK_SQL_PPST;
     PRINT_DEBUG_SET;
     PREPARE_STATEMENT->setInt(index,value);
+#if DEBUG_LOG_PPST_SET == 1
+    std::cout << "set " << index << " = " << value << std::endl;
+#endif
 }
 
 void ylib::mysql::prepare_statement::set_uint32(uint32 index, uint32 value)
@@ -307,6 +329,9 @@ void ylib::mysql::prepare_statement::set_uint32(uint32 index, uint32 value)
     CHECK_SQL_PPST;
     PRINT_DEBUG_SET;
     PREPARE_STATEMENT->setUInt(index,value);
+#if DEBUG_LOG_PPST_SET == 1
+    std::cout << "set " << index << " = " << value << std::endl;
+#endif
 }
 
 void ylib::mysql::prepare_statement::set_int64(uint32 index, int64 value)
@@ -314,6 +339,9 @@ void ylib::mysql::prepare_statement::set_int64(uint32 index, int64 value)
     CHECK_SQL_PPST;
     PRINT_DEBUG_SET;
     PREPARE_STATEMENT->setInt64(index,value);
+#if DEBUG_LOG_PPST_SET == 1
+    std::cout << "set " << index << " = " << value << std::endl;
+#endif
 }
 
 void ylib::mysql::prepare_statement::set_uint64(uint32 index, uint64 value)
@@ -321,6 +349,9 @@ void ylib::mysql::prepare_statement::set_uint64(uint32 index, uint64 value)
     CHECK_SQL_PPST;
     PRINT_DEBUG_SET;
     PREPARE_STATEMENT->setUInt64(index,value);
+#if DEBUG_LOG_PPST_SET == 1
+    std::cout << "set " << index << " = " << value << std::endl;
+#endif
 }
 
 void ylib::mysql::prepare_statement::set_null(uint32 index)
@@ -334,6 +365,9 @@ void ylib::mysql::prepare_statement::set_string(uint32 index, const std::string 
     CHECK_SQL_PPST;
     PRINT_DEBUG_SET_NSTRING;
     PREPARE_STATEMENT->setString(index,value.c_str());
+#if DEBUG_LOG_PPST_SET == 1
+    std::cout << "set " << index << " = " << value << std::endl;
+#endif
 }
 void ylib::mysql::prepare_statement::set_blob(uint32 index, const ylib::buffer& value)
 {
@@ -341,6 +375,9 @@ void ylib::mysql::prepare_statement::set_blob(uint32 index, const ylib::buffer& 
     PRINT_DEBUG_SET_NSTRING;
     std::istringstream binaryDataStream(value.to_string());
     PREPARE_STATEMENT->setBlob(index, &binaryDataStream);
+#if DEBUG_LOG_PPST_SET == 1
+    std::cout << "set " << index << " = " << value.length()<<"(BLOB)" << std::endl;
+#endif
 }
 
 void ylib::mysql::prepare_statement::clear()
@@ -404,6 +441,20 @@ ylib::mysql::result::~result()
         delete RESULT_SET;
     }
 
+}
+
+std::string ylib::mysql::result::field_name(uint32 index)
+{
+    return RESULT_SET->getMetaData()->getColumnName(index);
+}
+
+ylib::mysql::field ylib::mysql::result::field(uint32 index)
+{
+    ylib::mysql::field result;
+    result.index = index;
+    result.name = RESULT_SET->getMetaData()->getColumnName(index).c_str();
+    result.type_name = strutils::change_case(RESULT_SET->getMetaData()->getColumnTypeName(index).c_str(), false);
+    return result;
 }
 
 uint32 ylib::mysql::result::field_count()

@@ -19,9 +19,9 @@ namespace ylib
              ********************************************************************/
             class request :public network::http::interface_
             {
-            public:
+            public: 
                 request();
-                ~request();
+                ~request(); 
 
                 /***************************************************************************
                  * function：取协议头
@@ -44,13 +44,16 @@ namespace ylib
                  ***************************************************************************/
                 std::string host();
                 /***************************************************************************
-                 * function：取Cookie
-                 ***************************************************************************/
-                bool cookie(const std::string& name, std::string& value);
-                /***************************************************************************
                  * function：取Session
                  ***************************************************************************/
-                network::http::session* session(const std::string& name);
+                network::http::session& session(const std::string& session_id);
+                /// <summary>
+                /// 取TOKEN
+                /// </summary>
+                /// <returns></returns>
+                std::string token();
+
+
                 /***************************************************************************
                  * function：取reqpack
                  ***************************************************************************/
@@ -67,7 +70,7 @@ namespace ylib
                 friend class reqpack;
             private:
                 network::http::reqpack* m_reqpack;
-                network::http::session* m_session;
+                network::http::session m_session;
                 network::http::parser m_parser;
             };
         }

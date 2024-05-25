@@ -13,7 +13,7 @@
 #include "yutil/strutils.h"
 #include "yutil/time.h"
 #include "yutil/system.h"
-#define _DEBUG_CLIENT 0
+#define _DEBUG_CLIENT 1
 
 
 #define CLIENT ((IHttpClient*)client()) 
@@ -79,6 +79,7 @@ public:
 #if  _DEBUG_CLIENT == 1
 		std::cout << "[OnHeadersComplete]"<< std::endl;
 #endif
+		//m_recv_state = 1;
 		return HPR_OK;
 	}
 	std::string dec2hex(int i) //将int转成16进制字符串
@@ -203,7 +204,7 @@ public:
 	virtual EnHandleResult OnSend(ITcpClient* pSender, CONNID dwConnID, const BYTE* pData, int iLength) override
 	{
 #if  _DEBUG_CLIENT == 1
-		std::cout << "[OnSend]:\t Length:"<< iLength<<" dwConnID:" << dwConnID << std::endl;
+		std::cout << "[OnSend]:\t Length:"<< iLength<<" dwConnID:" << dwConnID  << std::endl;
 #endif
 		if(m_client->m_close == true)
 			return EnHandleResult::HR_ERROR;
@@ -259,9 +260,9 @@ public:
 	// 客户端
 	network::http::client_plus *m_client;
 	// 0=已断开 1=连接中 2=已连接
-	int m_connect_state;
+	int m_connect_state = 0;
 	// 0=请求中 1=接收成功 2=请求失败
-	int m_recv_state;
+	int m_recv_state = 0;
 	// 返回数据
 	ylib::buffer m_response_body;
 	// [header] 响应
@@ -393,6 +394,11 @@ bool ylib::network::http::client_plus::head(const std::string& url)
 		return false;
 	return request();
 }
+void ylib::network::http::client_plus::setproxy(const std::string& address, ushort port)
+{
+	m_proxy.address = address;
+	m_proxy.port = port;
+}
 network::http::header_list& ylib::network::http::client_plus::headers_request()
 {
 	// TODO: 在此处插入 return 语句
@@ -415,8 +421,9 @@ void ylib::network::http::client_plus::cache(client_cache* cache)
 {
 	m_cache = cache;
 }
-bool ylib::network::http::client_plus::parseurl(const std::string& url)
+bool ylib::network::http::client_plus::parseurl(std::string url)
 {
+	url = strutils::trim_end(url, { '/','\\'});
     if (strutils::left(url,7) == "http://")
 		m_ssl = false;
     else if (strutils::left(url,8) == "https://")
@@ -467,6 +474,8 @@ bool ylib::network::http::client_plus::parseurl(const std::string& url)
         m_port = (ushort)ylib::stoi(arr[1]);
 	}
 	m_ipaddress = pu;// network::to_ip(pu);
+	/*if (m_proxy.address != "")
+		m_ssl = false;*/
 //    if (m_ssl)
 //	{
 //		std::cout << "The hpsocket does not support the https protocol. Please define a LIB_ HPSOCKET_ SSL Macro" << std::endl;
@@ -475,9 +484,18 @@ bool ylib::network::http::client_plus::parseurl(const std::string& url)
 }
 bool ylib::network::http::client_plus::connect()
 {
+	if (m_listener->m_connect_state == 2)
+		return true;
+
 	m_close = false;
 	m_listener->m_connect_state = 1;
-	if (CLIENT->Start(m_ipaddress.c_str(), m_port) == false)
+	bool connect_result = false;
+	if (m_proxy.address == "")
+		connect_result = CLIENT->Start(m_ipaddress.c_str(), m_port);
+	else
+		connect_result = CLIENT->Start(m_proxy.address.c_str(), m_proxy.port);
+
+	if (connect_result == false)
     {
         m_lastErrorDesc = std::string("start failed," + std::to_string((uint64)SYS_GetLastError()));
 		return false;
@@ -492,8 +510,10 @@ bool ylib::network::http::client_plus::connect()
 			return false;
 		}
 	}
-		
-	return m_listener->m_connect_state == 2;
+	if(m_proxy.address == "")
+		return m_listener->m_connect_state == 2;
+
+	return init_proxy();
 }
 bool ylib::network::http::client_plus::init()
 {
@@ -561,7 +581,14 @@ bool ylib::network::http::client_plus::request()
 		if (m_headers_request.exist("Accept-Language") == false)
 			m_headers_request.set("Accept-Language", "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2");
 		if (m_headers_request.exist("Connection") == false)
-			m_headers_request.set("Connection", "keep-alive");
+		{
+			if(m_proxy.address == "")
+				m_headers_request.set("Connection", "keep-alive");
+			else
+				m_headers_request.set("Connection", "close");
+		}
+		if (m_headers_request.exist("Host") == false)
+			m_headers_request.set("Host", m_ipaddress);
 	}
 
 	THeader* pHeader = nullptr;
@@ -650,6 +677,42 @@ void* ylib::network::http::client_plus::client()
 	}
 	else
 		return m_client;
+}
+bool ylib::network::http::client_plus::init_proxy()
+{
+	std::string path = m_ipaddress+":"+std::to_string(m_port);
+
+	THeader header[2];
+	header[0].name = "Host";
+	header[0].value = path.c_str();
+	header[1].name = "Proxy-Connection";
+	header[1].value = "keep-alive";
+
+
+	bool result = CLIENT->SendRequest("CONNECT",path.c_str(),header,2);
+	if (result == false)
+	{
+		uint64 error = SYS_GetLastError();
+		m_lastErrorDesc = std::string("proxy request failed," + std::to_string((uint64)error));
+		return false;
+	}
+	if (m_request_wait == false)
+		return true;
+
+	timestamp start_msec = time::now_msec();
+	while (m_listener->m_recv_state == 0)
+	{
+		system::sleep_msec(10);
+		if (start_msec + m_timeout_recv_msec < time::now_msec())
+		{
+			m_lastErrorDesc = "recv timed out";
+			return false;
+		}
+	}
+	result = m_listener->m_recv_state == 1;
+	if (!result)
+		return false;
+	return m_listener->m_status == 200;
 }
 void ylib::network::http::client_plus::on_down_ing(const std::function<bool(void* data, uint32 downsize, uint64 alldownsize, uint64 allsize, ylib::network::http::client_plus& client) > & callback)
 { m_listener->m_download_callback = callback; }

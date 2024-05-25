@@ -74,33 +74,6 @@ bool ylib::network::http::response::send(const char* buf, size_t buf_len, ushort
     {
         HEADER_SET("Content-Type", "text/html");
         HEADER_SET("Content-Length", std::to_string((uint64)view.length()));
-
-        // 设置默认编码
-        {
-            if (m_reqpack->website()->info()->default_codec != "")
-            {
-                std::string value;
-                auto iter = m_headers.find("Content-Type");
-                if (iter == m_headers.end() && iter->second.empty())
-                    iter->second = "charset=" + m_reqpack->website()->info()->default_codec;
-                else
-                {
-                    if (value.find("charset") == -1)
-                        iter->second += "; charset=" + m_reqpack->website()->info()->default_codec;
-                }
-
-
-            }
-        }
-        // 系统默认协议头
-        {
-//						auto m = m_server->get_default_response_header().to();
-//						for_iter(iter, m)
-//						{
-//							if (m_headers.exist(iter->first) == false)
-//								m_headers.set(iter->first, iter->second);
-//						}
-        }
     }
 
 
@@ -139,17 +112,13 @@ bool ylib::network::http::response::send(const ylib::json& json, ushort stateNum
     return send(json.to_string(), stateNum, stateDesc);
 }
 
-bool ylib::network::http::response::send_file(const std::string& filepath, int32 downbaud,bool rootdir)
+bool ylib::network::http::response::send_file(const std::string& filepath, int32 downbaud, ushort stateNum, const std::string& stateDesc)
 {
     std::string filepath2;
-    if(rootdir)
-        filepath2.append(m_reqpack->website()->info()->rootdir);
     filepath2.append(filepath);
     if(m_response == true)
         return false;
 
-    ushort stateCode = 0;
-    std::string stateDesc;
     long filesize = 0;
     time_t last_modify_time = 0;
 
@@ -164,16 +133,16 @@ bool ylib::network::http::response::send_file(const std::string& filepath, int32
     }
     // 设置为已发送
     m_response = true;
-    if (filesize != 0)
-    {
-        stateCode = 200;
-        stateDesc = "OK";
-    }
-    else
-    {
-        stateCode = 404;
-        stateDesc = "Not Found";
-    }
+    //if (filesize != 0)
+    //{
+    //    stateCode = 200;
+    //    stateDesc = "OK";
+    //}
+    //else
+    //{
+    //    stateCode = 404;
+    //    stateDesc = "Not Found";
+    //}
 
     //合成必要头
 
@@ -204,7 +173,7 @@ bool ylib::network::http::response::send_file(const std::string& filepath, int32
     long start = 0, len = 0;
     if(direct_send == false){
         if (fileoffset(filesize, start, len))
-            stateCode = 206;
+            stateNum = 206;
         if (m_headers.find("Transfer-Encoding") == m_headers.end())
         {
             HEADER_SET("Content-Length", std::to_string((uint64)len));
@@ -215,7 +184,7 @@ bool ylib::network::http::response::send_file(const std::string& filepath, int32
         if (m_headers.find("Transfer-Encoding") == m_headers.end())
         {
             //GZIP
-            if (m_reqpack->website()->info()->gzip) {
+            if (m_reqpack->website()->config().gzip) {
                 send_data = codec::gzip::en(send_data);
                 HEADER_SET("Content-Encoding", "gzip");
                 HEADER_SET("Content-Length", std::to_string((int64)send_data.length()));
@@ -236,7 +205,7 @@ bool ylib::network::http::response::send_file(const std::string& filepath, int32
             headers[idx].value = iter->second.c_str();
             idx++;
         }
-        if (!HPSERVER->SendResponse((CONNID)m_reqpack->connid(), stateCode, stateDesc.c_str(), headers, (int)m_headers.size()))
+        if (!HPSERVER->SendResponse((CONNID)m_reqpack->connid(), stateNum, stateDesc.c_str(), headers, (int)m_headers.size()))
         {
             delete[] headers;
             return false;
@@ -257,13 +226,6 @@ bool ylib::network::http::response::send_file(const std::string& filepath, int32
     /***************计算发送文件**************/
     //读取块大小
     long blocksize = 0;
-    if (downbaud == -1)
-    {
-        downbaud = m_reqpack->website()->info()->download_maxbaud;
-        if (downbaud <= 0)
-            downbaud = -1;
-    }
-
 
     if (downbaud == -1)
         blocksize = 4096;

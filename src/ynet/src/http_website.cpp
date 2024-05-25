@@ -12,7 +12,7 @@
 ylib::network::http::website::website()
 {
     m_https = false;
-    m_session = new network::http::session_mgr;
+    m_session_local_storage = new ylib::local_storage();
     m_router = new network::http::router;
     m_cache = new network::http::cache;
     m_cdn = new network::http::cdn();
@@ -22,65 +22,51 @@ ylib::network::http::website::website()
 
 ylib::network::http::website::~website()
 {
-    //delete m_agent;
-    delete m_session;
     delete m_router;
     delete m_cache;
     delete m_cdn;
+    delete m_session_local_storage;
 }
 
-bool ylib::network::http::website::start(const ylib::json& config)
+bool ylib::network::http::website::start(const website_config& config)
 {
+    m_config = config;
 
-
-    m_session->center(center());
+    //m_session_local_storage->center(center());
     m_router->center(center());
     m_cache->center(center());
     m_cdn->center(center());
     m_cdn->website(this);
-    m_name = config["name"].to<std::string>();
 
-    auto find_ssl = [&](const std::string& host)->ylib::json {
-        ylib::json ssl_config = this->center()->config()["ssl"];
-        return ssl_config[host];
+    auto find_ssl = [&](const std::string& host)->ssl_config {
+        auto iter = this->center()->config().cert.find(host);
+        if (this->center()->config().cert.end() == iter)
+            return ssl_config();
+        return iter->second;
     };
     
-    if (config["host"].size() == 0)
+    if (m_config.host.size() == 0)
     {
         m_lastErrorDesc = "Host name needs to be set";
         return false;
     }
     
-    for (size_t i = 0; i < config["host"].size(); i++)
+    for (size_t i = 0; i < m_config.host.size(); i++)
     {
         auto hostpoint = new network::http::host;
-        ylib::json host_config = config["host"][i];
-        std::string host = host_config["host"].to<std::string>();
-        ushort port = 0;
-        {
-            std::string http_type;
-            std::string ipaddress;
-            std::string url_fid;
-            ylib::network::parse_url(host,http_type, host, ipaddress,port, url_fid);
-        }
+
 
         network::http::ssl* ssl = nullptr;
-        if (host_config["ssl"].to<bool>())
+        if (m_config.host[i].ssl)
         {
             m_https = true;
-            ylib::json ssl_config = find_ssl(host);
+            auto ssl_config = find_ssl(m_config.host[i].domain);
 
-            if (ssl_config["enable"].to<bool>() == false)
-                ylib::log->warn("The certificate is not open or does not exist, Host:"+ host);
+            if (ssl_config.enable == false)
+                ylib::log->warn("The certificate is not open or does not exist, Host:"+ m_config.host[i].domain);
             else
             {
-                ssl = new network::http::ssl(
-                    center()->server(port),
-                    (network::http::ssl_verify_type)host_config["ssl_type"].to<int>(),
-                    ssl_config["pem_cert"].to<std::string>(),
-                    ssl_config["pem_key"].to<std::string>(),
-                    ssl_config["pem_ca"].to<std::string>(),
-                    ssl_config["pem_password"].to<std::string>());
+                ssl = new network::http::ssl(center()->server(m_config.host[i].port),ssl_config);
                 /*注册SSL*/
                 if (ssl->regist() == false)
                 {
@@ -91,7 +77,7 @@ bool ylib::network::http::website::start(const ylib::json& config)
                 else
                 {
                     /*绑定SSL*/
-                    if (ssl->bind(host) == false)
+                    if (ssl->bind(m_config.host[i].domain) == false)
                     {
                         ylib::log->warn(ssl->last_error());
                         delete ssl;
@@ -101,27 +87,27 @@ bool ylib::network::http::website::start(const ylib::json& config)
             }
         }
 
-        hostpoint->init(host, port,ssl);
+        hostpoint->init(m_config.host[i].domain, m_config.host[i].port,ssl);
         m_hosts.push_back(hostpoint);
     }
-        if(m_cache->start(config["cache"]) == false)
+        if(m_cache->start(m_config.cache) == false)
     {
          m_lastErrorDesc = m_cache->last_error();
          return false;
 
     }
-    if (m_session->start(config["session"]["path"].to<std::string>(), config["session"]["timeout_sec"].to<uint32>()) == false)
+    if (m_session_local_storage->open(m_config.session.dirpath) == false)
     {
-        m_lastErrorDesc = m_session->last_error();
+        m_lastErrorDesc = "session open failed, dirpath: " + m_config.session.dirpath;
         return false;
     }
-    if (m_router->start(config["router"]) == false)
+    if (m_router->start(m_config.router) == false)
     {
-        m_session->close();
+        m_session_local_storage->close();
         m_lastErrorDesc = m_router->last_error();
         return false;
     }
-    if(m_cdn->start(config["cdn"]) == false)
+    if(m_cdn->start(m_config.cdn) == false)
     {
          m_lastErrorDesc = m_cdn->last_error();
          return false;
@@ -131,20 +117,20 @@ bool ylib::network::http::website::start(const ylib::json& config)
     {
 //        if (m_agent->start())
  //       {
-            for (size_t i = 0; i < config["proxy"].size(); i++)
+            for (size_t i = 0; i < m_config.proxy.size(); i++)
             {
-                ylib::json proxy_cj = config["proxy"][i];
+                auto proxy_cj = m_config.proxy[i];
                 network::http::proxy* proxy = new network::http::proxy;
-                proxy->src_str = proxy_cj["src"].to<std::string>();
+                proxy->src_str = proxy_cj.src;
                 proxy->src_express = std::regex(proxy->src_str.c_str());
-                proxy->dst = proxy_cj["dst"].to<std::string>();
+                proxy->dst = proxy_cj.dst;
 
                 if(proxy->dst == "/"){
                     proxy->dst.clear();
                 }
                 // 解析地址
                 {
-                    proxy->remote_url = proxy_cj["remote"].to<std::string>();
+                    proxy->remote_url = proxy_cj.remote;
                     std::string http_type;
                     std::string http_host;
                     std::string http_ipaddress;
@@ -155,12 +141,10 @@ bool ylib::network::http::website::start(const ylib::json& config)
                     proxy->remote_port = http_port;
                     proxy->ssl = http_type=="https://";
                 }
-                proxy->host = proxy_cj["host"].to<std::string>();
+                proxy->host = proxy_cj.host;
                 // 协议头
-                for (size_t h = 0; h < proxy_cj["headers"]["request"].size(); h++)
-                    proxy->request_headers[proxy_cj["headers"]["request"][h]["key"].to<std::string>()] = proxy_cj["headers"]["request"][h]["value"].to<std::string>();
-                for (size_t h = 0; h < proxy_cj["headers"]["response"].size(); h++)
-                    proxy->response_headers[proxy_cj["headers"]["response"][h]["key"].to<std::string>()] = proxy_cj["headers"]["response"][h]["value"].to<std::string>();
+                proxy->request_headers = proxy_cj.header_request;
+                proxy->response_headers = proxy_cj.header_response;
                 m_proxy.append(proxy);
             }
    //     }
@@ -170,12 +154,6 @@ bool ylib::network::http::website::start(const ylib::json& config)
        // }
         
     }
-
-    m_info.gzip = config["gzip"].to<bool>();
-    m_info.rootdir = config["rootdir"].to<std::string>();
-    m_info.default_codec = config["default_codec"].to<std::string>();
-    m_info.download_maxbaud = config["download_maxbaud"].to<uint32>();
-
     return true;
 }
 
@@ -186,12 +164,6 @@ network::http::router* network::http::website::router()
 {
     return m_router;
 }
-
-network::http::session_mgr* ylib::network::http::website::session()
-{
-    return m_session;
-}
-
 bool ylib::network::http::website::host(const std::string& host)
 {
     for (size_t i = 0; i < m_hosts.size(); i++)
@@ -206,10 +178,5 @@ bool ylib::network::http::website::host(const std::string& host)
 ylib::nolock_array<network::http::proxy*>* ylib::network::http::website::proxy()
 {
     return &m_proxy;
-}
-
-const network::http::website_info* ylib::network::http::website::info()
-{
-    return &m_info;
 }
 #endif

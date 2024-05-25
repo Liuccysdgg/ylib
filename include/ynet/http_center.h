@@ -27,7 +27,6 @@ namespace ylib
 
             class server;
             class router;
-            class session_mgr;
             class website;
 
             /***************************************************************
@@ -42,11 +41,11 @@ namespace ylib
                 /******************************************************************
                  * function：创建
                  * param
-                 *      config                  ：           配置项
+                 *     config                  ：           配置项
                  * return：
                  *      失败可通过 last_error() 返回错误信息。
                  ******************************************************************/
-                bool create(const ylib::json& config);
+                bool create(const start_config& config);
 
                 bool start();
 
@@ -55,19 +54,13 @@ namespace ylib
                  ******************************************************************/
                 void close();
 
-                /******************************************************************
-                 * Function：读配置
-                 * Param
-                 *      name                      ：           名称
-                 * Return
-                 *      配置内容
-                 ******************************************************************/
-                std::string read_config(const std::string& name);
-                inline const ylib::json& config() { return m_json_config; }
                 network::http::server* server(ushort port);
 
                 network::http::website* website(const std::string& host);
                 network::http::website* website_byname(const std::string& name);
+
+
+                const start_config& config() { return m_config; }
             private:
                 //所有监听端口
                 std::vector<ushort> listen_ports();
@@ -79,9 +72,9 @@ namespace ylib
                 // 站点
                 std::vector<network::http::website*> m_website;
                 // 配置缓存
-                ylib::map<std::string, std::string> m_config;
-                // JSON配置
-                ylib::json m_json_config;
+                //ylib::map<std::string, std::string> m_config;
+                // 启动信息
+                start_config m_config;
             public:
                 uint64 m_temp[10];
 

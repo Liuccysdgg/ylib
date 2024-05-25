@@ -4,7 +4,7 @@
 #include "ynet/http_reqpack.h"
 #include "ynet/http_response.h"
 #include "ynet/http_request.h"
-network::http::cnode::cnode(const ylib::json& config){
+network::http::cnode::cnode(const cdn_config::node_config& config){
 
     m_reply_wait_msec = 0;
     m_send_bytes_sec = 0;
@@ -14,16 +14,10 @@ network::http::cnode::cnode(const ylib::json& config){
     m_max_band = 0;
 
 
-    m_host = config["host"].to<std::string>();
-    m_mang_url = "http://"+config["mang"].to<std::string>()+"/info";
-    m_key = config["key"].to<std::string>();
-    std::cout<<"URL:"<<m_mang_url.c_str()<<std::endl;
+    m_mang_url = "http://"+ config.mang_domain+"/info";
 }
 network::http::cnode::~cnode(){}
 
-const std::string& network::http::cnode::host(){
-    return m_host;
-}
 int network::http::cnode::score(){
     if(m_net_status == false)
         return 0;
@@ -31,7 +25,7 @@ int network::http::cnode::score(){
 }
 bool network::http::cnode::update(){
     timestamp start_msec = time::now_msec();
-    m_client.headers_request().set("key",m_key);
+    m_client.headers_request().set("key",m_config.key);
     if(m_client.get(m_mang_url) == false){
         m_net_status = false;
         m_net_errormsg = "connect failed";
@@ -58,8 +52,6 @@ bool network::http::cnode::update(){
 
 network::http::cdn::cdn()
 {
-    m_enable = false;
-    m_manager = false;
     m_cdn_node_max_band = 0;
 }
 network::http::cdn::~cdn()
@@ -71,17 +63,17 @@ network::http::cdn::~cdn()
         delete m_nodes[i];
     }
 }
-bool network::http::cdn::start(const ylib::json& config){
-    m_enable = config["enable"].to<bool>();
-    if(m_enable == false)
+bool network::http::cdn::start(const cdn_config& config){
+    m_config = config;
+
+    if(m_config.enable == false)
         return true;
-    m_manager = config["type"].to<std::string>() == "manager";
-    if(m_manager)
+    if(m_config.manager)
     {
         std::cout<<"CDN:Manager start"<<std::endl;
-        for(size_t i=0;i<config["node"].size();i++) 
+        for(size_t i=0;i< m_config.node.size();i++) 
         {
-            auto n = new cnode(config["node"][i]);
+            auto n = new cnode(m_config.node[i]);
             m_nodes.push_back(n);
         }
 
@@ -89,8 +81,6 @@ bool network::http::cdn::start(const ylib::json& config){
     else
     {
         std::cout<<"CDN:Node start"<<std::endl;
-        m_cdn_node_max_band = config["node"]["max_band"].to<uint64>();
-        m_cdn_node_key = config["node"]["key"].to<std::string>();
         website()->router()->subscribe("/info",network::http::GET,[&](network::http::request* request,network::http::response* response){
             ylib::json rep;
             std::string value_key;
@@ -120,14 +110,14 @@ std::string network::http::cdn::host(){
     for(size_t i=0;i<m_nodes.size();i++)    
     {
         if(m_nodes[i]->score() > score){
-            result_host = m_nodes[i]->host();
+            result_host = m_nodes[i]->config().host;
             score = m_nodes[i]->score();
         }
     }
     return result_host;
 }
 bool network::http::cdn::run(){
-    if(m_manager){
+    if(m_config.manager){
         for(size_t i=0;i<m_nodes.size();i++)
         {
             if(m_nodes[i]->update() == false){

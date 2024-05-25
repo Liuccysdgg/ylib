@@ -6,112 +6,72 @@
 #include "yutil/file.h"
 #include "ynet/http_server.h"
 #include "ynet/http_center.h"
+#include "ynet/http_website.h"
+
+
 ylib::network::http::session::session()
 {
-    m_mgr = nullptr;
+    
 }
+
 ylib::network::http::session::~session()
 {
-    m_mgr->set(m_session_name,*this);
 }
-void ylib::network::http::session::init(const std::string& session_name)
+
+void ylib::network::http::session::init(network::http::website* website, const std::string& id)
 {
-    if (this->m_mgr == nullptr)return;
-
-
-    ::ylib::json::clear();
-    this->m_session_name = session_name;
-    if (this->m_session_name == "")
+    m_website = website;
+    m_id = id;
+    if (m_website == nullptr)
     {
-        this->m_session_name = this->m_mgr->create(this->m_mgr->m_timeout_sec);
-        return;
+        throw exception("session WEBSITE is nullptr");
     }
-    if (this->m_mgr->get(this->m_session_name, *this) == false)
+    if (m_id.empty())
     {
-        this->m_mgr->add(this->m_session_name, this->m_mgr->m_timeout_sec);
+        throw exception("session ID is empty");
     }
-}
-void ylib::network::http::session::destory()
-{
-    this->m_mgr->del(m_session_name);
+    update();
 }
 
-std::string ylib::network::http::session::session_id()
+std::string ylib::network::http::session::id()
 {
-    return m_session_name;
+    return m_id;
 }
+
 void ylib::network::http::session::update()
 {
-    this->m_mgr->update(this->m_session_name, this->m_mgr->m_timeout_sec);
+    if (m_website == nullptr)
+        throw ylib::exception("website is nullptr");
+    m_website->session()->write(m_id+"/update",std::to_string(time::now_sec()+m_website->config().session.timeout_sec));
 }
-ylib::network::http::session_mgr::session_mgr():m_timeout_sec(0)
-{
-    m_cache = nullptr;
-}
-ylib::network::http::session_mgr::~session_mgr()
-{
-    close();
-}
-bool ylib::network::http::session_mgr::start(const std::string& cache_path,uint32 timeout_sec)
-{
 
-    if (m_cache != nullptr)
-    {
-        m_lastErrorDesc = "session管理器不允许重复加载";
-        return false;
-    }
-    m_cache = new ylib::cache;
-    m_timeout_sec = timeout_sec;
-    return m_cache->start(cache_path);
-}
-void ylib::network::http::session_mgr::close()
+void ylib::network::http::session::set(const std::string& name, const std::string& value)
 {
-    if (m_cache != nullptr)
-    {
-        delete (ylib::cache*)m_cache;
-        m_cache = nullptr;
-    }
+    if (m_website == nullptr)
+        throw ylib::exception("website is nullptr");
+    m_website->session()->write(m_id + "/sets/"+name, value);
 }
-std::string ylib::network::http::session_mgr::create(int32 timeout_sec)
+
+std::string ylib::network::http::session::get(const std::string& name)
 {
-    std::string session_name = codec::md5(std::to_string(time::now_sec()) + std::to_string(m_index.make()));
-    m_cache->write(session_name, "{}", timeout_sec);
-    return session_name;
-}
-bool ylib::network::http::session_mgr::add(const std::string& session_name, int32 timeout_sec)
-{
-    return m_cache->write(session_name, "{}", timeout_sec);
-}
-bool ylib::network::http::session_mgr::exist(const std::string& session_name)
-{
-    return m_cache->exist(session_name);
-}
-void ylib::network::http::session_mgr::set(const std::string& session_name, http::session& session)
-{
-    m_cache->write(session_name, session.to_string());
-}
-void ylib::network::http::session_mgr::del(const std::string& session_name)
-{
-    m_cache->remove(session_name);
-}
-bool ylib::network::http::session_mgr::get(const std::string &session_name,http::session& session)
-{
+    if (m_website == nullptr)
+        throw ylib::exception("website is nullptr");
     std::string value;
-    if(!m_cache->read(session_name, value))
+    m_website->session()->read(m_id + "/sets/" + name, value);
+    return value;
+}
+
+bool ylib::network::http::session::check()
+{
+    if (m_id.empty())
         return false;
-    session.parse(value);
-    return true;
-}
-void ylib::network::http::session_mgr::update(const std::string &session_name,int32 timeout_sec)
-{
-    m_cache->update(session_name);
-}
-void ylib::network::http::session_mgr::clear()
-{
-    m_cache->clear();
-}
-ylib::cache* ylib::network::http::session_mgr::cache()
-{
-    return m_cache;
+    if (m_website == nullptr)
+        throw ylib::exception("website is nullptr");
+    std::string value;
+    if (m_website->session()->read(m_id + "/update", value) == false)
+        return false;
+    if (value.empty())
+        return false;
+    return ylib::stoll(value) > time::now_sec();
 }
 #endif

@@ -14,13 +14,10 @@
 ylib::network::http::request::request()
 {
     m_reqpack = nullptr;
-    m_session = nullptr;
 }
 ylib::network::http::request::~request()
 {
-    if (m_session != nullptr)
-        delete m_session;
-}
+} 
 
 bool ylib::network::http::request::header(const std::string &name, std::string &value)
 {
@@ -47,7 +44,7 @@ std::string ylib::network::http::request::host()
 {
     return m_reqpack->host();
 }
-
+#if 0       
 bool ylib::network::http::request::cookie(const std::string &name, std::string &value)
 {
     LPCSTR lpszValue = nullptr;
@@ -56,19 +53,19 @@ bool ylib::network::http::request::cookie(const std::string &name, std::string &
     value = strutils::F(lpszValue);
     return true;
 }
-network::http::session* ylib::network::http::request::session(const std::string& name)
+#endif
+network::http::session& ylib::network::http::request::session(const std::string& session_id)
 {
-    if (m_session == nullptr)
-    {
-        m_session = new network::http::session;
-        m_session->m_mgr = m_reqpack->website()->session();
-        std::string session_name;
-        if (cookie(name, session_name) && session_name != "")
-        {
-            m_session->init(session_name);
-        }
-    }
+    if (session_id.empty())
+        return m_session;
+    m_session.init(website(), session_id);
     return m_session;
+}
+std::string ylib::network::http::request::token()
+{
+    std::string token;
+    header("token", token);
+    return token;
 }
 network::http::reqpack* ylib::network::http::request::reqpack()
 {

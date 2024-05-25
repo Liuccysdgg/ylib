@@ -12,5 +12,4 @@ add_library(${LIBRARY_NAME} ${SOURCE_FILES})
 # 将包含目录与目标相关联，这样只有在编译此库时才会包含这些目录
 target_include_directories(${LIBRARY_NAME} PUBLIC "${PROJECT_SOURCE_DIR}/3rdparty/${LIBRARY_NAME}")
 
-# 如果需要，可以设置C++标准
-# target_compile_features(${LIBRARY_NAME} PUBLIC cxx_std_11)c
+set_property(TARGET ${LIBRARY_NAME} PROPERTY FOLDER "3rdparty")

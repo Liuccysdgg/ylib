@@ -66,18 +66,17 @@ namespace ylib
                 network::http::request* request();
                 network::http::response* response();
 
-
                 //min和max为<=或>= ,若填-1则不使用该条件
-                std::string qry_string(const std::string& name, uint32 pmin = 0, uint32 pmax = _UINT_MAX);
-                int32 qry_int32(const std::string& name, int32 pmin = _INT_MIN, int32 pmax = _INT_MAX);
-                uint32 qry_uint32(const std::string& name, uint32 pmin = 0, uint32 pmax = _UINT_MAX);
-                int64 qry_int64(const std::string& name, int64 pmin = _INT64_MIN, int64 pmax = _INT64_MAX);
-                uint64 qry_uint64(const std::string& name, uint64 pmin = 0, uint64 pmax = _UINT64_MAX);
-                double qry_double(const std::string& name, double pmin = _DBL_MIN, double pmax = _DBL_MAX);
-                float qry_float(const std::string& name, float pmin = _FLT_MIN, float pmax = _FLT_MAX);
-                bool qry_empty(const std::string& name);
-                bool qry_bool(const std::string& name);
-                ylib::buffer qry_buffer(const std::string& name);
+                std::string qry_string(const std::string& name,bool exception = true);
+                int32 qry_int32(const std::string& name, bool exception = true);
+                uint32 qry_uint32(const std::string& name, bool exception = true);
+                int64 qry_int64(const std::string& name, bool exception = true);
+                uint64 qry_uint64(const std::string& name, bool exception = true);
+                double qry_double(const std::string& name, bool exception = true);
+                float qry_float(const std::string& name, bool exception = true);
+                bool qry_empty(const std::string& name, bool exception = true);
+                bool qry_bool(const std::string& name, bool exception = true);
+                ylib::buffer qry_buffer(const std::string& name, bool exception);
 
                 // 请求参数
                 bool request_param(const std::string& name, std::string& value);
@@ -93,6 +92,7 @@ namespace ylib
                     response()->sjson["data"] = data;
                 };
 
+                void send(const ylib::json& data);
 
                 friend class router;
             private:

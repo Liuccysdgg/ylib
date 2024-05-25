@@ -11,7 +11,7 @@ namespace ylib
         ~ini(); 
         bool open(const std::string& filepath);
 		void close();
-        std::string read(const std::string& name,const std::string& key,const std::string& default_value = "");
+        std::string read(const std::string& name,const std::string& key,const std::string& default_value = "") const;
         bool write(const std::string& name,const std::string& key,const std::string& value);
 #ifndef _WIN32
 		bool del(const std::string& name, const std::string& key);

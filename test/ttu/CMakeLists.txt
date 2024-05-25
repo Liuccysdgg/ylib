@@ -80,3 +80,8 @@ target_link_libraries(${EXECUTABLE_NAME}_server PRIVATE
 	Threads::Threads
 )
 endif()
+
+
+# 设置 Visual Studio 中的文件夹
+set_property(TARGET ${EXECUTABLE_NAME}_client PROPERTY FOLDER "test")
+set_property(TARGET ${EXECUTABLE_NAME}_server PROPERTY FOLDER "test")

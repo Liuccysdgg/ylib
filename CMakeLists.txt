@@ -11,6 +11,9 @@ set(CMAKE_CXX_STANDARD 20)
 # 设置自定义配置类型
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;MinSizeRel;ReleaseMT" CACHE STRING "Build config types" FORCE)
 
+# 开启文件夹
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 ########################  生成路径  ########################  
 # 设置可执行文件输出目录
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -29,6 +32,8 @@ if(MSVC)
     if(CMAKE_GENERATOR_PLATFORM STREQUAL "Win32")
         include_directories("D:/3rdparty/OpenSSL-Win32/include")
     elseif(CMAKE_GENERATOR_PLATFORM STREQUAL "x64")
+        include_directories("D:/3rdparty/OpenSSL-Win64/include")
+    else()
         include_directories("D:/3rdparty/OpenSSL-Win64/include")
     endif()
     
@@ -57,17 +62,19 @@ add_subdirectory(src/ybase)
 add_subdirectory(src/yutil)
 add_subdirectory(src/yqt)
 add_subdirectory(src/ynet)
-add_subdirectory(src/yqlua)
+#add_subdirectory(src/yqlua)
+#add_subdirectory(src/ynetlua)
 add_subdirectory(src/ysql)
 ########################  三方库  ########################
 add_subdirectory(3rdparty/zlib)
-add_subdirectory(3rdparty/lua)
+#add_subdirectory(3rdparty/lua)
 add_subdirectory(3rdparty/sqlite3)
 if(MSVC)
 add_subdirectory(3rdparty/libzip)
 endif()
 add_subdirectory(3rdparty/ffmpeg)
 add_subdirectory(3rdparty/cocos2dx)
+add_subdirectory(3rdparty/leveldb)
 ########################  测试用例  ########################
 add_subdirectory(test/ttu)
 

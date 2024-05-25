@@ -9,24 +9,19 @@
 #include "ybase/conversion.h"
 ylib::network::http::cache::cache()
 {
-    m_timeout_min = 0;
-    m_enable = false;
 }
 ylib::network::http::cache::~cache()
 {
 
 }
-bool ylib::network::http::cache::start(const ylib::json& config)
+bool ylib::network::http::cache::start(const server_cache_config& config)
 {
-    m_filepath = config["filepath"].to<std::string>();
-    m_enable = config["enable"].to<bool>();
-    m_timeout_min = config["min"].to<uint32>();
-    m_exts = config["exts"].to<std::vector<std::string>>();
-    ylib::file::create_dir(m_filepath,true);
+    m_config = config;
+    ylib::file::create_dir(m_config.dirpath,true);
     return true;
 }
 bool ylib::network::http::cache::enable(){
-    return m_enable;
+    return m_config.enable;
 }
 std::string ylib::network::http::cache::make_key(const std::string& filepath)
 {
@@ -50,9 +45,9 @@ bool ylib::network::http::cache::find_ext(const std::string& filepath)
 {
     std::string ext = ylib::file::ext(filepath);
     ext = strutils::change_case(ext,false);
-    for(size_t i=0;i<m_exts.size();i++)
+    for(size_t i=0;i<m_config.exts.size();i++)
     {
-        if(ext == m_exts[i]){
+        if(ext == m_config.exts[i]){
             return true;
         }
     }
@@ -61,7 +56,7 @@ bool ylib::network::http::cache::find_ext(const std::string& filepath)
 std::string ylib::network::http::cache::make_cache_filepath(const std::string& filepath)
 {
     std::string key = make_key(filepath);
-    std::string cache_path = m_filepath;
+    std::string cache_path = m_config.dirpath;
     for(size_t i=0;i<1;i++)
     {
         cache_path += '/';
@@ -75,7 +70,7 @@ std::string ylib::network::http::cache::make_cache_filepath(const std::string& f
 }
 bool ylib::network::http::cache::have_send(network::http::reqpack* rp)
 {
-    if(m_enable == false)
+    if(m_config.enable ==  false)
         return false;
 
     std::string cache_path = make_cache_filepath(rp->filepath());
@@ -90,7 +85,7 @@ bool ylib::network::http::cache::have_send(network::http::reqpack* rp)
         std::string conf = ylib::file::read(cache_path_conf).to_string();
         auto conf_arr =strutils::split(conf,"\r\n");
         timestamp start_time_sec = ylib::stoull(conf_arr[0]);
-        if(start_time_sec + m_timeout_min*60 < ylib::time::now_sec())
+        if(start_time_sec + m_config.timeout_min*60 < ylib::time::now_sec())
             return false;
         // 发送协议头
         {
@@ -104,7 +99,7 @@ bool ylib::network::http::cache::have_send(network::http::reqpack* rp)
                 }
             }
         }
-        rp->response()->send_file(cache_path,-1,false);
+        rp->response()->send_file(cache_path,-1);
         return true;
         
     }

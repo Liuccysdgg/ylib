@@ -445,3 +445,20 @@ std::string ylib::file::format_separator(const std::string& filepath)
     }
     return result;
 }
+
+timestamp ylib::file::last_write_time(const std::string& filepath)
+{
+    try {
+        // 获取文件最后修改时间
+        auto ftime = std::filesystem::last_write_time(filepath);
+        auto sctp = std::chrono::time_point_cast<std::chrono::seconds>(ftime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now());
+        auto time_since_epoch = sctp.time_since_epoch();
+        auto seconds = std::chrono::duration_cast<std::chrono::seconds>(time_since_epoch).count();
+        return seconds;
+    }
+    catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << e.what() << std::endl;
+        return -1;
+    }
+    return -1;
+}

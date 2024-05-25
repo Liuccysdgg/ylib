@@ -17,7 +17,7 @@ namespace ylib
             class client_plus :public ylib::error_base
             {
             public:
-                client_plus();
+                client_plus(); 
                 ~client_plus();
                 void close();
                 void set_timeout(uint32 connect_msec = 3000, uint32 recv_msec = 8000);
@@ -28,7 +28,13 @@ namespace ylib
                 bool post(const std::string& url, const ylib::buffer& value);
                 bool post(const std::string& url, const http::make_form& value);
                 bool head(const std::string& url);
-
+                /// <summary>
+                /// 连接代理服务器
+                /// </summary>
+                /// <param name="address"></param>
+                /// <param name="port"></param>
+                /// <returns></returns>
+                void setproxy(const std::string& address,ushort port);
                 network::http::header_list& headers_request();
                 network::http::header_list& headers_response();
                 uint32 status();
@@ -55,12 +61,15 @@ namespace ylib
             public:
                 uint64 m_temp[10];
             private:
-                bool parseurl(const std::string& url);
+                bool parseurl(std::string url);
                 bool connect();
                 bool init();
                 bool request();
                 bool post(const std::string& url);
                 void* client();
+
+
+                bool init_proxy();
             private:
                 // HP客户端
                 void* m_client;
@@ -101,7 +110,8 @@ namespace ylib
 #endif
                 // 关闭
                 bool m_close;
-
+                // 代理服务器
+                ylib::AddressPort m_proxy;
             };
         }
     }

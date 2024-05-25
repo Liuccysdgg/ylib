@@ -14,20 +14,15 @@ namespace ylib
             class cnode :public ylib::error_base
             {
             public:
-                cnode(const ylib::json& config);
+                cnode(const cdn_config::node_config& config);
                 ~cnode();
-                const std::string& host();
+                const cdn_config::node_config& config() { return m_config; }
                 int score();
                 bool update();
             private:
                 network::http::client_plus m_client;
             private:
-                // 名称
-                std::string m_name;
-                // 域名
-                std::string m_host;
-                // 管理密钥
-                std::string m_key;
+                cdn_config::node_config m_config;
                 // 管理地址
                 std::string m_mang_url;
                 // 回复耗时
@@ -51,14 +46,12 @@ namespace ylib
             public:
                 cdn();
                 ~cdn();
-                bool start(const ylib::json& config);
+                bool start(const cdn_config& config);
                 std::string host();
                 virtual bool run() override;
-                inline bool enable() { return m_enable; };
-                inline bool manager() { return m_manager; };
+                const cdn_config& config() { return m_config; }
             private:
-                bool m_enable;
-                bool m_manager;
+                cdn_config m_config;
                 std::vector<network::http::cnode*> m_nodes;
 
 

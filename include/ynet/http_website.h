@@ -6,6 +6,7 @@
 #include <regex>
 #include "http_interface.h"
 #include "yutil/array.hpp"
+#include "yutil/localstorage.h"
 namespace ylib
 {
     namespace network
@@ -14,7 +15,6 @@ namespace ylib
         {
             class server;
             class router;
-            class session_mgr;
             class host;
             class agent;
             class cache;
@@ -33,7 +33,7 @@ namespace ylib
                  * return：
                  *      失败可通过 last_error() 返回错误信息。
                  ******************************************************************/
-                bool start(const ylib::json& config);
+                bool start(const website_config& config);
                 /******************************************************************
                  * function：关闭
                  ******************************************************************/
@@ -43,31 +43,27 @@ namespace ylib
                 inline network::http::cache* cache() { return m_cache; }
                 inline network::http::cdn* cdn() { return m_cdn; }
 
-                network::http::session_mgr* session();
+                ylib::local_storage* session() { return m_session_local_storage; }
+                const website_config& config() { return m_config; }
                 bool host(const std::string& host);
                 ylib::nolock_array<network::http::proxy*>* proxy();
-                const network::http::website_info* info();
-                inline const std::string& name() { return m_name; }
-                /*                inline network::http::agent* agent() { return m_agent; }*/
             private:
                 // 文件缓存
                 network::http::cache* m_cache;
                 // SESSION缓存
-                network::http::session_mgr* m_session;
+                ylib::local_storage* m_session_local_storage;
                 // router路由 服务
                 network::http::router* m_router;
                 // CDN服务
                 network::http::cdn* m_cdn;
-                // 配置信息
-                struct website_info m_info;
                 // HOST
                 std::vector<network::http::host*> m_hosts;
                 // HTTPS
                 bool m_https;
                 // 反向代理
                 ylib::nolock_array<network::http::proxy*> m_proxy;
-                // 名称
-                std::string m_name;
+                // 配置
+                website_config m_config;
             };
         }
     }

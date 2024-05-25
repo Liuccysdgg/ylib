@@ -21,13 +21,9 @@ namespace ylib
                  * function：构造函数
                  * param
                  *          server                                      ：                                   HTTP服务
-                 *          verify_type                               ：                                  验证方式
-                 *          pem_cert                                 ：                                   证书内容
-                 *          pem_key                                  ：                                   证书密钥
-                 *          pem_ca                                    ：                                   CA证书
-                 *          password                                 ：                                   证书密码，没有留空
+                 *          config                                     ：                                   配置
                  **********************************************************************************************/
-                ssl(network::http::server* server, ssl_verify_type verify_type, const std::string& pem_cert, const std::string& pem_key, const std::string& pem_ca = "", const std::string& password = "");
+                ssl(network::http::server* server,ssl_config config);
                 ~ssl();
                 /**********************************************************************************************
                  * function：注册证书
@@ -38,11 +34,10 @@ namespace ylib
                  **********************************************************************************************/
                 bool bind(const std::string& host);
             private:
-                ssl_verify_type m_verify_type;
-                std::string m_pem_cert;
-                std::string m_pem_key;
-                std::string m_pem_ca;
-                std::string m_pem_password;
+                ssl_config m_config;
+                std::string m_pem_cert_data;
+                std::string m_pem_key_data;
+                std::string m_pem_ca_data;
                 network::http::server* m_server;
                 int32 m_index;
             };

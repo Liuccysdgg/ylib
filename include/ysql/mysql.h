@@ -17,6 +17,11 @@ namespace ylib::mysql
     class result;
     class conn;
     class prepare_statement;
+    struct field{
+        uint32 index = 0;
+        std::string name;
+        std::string type_name;
+    };
     struct mysql_conn_info
     {
         mysql_conn_info(){
@@ -34,12 +39,14 @@ namespace ylib::mysql
     public:
         result();
         ~result();
-        // 列数量
+        // 列名
+        std::string field_name(uint32 index);
+        ylib::mysql::field field(uint32 index);
+
+        // 列数量 
         uint32 field_count();
         // 行数量
         size_t row_count();
-        // 取文本值
-        std::string get(uint32 field);
         // 下一行
         bool next();
         int32 get_int32(uint32 index);

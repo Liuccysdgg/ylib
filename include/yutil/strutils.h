@@ -46,9 +46,10 @@ namespace ylib
          * @brief 去尾字符
          * @param str
          * @param chars
+         * @param loop = 循环匹配
          * @return
          */
-        std::string trim_end(std::string s,const std::vector<char>& trim_chars);
+        std::string trim_end(std::string s,const std::vector<char>& trim_chars,bool loop = false);
 
         /**
          * @brief 左边
@@ -101,6 +102,16 @@ namespace ylib
 #ifdef _WIN32
         std::wstring to_wstring(const std::string& value);
         std::string wto_string(const std::wstring& value);
-#endif
+#endif 
+        /// <summary>
+        /// 填补
+        /// </summary>
+        /// <param name="value">输入</param>
+        /// <param name="fixed_length">固定长度</param>
+        /// <param name="pad">填补字符</param>
+        /// <returns></returns>
+        std::string pad_with_begin(const std::string& value,size_t fixed_length,char pad);
+        std::string pad_with_end(const std::string& value, size_t fixed_length, char pad);
+
     }
 }

@@ -25,8 +25,8 @@ namespace ylib
                 bool send(const ylib::buffer& value, ushort stateNum = 200, const std::string& stateDesc = "OK");
                 bool send(const std::string& value, ushort stateNum = 200, const std::string& stateDesc = "OK");
                 bool send(const ylib::json& json, ushort stateNum = 200, const std::string& stateDesc = "OK");
-                bool send_file(const std::string& filepath, int32 downbaud = -1, bool rootdir = true);
-                std::map<std::string, std::string>* headers();
+                bool send_file(const std::string& filepath, int32 downbaud = -1, ushort stateNum = 200, const std::string& stateDesc = "OK");
+                std::map<std::string, std::string>* headers(); 
                 bool redirect(const std::string& filepath, bool MovedPermanently = false);
                 bool forward(const std::string& filepath);
             public:

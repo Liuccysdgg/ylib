@@ -33,7 +33,7 @@ void ylib::ini::close()
 
 #endif
 }
-std::string ylib::ini::read(const std::string& name, const std::string& key,const std::string& default_value)
+std::string ylib::ini::read(const std::string& name, const std::string& key,const std::string& default_value) const
 {
 #ifndef _WIN32
     return INI_POINT->GetValue(name.c_str(), key.c_str(),default_value.c_str());

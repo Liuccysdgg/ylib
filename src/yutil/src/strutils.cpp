@@ -58,11 +58,33 @@ std::string ylib::strutils::trim_begin(std::string s, const std::vector<char> &t
     return s;
 }
 
-std::string ylib::strutils::trim_end(std::string s, const std::vector<char> &trim_chars)
+std::string ylib::strutils::trim_end(std::string s, const std::vector<char> &trim_chars, bool loop)
 {
-    s.erase(std::find_if(s.rbegin(), s.rend(), [&trim_chars](char ch) {
-                return !is_trim_char(ch, trim_chars);
-            }).base(), s.end());
+
+    //s.erase(std::find_if(s.rbegin(), s.rend(), [&trim_chars](char ch) {
+    //            return !is_trim_char(ch, trim_chars);
+    //        }).base(), s.end());
+
+//    if (loop) {
+
+        
+   // }
+    if (s.length() < 1)
+        return s;
+
+    bool find = true;
+    while (find) {
+        find = false;
+        for (size_t i = 0; i < trim_chars.size(); i++)
+        {
+            if (s[s.length() - 1] == trim_chars[i])
+            {
+                find = true;
+                s = s.substr(0, s.length() - 1);
+            }
+        }
+    }
+
     return s;
 }
 
@@ -157,6 +179,26 @@ std::string ylib::strutils::wto_string(const std::wstring& value)
     WideCharToMultiByte(65001, 0, value.c_str(), value.size(), buffer, len, NULL, NULL);
     std::string result(buffer);
     delete[] buffer;
+    return result;
+}
+std::string ylib::strutils::pad_with_begin(const std::string& value, size_t fixed_length, char pad)
+{
+    if (value.length() >= fixed_length)
+        return value;
+    size_t append_length = fixed_length - value.length();
+    std::string result = value;
+    for(size_t i=0;i< append_length;i++)
+        result = std::string(1,pad) + result;
+    return result;
+}
+std::string ylib::strutils::pad_with_end(const std::string& value, size_t fixed_length, char pad)
+{
+    if (value.length() >= fixed_length)
+        return value;
+    size_t append_length = fixed_length - value.length();
+    std::string result = value;
+    for (size_t i = 0; i < append_length; i++)
+        result = result+ std::string(1, pad);
     return result;
 }
 #endif
