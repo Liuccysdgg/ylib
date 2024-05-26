@@ -58,25 +58,15 @@ else()
     
 endif()
 ########################  子项目  ########################
-add_subdirectory(src/ybase)
-add_subdirectory(src/yutil)
-add_subdirectory(src/yqt)
-add_subdirectory(src/ynet)
-#add_subdirectory(src/yqlua)
-#add_subdirectory(src/ynetlua)
-add_subdirectory(src/ysql)
+add_subdirectory(src)
 ########################  三方库  ########################
 add_subdirectory(3rdparty/zlib)
-#add_subdirectory(3rdparty/lua)
+add_subdirectory(3rdparty/lua)
 add_subdirectory(3rdparty/sqlite3)
 if(MSVC)
 add_subdirectory(3rdparty/libzip)
 endif()
-add_subdirectory(3rdparty/ffmpeg)
-add_subdirectory(3rdparty/cocos2dx)
 add_subdirectory(3rdparty/leveldb)
-########################  测试用例  ########################
-add_subdirectory(test/ttu)
 
 
 

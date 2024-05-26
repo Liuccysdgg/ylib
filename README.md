@@ -1,7 +1,7 @@
 # YLIB跨平台C++开发库
 
 自2019年的雏形至今通过不停的迭代、优化更新现在已经完全可以胜任几乎所有C++项目的开发，可以做为基础库用来配合项目基础构建、也可以使用其中网络、数据库和通用工具封装实现高级应用。
-
+网络、常用工具、数据库等支持
 ## 构建部署
 
 
@@ -70,17 +70,7 @@ ylib\3rdparty
 # 库目录
 ylib_vs_build\lib\Debug
 # 必须包含(基础组件)
-ybase.lib 
-# 网络库
-ynet.lib
-# 工具库(必须包含)
-yutil.lib
-# QtGUI库(请另外单独链接Qt)
-yqt.lib
-# MySqlConnectorCpp
-ymysql.lib
-# Lua支持
-ylua.lib
+ylib.lib 
 ```
 
 ## 🙇致谢
