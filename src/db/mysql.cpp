@@ -409,8 +409,7 @@ ylib::mysql::result *ylib::mysql::prepare_statement::query()
     clear();
     try
     {
-        m_result = new ylib::mysql::result;
-        m_result->m_handle = PREPARE_STATEMENT->executeQuery();
+        m_result = new ylib::mysql::result(PREPARE_STATEMENT->executeQuery());
     }
     catch (const sql::SQLException & e)
     {
@@ -419,9 +418,16 @@ ylib::mysql::result *ylib::mysql::prepare_statement::query()
     return m_result;
 }
 
-ylib::mysql::result::result()
+ylib::mysql::result::result(void* handle):m_handle(handle)
 {
-    m_handle = nullptr;
+    for (uint32 i = 0; i < RESULT_SET->getMetaData()->getColumnCount(); i++)
+    {
+        ylib::mysql::field field;
+        field.name = RESULT_SET->getMetaData()->getColumnName(i + 1).c_str();;
+        field.type_name = strutils::change_case(RESULT_SET->getMetaData()->getColumnTypeName(i + 1).c_str(), false);
+        field.index = i;
+        m_fields.push_back(field);
+    }
 }
 
 ylib::mysql::result::~result()
@@ -448,13 +454,19 @@ std::string ylib::mysql::result::field_name(uint32 index)
     return RESULT_SET->getMetaData()->getColumnName(index);
 }
 
-ylib::mysql::field ylib::mysql::result::field(uint32 index)
+std::string ylib::mysql::result::field_type(uint32 index)
 {
-    ylib::mysql::field result;
-    result.index = index;
-    result.name = RESULT_SET->getMetaData()->getColumnName(index).c_str();
-    result.type_name = strutils::change_case(RESULT_SET->getMetaData()->getColumnTypeName(index).c_str(), false);
-    return result;
+    return RESULT_SET->getMetaData()->getColumnTypeName(index);
+}
+
+std::string ylib::mysql::result::field_type(const std::string& name)
+{
+    for (size_t i = 0; i < m_fields.size(); i++)
+    {
+        if (m_fields[i].name == name)
+            return m_fields[i].type_name;
+    }
+    throw ylib::exception("not found field: "+name);
 }
 
 uint32 ylib::mysql::result::field_count()

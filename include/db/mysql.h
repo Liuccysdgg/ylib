@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include <list>
-#ifndef _WIN32
+#ifndef _WIN32 
 #include <stddef.h>
 #endif
 #include "base/define.h"
@@ -37,12 +37,13 @@ namespace ylib::mysql
     class result :public ylib::error_base
     {
     public:
-        result();
+        result(void* handle);
         ~result();
         // 列名
         std::string field_name(uint32 index);
-        ylib::mysql::field field(uint32 index);
-
+        // 列类型
+        std::string field_type(uint32 index);
+        std::string field_type(const std::string& name);
         // 列数量 
         uint32 field_count();
         // 行数量
@@ -72,11 +73,12 @@ namespace ylib::mysql
 
         ylib::json to_json();
 
-        friend class ylib::mysql::prepare_statement;
     private:
         void* m_handle = nullptr;
         uint32 m_field_count = 0;
         uint32 m_row_count = 0;
+
+        std::vector<ylib::mysql::field> m_fields;
     };
 
     class prepare_statement:public ylib::error_base{

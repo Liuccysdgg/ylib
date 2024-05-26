@@ -8,7 +8,7 @@ file(GLOB_RECURSE HEADER_FILES
     "${PROJECT_SOURCE_DIR}/include/*.h"
 )
 
-include_directories(${PROJECT_SOURCE_DIR}/3rdparty/mysql/jdbc)
+include_directories(D:/3rdparty/mysql-connector-c++-8.2.0-winx64/include/jdbc)
 if(MSVC)
 	include_directories(${PROJECT_SOURCE_DIR}/3rdparty/HP-Socket/Windows/Include)
         add_compile_options(/utf-8)

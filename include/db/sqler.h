@@ -81,11 +81,13 @@ namespace ylib
 		/// 查询
 		/// </summary>
 		ylib::mysql::result* query();
+#if 0
 		/// <summary>
 		/// 查询转换为layui需求模板
 		/// </summary>
 		/// <returns></returns> 
 		ylib::json query_layui();
+#endif
 	private:
 		/// <summary>
 		/// 生成SQL片段

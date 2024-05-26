@@ -209,7 +209,7 @@ ylib::mysql::result* ylib::select::query()
 		setInsetValue(ppst, i + 1, insert_values[i]);
 	return ppst->query();
 }
-
+#if 0
 ylib::json ylib::select::query_layui()
 {
 	auto __orderby = m_orderby;
@@ -236,7 +236,7 @@ ylib::json ylib::select::query_layui()
 	}
 	return table;
 }
-
+#endif
 void ylib::select::make_sql(std::string& field_name, std::string& where, std::string& orderby, std::string& limit, std::vector<std::any>& insert_values)
 {
 	if (m_fields.size() == 0)

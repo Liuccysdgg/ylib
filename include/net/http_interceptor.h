@@ -17,7 +17,7 @@ namespace ylib
             struct interceptor_info {
                 std::regex express;
                 std::string express_string;
-                std::function<bool(network::http::reqpack* rp)> callback;
+                std::function<bool(network::http::reqpack* rp, const std::string& express)> callback;
             };
             /******************************************************
              * class：拦截器
@@ -26,9 +26,8 @@ namespace ylib
             {
             public:
                 interceptor();
-                ~interceptor();
-                size_t add(const std::string& regex_express, std::function<bool(network::http::reqpack* rp)> callback);
-                void remove(size_t index);
+                ~interceptor(); 
+                size_t add(const std::string& regex_express, std::function<bool(network::http::reqpack* rp,const std::string& express)> callback);
                 bool trigger(const std::string& url, network::http::reqpack* rp);
             private:
                 ylib::nolock_array<interceptor_info*> m_array;
