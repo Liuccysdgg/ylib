@@ -74,6 +74,18 @@ bool ylib::network::http::response::send(const char* buf, size_t buf_len, ushort
     {
         HEADER_SET("Content-Type", "text/html");
         HEADER_SET("Content-Length", std::to_string((uint64)view.length()));
+        // 设置默认编码
+        {
+            std::string value;
+            auto iter = m_headers.find("Content-Type");
+            if (iter == m_headers.end() && iter->second.empty())
+                iter->second = "charset=utf8";
+            else
+            {
+                if (value.find("charset") == -1)
+                    iter->second += "; charset=utf8";
+            }
+        }
     }
 
 
