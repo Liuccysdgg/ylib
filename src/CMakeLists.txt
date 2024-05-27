@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 
+
+
+
 # Recursively get all source files
 file(GLOB_RECURSE SOURCE_FILES
     "${PROJECT_SOURCE_DIR}/src/*.cpp"
@@ -8,8 +11,10 @@ file(GLOB_RECURSE HEADER_FILES
     "${PROJECT_SOURCE_DIR}/include/*.h"
 )
 
-include_directories(D:/3rdparty/mysql-connector-c++-8.2.0-winx64/include/jdbc)
+
 if(MSVC)
+    set(MYSQL_CPPCONN_INCLUDE  CACHE PATH "mysql-connector include")
+    include_directories(${MYSQL_CPPCONN_INCLUDE})
 	include_directories(${PROJECT_SOURCE_DIR}/3rdparty/HP-Socket/Windows/Include)
         add_compile_options(/utf-8)
 endif()
