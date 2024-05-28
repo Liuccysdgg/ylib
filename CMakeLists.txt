@@ -29,14 +29,7 @@ endif()
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/3rdparty)
 if(MSVC)
-    if(CMAKE_GENERATOR_PLATFORM STREQUAL "Win32")
-        include_directories("D:/3rdparty/OpenSSL-Win32/include")
-    elseif(CMAKE_GENERATOR_PLATFORM STREQUAL "x64")
-        include_directories("D:/3rdparty/OpenSSL-Win64/include")
-    else()
-        include_directories("D:/3rdparty/OpenSSL-Win64/include")
-    endif()
-    
+    include_directories(${PROJECT_SOURCE_DIR}/3rdparty/openssl/include)
 else()
     include_directories(/usr/local/include)
 endif()
@@ -60,13 +53,14 @@ endif()
 ########################  子项目  ########################
 add_subdirectory(src)
 ########################  三方库  ########################
-add_subdirectory(3rdparty/zlib)
-add_subdirectory(3rdparty/lua)
-add_subdirectory(3rdparty/sqlite3)
 if(MSVC)
-add_subdirectory(3rdparty/libzip)
-add_subdirectory(3rdparty/leveldb)
+    add_subdirectory(3rdparty/zlib)
+    add_subdirectory(3rdparty/sqlite3)
+    add_subdirectory(3rdparty/lua)
+    add_subdirectory(3rdparty/libzip)
+    add_subdirectory(3rdparty/leveldb)
 endif()
+
 
 
 

@@ -19,9 +19,10 @@ if(MSVC)
     add_compile_options(/utf-8)
 endif()
 
-
 # Add the executable or library target
-add_library(${PROJECT_NAME} ${SOURCE_FILES}  ${HEADER_FILES})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES}  ${HEADER_FILES})
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME_DEBUG "${PROJECT_NAME}_d" OUTPUT_NAME_RELEASE ${PROJECT_NAME})
+#target_link_libraries(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/3rdparty/openssl/lib/libcrypto_static_win64.lib")
 
 foreach(source IN LISTS SOURCE_FILES)
     get_filename_component(source_path "${source}" PATH)
@@ -47,5 +48,9 @@ install(DIRECTORY
         ${PROJECT_SOURCE_DIR}/include/util 
         ${PROJECT_SOURCE_DIR}/include/net 
 DESTINATION include)
+install(FILES 
+	${PROJECT_SOURCE_DIR}/3rdparty/openssl/lib/libcrypto_static_win64.lib
+    ${PROJECT_SOURCE_DIR}/3rdparty/openssl/lib/libcrypto_static_win32.lib
+DESTINATION lib)
 
 

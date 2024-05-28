@@ -12,6 +12,7 @@ file(GLOB SOURCE_FILES "${PROJECT_SOURCE_DIR}/3rdparty/lua/luac/*.c")
 
 # 创建LUAC
 add_executable(${LIBRARY_NAME} WIN32 ${SOURCE_FILES} ${SOURCE_LIB_FILES})
+set_target_properties(${LIBRARY_NAME} PROPERTIES OUTPUT_NAME_DEBUG "${LIBRARY_NAME}_d" OUTPUT_NAME_RELEASE ${LIBRARY_NAME})
 # 设置 Windows 应用程序类型
 if (WIN32)
     set_target_properties(${LIBRARY_NAME} PROPERTIES WIN32_EXECUTABLE FALSE)
@@ -27,3 +28,5 @@ endif()
 
 # 设置 Visual Studio 中的文件夹
 set_property(TARGET ${LIBRARY_NAME} PROPERTY FOLDER "3rdparty")
+
+install(TARGETS ${LIBRARY_NAME} DESTINATION bin)
