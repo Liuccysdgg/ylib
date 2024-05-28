@@ -41,11 +41,11 @@ endforeach()
 
 ########################  安装  ########################
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-install(
-        DIRECTORY ${PROJECT_SOURCE_DIR}/include/db 
-        DIRECTORY ${PROJECT_SOURCE_DIR}/include/base 
-        DIRECTORY ${PROJECT_SOURCE_DIR}/include/util 
-        DIRECTORY ${PROJECT_SOURCE_DIR}/include/net 
+install(DIRECTORY 
+        ${PROJECT_SOURCE_DIR}/include/db 
+        ${PROJECT_SOURCE_DIR}/include/base 
+        ${PROJECT_SOURCE_DIR}/include/util 
+        ${PROJECT_SOURCE_DIR}/include/net 
 DESTINATION include)
 
 

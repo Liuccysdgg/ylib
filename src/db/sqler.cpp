@@ -99,18 +99,18 @@ ylib::select::~select()
 	}
 }
 
-select& ylib::select::table(const std::string& table_name)
+ylib::select& ylib::select::table(const std::string& table_name)
 {
 	m_table_name = table_name;
 	return *this;
 }
 
-select& ylib::select::field(const std::vector<std::string>& field)
+ylib::select& ylib::select::field(const std::vector<std::string>& field)
 {
 	m_fields = field;
 	return *this;
 }
-select& ylib::select::where(const std::string& name, const std::string& expression, const std::any& value)
+ylib::select& ylib::select::where(const std::string& name, const std::string& expression, const std::any& value)
 {
 	ylib::where w;
 	w.name = name;
@@ -129,7 +129,7 @@ select& ylib::select::where(const std::string& name, const std::string& expressi
 	return *this;
 }
 
-select& ylib::select::where_like(const std::string& name, const std::string& value)
+ylib::select& ylib::select::where_like(const std::string& name, const std::string& value)
 {
 	ylib::where w;
 	w.name = name;
@@ -139,7 +139,7 @@ select& ylib::select::where_like(const std::string& name, const std::string& val
 	return *this;
 }
 
-select& ylib::select::where(const std::string& expression)
+ylib::select& ylib::select::where(const std::string& expression)
 {
 	ylib::where w;
 	w.expression = expression;
@@ -147,21 +147,21 @@ select& ylib::select::where(const std::string& expression)
 	m_wheres.push_back(w);
 	return *this;
 }
-select& ylib::select::page(uint32 page, uint32 count)
+ylib::select& ylib::select::page(uint32 page, uint32 count)
 {
 	m_limit.start = (page-1)*count;
 	m_limit.count =count;
 	return *this;
 }
 
-select& ylib::select::limit(uint32 start, uint32 count)
+ylib::select& ylib::select::limit(uint32 start, uint32 count)
 {
 	m_limit.start = start;
 	m_limit.count = count;
 	return *this;
 }
 
-select& ylib::select::orderby(const std::string& field, sort sort)
+ylib::select& ylib::select::orderby(const std::string& field, sort sort)
 {
 	m_orderby.field = field;
 	m_orderby.sort = sort;
@@ -209,34 +209,6 @@ ylib::mysql::result* ylib::select::query()
 		setInsetValue(ppst, i + 1, insert_values[i]);
 	return ppst->query();
 }
-#if 0
-ylib::json ylib::select::query_layui()
-{
-	auto __orderby = m_orderby;
-	auto __limit = m_limit;
-	m_orderby.field = "";
-	m_limit.count = -1;
-
-	auto count = this->count();
-	m_orderby = __orderby;
-	m_limit = __limit;
-
-	auto result = this->query();
-	ylib::json table;
-	table["code"] = 0;
-
-
-	table["count"] = count;
-	while (result->next())
-	{
-		ylib::json sig;
-		for (size_t i = 0; i < result->field_count(); i++)
-			setQueryResultValuetoJson(result->field(i+1),result, sig[result->field(i+1).name]);
-		table["data"].push_back(sig);
-	}
-	return table;
-}
-#endif
 void ylib::select::make_sql(std::string& field_name, std::string& where, std::string& orderby, std::string& limit, std::vector<std::any>& insert_values)
 {
 	if (m_fields.size() == 0)
@@ -293,13 +265,13 @@ ylib::update::~update()
 	}
 }
 
-update& ylib::update::table(const std::string& table_name)
+ylib::update& ylib::update::table(const std::string& table_name)
 {
 	this->m_table_name = table_name;
 	return *this;
 }
 
-update& ylib::update::set(const std::string& name, const std::any& value)
+ylib::update& ylib::update::set(const std::string& name, const std::any& value)
 {
 	struct update::set s;
 	s.type = 0;
@@ -309,7 +281,7 @@ update& ylib::update::set(const std::string& name, const std::any& value)
 	return *this;
 }
 
-update& ylib::update::set(const std::string& expression)
+ylib::update& ylib::update::set(const std::string& expression)
 {
 	struct update::set s;
 	s.type = 1;
@@ -318,7 +290,7 @@ update& ylib::update::set(const std::string& expression)
 	return *this;
 }
 
-update& ylib::update::where(const std::string& name, const std::string& expression, const std::any& value)
+ylib::update& ylib::update::where(const std::string& name, const std::string& expression, const std::any& value)
 {
 	ylib::where w;
 	w.name = name;
@@ -337,7 +309,7 @@ update& ylib::update::where(const std::string& name, const std::string& expressi
 	return *this;
 }
 
-update& ylib::update::where_like(const std::string& name, const std::string& value)
+ylib::update& ylib::update::where_like(const std::string& name, const std::string& value)
 {
 	ylib::where w;
 	w.name = name;
@@ -347,7 +319,7 @@ update& ylib::update::where_like(const std::string& name, const std::string& val
 	return *this;
 }
 
-update& ylib::update::where(const std::string& expression)
+ylib::update& ylib::update::where(const std::string& expression)
 {
 	ylib::where w;
 	w.expression = expression;
@@ -356,21 +328,21 @@ update& ylib::update::where(const std::string& expression)
 	return *this;
 }
 
-update& ylib::update::page(uint32 page, uint32 count)
+ylib::update& ylib::update::page(uint32 page, uint32 count)
 {
 	m_limit.start = (page - 1) * count;
 	m_limit.count = count;
 	return *this;
 }
 
-update& ylib::update::limit(uint32 start, uint32 count)
+ylib::update& ylib::update::limit(uint32 start, uint32 count)
 {
 	m_limit.start = start;
 	m_limit.count = count;
 	return *this;
 }
 
-update& ylib::update::orderby(const std::string& field, sort sort)
+ylib::update& ylib::update::orderby(const std::string& field, sort sort)
 {
 	m_orderby.field = field;
 	m_orderby.sort = sort;
@@ -468,19 +440,19 @@ ylib::insert::~insert()
 	}
 }
 
-insert& ylib::insert::table(const std::string& table_name)
+ylib::insert& ylib::insert::table(const std::string& table_name)
 {
 	m_table_name = table_name;
 	return *this;
 }
 
-insert& ylib::insert::set(const std::string& name, const std::any& value)
+ylib::insert& ylib::insert::set(const std::string& name, const std::any& value)
 {
 	m_sets.push_back({name, value});
 	return *this;
 }
 
-insert& ylib::insert::set_not_pret(const std::string& name, const std::string& value)
+ylib::insert& ylib::insert::set_not_pret(const std::string& name, const std::string& value)
 {
 	m_sets.push_back({ name, value,1 });
 	return *this;
@@ -540,13 +512,13 @@ ylib::delete_::~delete_()
 	}
 }
 
-delete_& ylib::delete_::table(const std::string& table_name)
+ylib::delete_& ylib::delete_::table(const std::string& table_name)
 {
 	this->m_table_name = table_name;
 	return *this;
 }
 
-delete_& ylib::delete_::where(const std::string& name, const std::string& expression, const std::any& value)
+ylib::delete_& ylib::delete_::where(const std::string& name, const std::string& expression, const std::any& value)
 {
 	ylib::where w;
 	w.name = name;
@@ -565,7 +537,7 @@ delete_& ylib::delete_::where(const std::string& name, const std::string& expres
 	return *this;
 }
 
-delete_& ylib::delete_::where_like(const std::string& name, const std::string& value)
+ylib::delete_& ylib::delete_::where_like(const std::string& name, const std::string& value)
 {
 	ylib::where w;
 	w.name = name;
@@ -575,7 +547,7 @@ delete_& ylib::delete_::where_like(const std::string& name, const std::string& v
 	return *this;
 }
 
-delete_& ylib::delete_::where(const std::string& expression)
+ylib::delete_& ylib::delete_::where(const std::string& expression)
 {
 	ylib::where w;
 	w.expression = expression;
@@ -584,21 +556,21 @@ delete_& ylib::delete_::where(const std::string& expression)
 	return *this;
 }
 
-delete_& ylib::delete_::page(uint32 page, uint32 count)
+ylib::delete_& ylib::delete_::page(uint32 page, uint32 count)
 {
 	m_limit.start = (page - 1) * count;
 	m_limit.count = count;
 	return *this;
 }
 
-delete_& ylib::delete_::limit(uint32 start, uint32 count)
+ylib::delete_& ylib::delete_::limit(uint32 start, uint32 count)
 {
 	m_limit.start = start;
 	m_limit.count = count;
 	return *this;
 }
 
-delete_& ylib::delete_::orderby(const std::string& field, sort sort)
+ylib::delete_& ylib::delete_::orderby(const std::string& field, sort sort)
 {
 	m_orderby.field = field;
 	m_orderby.sort = sort;
@@ -661,149 +633,3 @@ void ylib::delete_::make_sql(std::string& where, std::string& orderby, std::stri
 		orderby = " ORDER BY " + m_orderby.field + " " + std::string(m_orderby.sort == DESC ? "DESC" : "ASC");
 	}
 }
-#if 0
-ylib::Linsert::Linsert(mysql::conn* conn):ylib::insert(conn)
-{
-}
-
-ylib::Linsert::~Linsert()
-{
-}
-
-void ylib::Linsert::i32(const std::string& name, int32 value)
-{
-	set(name, value);
-}
-
-void ylib::Linsert::i64(const std::string& name, int64 value)
-{
-	set(name, value);
-}
-
-void ylib::Linsert::dob(const std::string& name, double value)
-{
-	set(name, value);
-}
-
-void ylib::Linsert::str(const std::string& name, const std::string& value)
-{
-	set(name, value);
-}
-
-ylib::Lselect::Lselect(void* conn):ylib::select((mysql::conn*)conn)
-{
-}
-
-ylib::Lselect::~Lselect()
-{
-}
-
-void ylib::Lselect::where_i32(const std::string& name, const std::string& expression, int32 value)
-{
-	::ylib::select::where(name,expression,value);
-}
-
-void ylib::Lselect::where_i64(const std::string& name, const std::string& expression, int64 value)
-{
-	::ylib::select::where(name, expression, value);
-}
-
-void ylib::Lselect::where_dob(const std::string& name, const std::string& expression, double value)
-{
-	::ylib::select::where(name, expression, value);
-}
-
-void ylib::Lselect::where_str(const std::string& name, const std::string& expression, const std::string& value)
-{
-	::ylib::select::where(name, expression, value);
-}
-void ylib::Lselect::where_expression(const std::string& expression)
-{
-	::ylib::select::where(expression);
-}
-ylib::Lupdate::Lupdate(mysql::conn* conn):ylib::update(conn)
-{
-}
-
-ylib::Lupdate::~Lupdate()
-{
-}
-
-void ylib::Lupdate::set_i32(const std::string& name, int32 value)
-{
-	set(name, value);
-}
-
-void ylib::Lupdate::set_i64(const std::string& name, int64 value)
-{
-	set(name, value);
-}
-
-void ylib::Lupdate::set_dob(const std::string& name, double value)
-{
-	set(name, value);
-}
-
-void ylib::Lupdate::set_str(const std::string& name, const std::string& value)
-{
-	set(name, value);
-}
-
-void ylib::Lupdate::where_i32(const std::string& name, const std::string& expression, int32 value)
-{
-	::ylib::update::where(name,expression,value);
-}
-
-void ylib::Lupdate::where_i64(const std::string& name, const std::string& expression, int64 value)
-{
-	::ylib::update::where(name, expression, value);
-}
-
-void ylib::Lupdate::where_dob(const std::string& name, const std::string& expression, double value)
-{
-	::ylib::update::where(name, expression, value);
-}
-
-void ylib::Lupdate::where_str(const std::string& name, const std::string& expression, const std::string& value)
-{
-	::ylib::update::where(name, expression, value);
-}
-
-void ylib::Lupdate::where_expression(const std::string& expression)
-{
-	::ylib::update::where(expression);
-}
-
-ylib::Ldelete::Ldelete(mysql::conn* conn) :ylib::delete_(conn)
-{
-}
-
-ylib::Ldelete::~Ldelete()
-{
-}
-
-void ylib::Ldelete::where_i32(const std::string& name, const std::string& expression, int32 value)
-{
-	::ylib::delete_::where(name, expression, value);
-}
-
-void ylib::Ldelete::where_i64(const std::string& name, const std::string& expression, int64 value)
-{
-	::ylib::delete_::where(name, expression, value);
-}
-
-void ylib::Ldelete::where_dob(const std::string& name, const std::string& expression, double value)
-{
-	::ylib::delete_::where(name, expression, value);
-}
-
-void ylib::Ldelete::where_str(const std::string& name, const std::string& expression, const std::string& value)
-{
-	::ylib::delete_::where(name, expression, value);
-}
-
-void ylib::Ldelete::where_expression(const std::string& expression)
-{
-	::ylib::delete_::where(expression);
-}
-#endif
