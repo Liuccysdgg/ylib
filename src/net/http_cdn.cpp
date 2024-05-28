@@ -81,7 +81,7 @@ bool network::http::cdn::start(const cdn_config& config){
     else
     {
         std::cout<<"CDN:Node start"<<std::endl;
-        website()->router()->subscribe("/info",network::http::GET,[&](network::http::request* request,network::http::response* response){
+        website()->router()->subscribe("/info",network::http::GET,[&](network::http::request* request,network::http::response* response,void* extra){
             ylib::json rep;
             std::string value_key;
             if(request->header("key",value_key) == false || m_cdn_node_key != value_key){

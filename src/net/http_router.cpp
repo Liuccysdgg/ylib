@@ -74,7 +74,7 @@ network::http::interceptor* network::http::router::interceptor(){
     return m_interceptor;
 }
 
-void network::http::router::subscribe(const std::string &path, network::http::method method, std::function<void(network::http::request*,network::http::response*)> callback)
+void network::http::router::subscribe(const std::string &path, network::http::method method, std::function<void(network::http::request*,network::http::response*,void*)> callback, void* extra)
 {
 #if HTTP_ROUTER_PRINT == 1
     ylib::log->info("[subscribe][func] express:"+path+" method:"+method_to_string(method),"router");
@@ -84,6 +84,7 @@ void network::http::router::subscribe(const std::string &path, network::http::me
     svie->method = method;
     svie->express = std::regex(path.c_str());
     svie->callback = callback;
+    svie->extra = extra;
     m_subscribe.append(svie);
 }
 void network::http::router::subscribe(
@@ -197,7 +198,7 @@ void ylib::network::http::router::__thread_callback(reqpack* rp)
                     //普通回调
                     if (sub->callback != nullptr)
                     {
-                        sub->callback(rp->request(), rp->response());
+                        sub->callback(rp->request(), rp->response(),sub->extra);
                     }
                     else
                     {
