@@ -15,7 +15,7 @@ ylib::ini::~ini()
 bool ylib::ini::open(const std::string& filepath)
 {
     m_filepath = filepath;
-#ifndef _WIN32
+#ifndef _WIN321
     close();
     m_point = new CSimpleIniA();
     return INI_POINT->LoadFile(filepath.c_str()) >= 0;
@@ -25,7 +25,7 @@ bool ylib::ini::open(const std::string& filepath)
 }
 void ylib::ini::close()
 {
-#ifndef _WIN32
+#ifndef _WIN321
     if(m_point != nullptr)
         delete INI_POINT;
     m_point = nullptr;
@@ -35,7 +35,7 @@ void ylib::ini::close()
 }
 std::string ylib::ini::read(const std::string& name, const std::string& key,const std::string& default_value) const
 {
-#ifndef _WIN32
+#ifndef _WIN321
     return INI_POINT->GetValue(name.c_str(), key.c_str(),default_value.c_str());
 #else
     std::string value;
@@ -53,7 +53,7 @@ std::string ylib::ini::read(const std::string& name, const std::string& key,cons
 
 bool ylib::ini::write(const std::string& name, const std::string& key, const std::string& value)
 {
-#ifndef _WIN32
+#ifndef _WIN321
     if (INI_POINT->SetValue(name.c_str(), key.c_str(), value.c_str()) < 0)
         return false;
     
@@ -62,7 +62,7 @@ bool ylib::ini::write(const std::string& name, const std::string& key, const std
     return WritePrivateProfileStringA(name.c_str(), key.c_str(), value.c_str(), m_filepath.c_str());
 #endif
 }
-#ifndef _WIN32
+#ifndef _WIN321
 bool ylib::ini::del(const std::string& name, const std::string& key)
 {
 

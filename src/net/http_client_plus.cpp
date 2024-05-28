@@ -13,7 +13,7 @@
 #include "util/strutils.h"
 #include "util/time.h"
 #include "util/system.h"
-#define _DEBUG_CLIENT 1
+#define _DEBUG_CLIENT 0
 
 
 #define CLIENT ((IHttpClient*)client()) 
