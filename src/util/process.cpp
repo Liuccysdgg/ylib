@@ -1,4 +1,4 @@
-#include "util/process.h"
+﻿#include "util/process.h"
 #include "util/strutils.h"
 #ifdef _WIN32
 #include <windows.h>

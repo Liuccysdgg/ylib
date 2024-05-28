@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "http_define.h"
 #if USE_NET_HTTP_WEBSITE
 #include <functional>

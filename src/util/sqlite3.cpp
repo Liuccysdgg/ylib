@@ -1,4 +1,4 @@
-#include "util/sqlite3.h"
+﻿#include "util/sqlite3.h"
 #include "util/codec.h"
 #include "util/file.h"
 #include "base/conversion.h"

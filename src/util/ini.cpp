@@ -1,4 +1,4 @@
-#include "util/ini.h"
+﻿#include "util/ini.h"
 #include "base/define.h"
 #include "simpleini/SimpleIni.h"
 #define INI_POINT ((CSimpleIniA*)m_point)

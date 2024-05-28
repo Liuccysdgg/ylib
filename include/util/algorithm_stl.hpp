@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "ybase/define.h"
 #include "yutil/array.hpp"
 #include <vector>

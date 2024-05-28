@@ -1,4 +1,4 @@
-#include "net/http_cookie.h"
+﻿#include "net/http_cookie.h"
 #if USE_NET_HTTP_UTIL
 #include "util/strutils.h"
 ylib::network::http::cookie::cookie()

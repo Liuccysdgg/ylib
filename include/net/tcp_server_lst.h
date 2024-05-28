@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "net/define.h"
 #ifdef USE_NET_TCP_SERVER
 #include "HPSocket/HPSocket.h"

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "sqlite3/sqlite3.h"
 #include "base/define.h"
 #include "base/error.h"

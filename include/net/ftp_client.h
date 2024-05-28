@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "define.h"
 #include "util/file.h"
 #include "util/thread.h"

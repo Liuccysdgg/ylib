@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "base/error.h"
 #include "mysql.h"
 #include <any>

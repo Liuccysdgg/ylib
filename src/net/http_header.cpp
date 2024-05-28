@@ -1,4 +1,4 @@
-#include "net/http_header.h"
+﻿#include "net/http_header.h"
 #if USE_NET_HTTP_UTIL
 #include "util/strutils.h"
 ylib::network::http::header::header()

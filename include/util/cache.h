@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "base/define.h"
 #include "base/error.h"
 

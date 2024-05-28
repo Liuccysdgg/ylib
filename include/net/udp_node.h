@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "net/define.h"
 #if USE_NET_UDP_NODE
 #include <functional>

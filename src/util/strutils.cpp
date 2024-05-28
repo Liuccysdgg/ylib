@@ -1,4 +1,4 @@
-#include "util/strutils.h"
+﻿#include "util/strutils.h"
 #include <algorithm>
 #include <cctype>
 #ifdef _WIN32

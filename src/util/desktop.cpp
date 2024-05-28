@@ -1,4 +1,4 @@
-#include "util/desktop.h"
+﻿#include "util/desktop.h"
 #ifdef _WIN32
 #include <Windows.h>
 #include "util/window.h"

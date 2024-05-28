@@ -1,4 +1,4 @@
-#include "net/http_ssl.h"
+﻿#include "net/http_ssl.h"
 #if USE_NET_HTTP_WEBSITE
 #include "HPSocket/HPSocket.h"
 
@@ -9,13 +9,13 @@
 ylib::network::http::ssl::ssl(network::http::server* server, ssl_config config):m_config(config)
 {
 
-	m_pem_cert_data =  ylib::file::read(m_config.pem_cert).to_string();
-	m_pem_key_data = ylib::file::read(m_config.pem_key).to_string();
-	m_pem_ca_data = ylib::file::read(m_config.pem_ca).to_string();
+	m_pem_cert_data =  m_config.pem_cert;
+	m_pem_key_data = m_config.pem_key;
+	m_pem_ca_data = m_config.pem_ca;
 	if (m_pem_cert_data.empty())
-		ylib::log->warn("ssl cert is empty,filepath:"+ m_config.pem_cert);
+		ylib::log->warn("ssl cert is empty");
 	if (m_pem_key_data.empty())
-		ylib::log->warn("ssl key is empty,filepath:" + m_config.pem_key);
+		ylib::log->warn("ssl key is empty");
 	m_server = server;
 	m_index = -1;
 }          

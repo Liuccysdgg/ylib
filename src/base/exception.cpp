@@ -1,4 +1,4 @@
-#include "base/exception.h"
+﻿#include "base/exception.h"
 
 ylib::exception::exception(const std::string &msg)
 {

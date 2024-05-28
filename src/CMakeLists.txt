@@ -16,7 +16,6 @@ if(MSVC)
     set(MYSQL_CPPCONN_INCLUDE  CACHE PATH "mysql-connector include")
     include_directories(${MYSQL_CPPCONN_INCLUDE})
 	include_directories(${PROJECT_SOURCE_DIR}/3rdparty/HP-Socket/Windows/Include)
-    add_compile_options(/utf-8)
 endif()
 
 # Add the executable or library target

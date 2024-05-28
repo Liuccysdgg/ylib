@@ -1,4 +1,4 @@
-#include "db/mssql.h"
+﻿#include "db/mssql.h"
 #ifdef _WIN32
 #include "util/time.h"
 #include <windows.h>

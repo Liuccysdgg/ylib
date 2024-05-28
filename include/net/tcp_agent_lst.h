@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "define.h"
 #ifdef USE_NET_TCP_AGENT
 #include <string.h>

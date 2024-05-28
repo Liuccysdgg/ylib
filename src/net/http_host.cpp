@@ -1,4 +1,4 @@
-
+﻿
 #include "net/http_host.h"
 #if USE_NET_HTTP_WEBSITE
 ylib::network::http::host::host()

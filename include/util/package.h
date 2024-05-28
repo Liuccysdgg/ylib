@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "base/buffer.h"
 #include "util/map.hpp"
 namespace ylib

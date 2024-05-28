@@ -1,4 +1,4 @@
-#include "util/package.h"
+﻿#include "util/package.h"
 #include "util/codec.h"
 #include "base/conversion.h"
 #define CHECK_DATA_LENGTH(DATA,LENGTH) if (DATA->length() < (LENGTH))return false;

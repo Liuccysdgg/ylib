@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <mutex>
 namespace  ylib {
     template<typename T>
