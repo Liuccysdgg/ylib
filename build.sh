@@ -46,16 +46,16 @@ sudo cp -r HP-Socket/Linux/include/* /usr/local/include/
 sudo mv /usr/local/include/hpsocket /usr/local/include/HPSocket
 
 # 安装mysql-connector-cpp
-cd $src_dir/3rdparty
-if [ ! -d "mysql-connector-cpp" ]; then
-	git clone https://github.com/mysql/mysql-connector-cpp.git
-	cd mysql-connector-cpp
-	mkdir build
-	cd build
-	cmake ../ -DCMAKE_BUILD_TYPE=Release -DWITH_JDBC=true  
-	make -j8
-	sudo make install
-fi
+#cd $src_dir/3rdparty
+#if [ ! -d "mysql-connector-cpp" ]; then
+#	git clone https://github.com/mysql/mysql-connector-cpp.git
+#	cd mysql-connector-cpp
+#	mkdir build
+#	cd build
+#	cmake ../ -DCMAKE_BUILD_TYPE=Release -DWITH_JDBC=true  
+#	make -j8
+#	sudo make install
+#fi
 
 ######核心######
 cd $install_dir
