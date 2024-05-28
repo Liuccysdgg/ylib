@@ -10,6 +10,11 @@ sudo apt install -y openssl
 sudo apt install -y libboost-dev 
 sudo apt install -y libmysqlcppconn-dev
 sudo apt install -y libleveldb-dev
+sudo apt install -y libsoci-dev
+sudo apt install -y unixodbc-dev
+sudo apt install -y liblua5.4-dev
+
+
 # 初始化变量 
 
 src_dir=$(pwd)
