@@ -48,6 +48,7 @@ if(MSVC)
     # 警告等级
     add_compile_options(/W3 /wd4819)
 else()
+    add_compile_options(-fPIC)
     
 endif()
 ########################  子项目  ########################
