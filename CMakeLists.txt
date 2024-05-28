@@ -65,8 +65,9 @@ add_subdirectory(3rdparty/lua)
 add_subdirectory(3rdparty/sqlite3)
 if(MSVC)
 add_subdirectory(3rdparty/libzip)
-endif()
 add_subdirectory(3rdparty/leveldb)
+endif()
+
 
 
 

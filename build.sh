@@ -8,6 +8,8 @@ sudo apt install -y libssl-dev
 sudo apt install -y xorg libx11-dev libgl1-mesa-dev
 sudo apt install -y openssl
 sudo apt install -y libboost-dev 
+sudo apt install -y libmysqlcppconn-dev
+sudo apt install -y libleveldb-dev
 # 初始化变量 
 
 src_dir=$(pwd)
