@@ -12,7 +12,7 @@ sudo apt install -y libmysqlcppconn-dev
 sudo apt install -y libleveldb-dev
 sudo apt install -y libsoci-dev
 sudo apt install -y unixodbc-dev
-sudo apt install -y liblua5.4-dev
+sudo apt install -y liblua5.3-dev
 
 
 # 初始化变量 
