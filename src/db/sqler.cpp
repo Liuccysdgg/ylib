@@ -1,6 +1,4 @@
 #include "db/sqler.h"
-#include <ranges>
-#include <algorithm>
 #include <numeric>
 /// <summary>
 /// 检查Any类型
