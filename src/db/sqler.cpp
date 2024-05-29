@@ -207,6 +207,15 @@ ylib::mysql::result* ylib::select::query()
 		setInsetValue(ppst, i + 1, insert_values[i]);
 	return ppst->query();
 }
+void ylib::select::clear()
+{
+	m_wheres.clear();
+	m_table_name = "";
+	m_fields.clear();
+	m_limit.count = -1;
+	m_limit.start = -1;
+	m_orderby.field = "";
+}
 void ylib::select::make_sql(std::string& field_name, std::string& where, std::string& orderby, std::string& limit, std::vector<std::any>& insert_values)
 {
 	if (m_fields.size() == 0)
@@ -367,6 +376,16 @@ uint64 ylib::update::exec()
 	return ppst->update();
 }
 
+void ylib::update::clear()
+{
+	m_wheres.clear();
+	m_table_name = "";
+	m_limit.count = -1;
+	m_limit.start = -1;
+	m_orderby.field = "";
+	m_sets.clear();
+}
+
 void ylib::update::make_sql(std::string& set, std::string& where, std::string& orderby, std::string& limit, std::vector<std::any>& insert_values)
 {
 	{
@@ -494,6 +513,13 @@ uint64 ylib::insert::exec()
 	return ppst->update();
 }
 
+void ylib::insert::clear()
+{
+	m_table_name = "";
+	m_sets.clear();
+
+}
+
 
 
 
@@ -592,6 +618,15 @@ uint64 ylib::delete_::exec()
 	for (size_t i = 0; i < insert_values.size(); i++)
 		setInsetValue(ppst, i + 1, insert_values[i]);
 	return ppst->update();
+}
+
+void ylib::delete_::clear()
+{
+	m_wheres.clear();
+	m_table_name = "";
+	m_limit.count = -1;
+	m_limit.start = -1;
+	m_orderby.field = "";
 }
 
 void ylib::delete_::make_sql(std::string& where, std::string& orderby, std::string& limit, std::vector<std::any>& insert_values)
