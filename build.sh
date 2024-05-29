@@ -39,7 +39,12 @@ if [ ! -d "HP-Socket" ]; then
 	echo "Y" | ./script/install.sh
 fi
 cd $src_dir/3rdparty
-
+# 安装HPSocket
+sudo cp HP-Socket/Linux/lib/hpsocket/x64/*.a /usr/local/lib/
+sudo cp HP-Socket/Linux/lib/hpsocket/x64/*.so /lib/x86_64-linux-gnu/
+sudo cp HP-Socket/Linux/lib/hpsocket/x64/*.so.5 /lib/x86_64-linux-gnu/
+sudo cp -r HP-Socket/Linux/include/* /usr/local/include/
+sudo mv /usr/local/include/hpsocket /usr/local/include/HPSocket
 # 安装mysql-connector-cpp
 #cd $src_dir/3rdparty
 #if [ ! -d "mysql-connector-cpp" ]; then
