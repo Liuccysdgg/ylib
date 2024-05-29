@@ -81,6 +81,8 @@ namespace ylib
 		/// 查询
 		/// </summary>
 		ylib::mysql::result* query();
+
+		void clear();
 #if 0
 		/// <summary>
 		/// 查询转换为layui需求模板
@@ -159,6 +161,8 @@ namespace ylib
 		/// 查询
 		/// </summary>
 		uint64 exec();
+
+		void clear();
 	private:
 		/// <summary>
 		/// 生成SQL片段
@@ -199,6 +203,8 @@ namespace ylib
 		/// 查询
 		/// </summary>
 		uint64 exec();
+
+		void clear();
 	private:
 		mysql::conn* m_conn = nullptr;
 		std::string m_table_name;
@@ -245,6 +251,8 @@ namespace ylib
 		/// 查询
 		/// </summary>
 		uint64 exec();
+
+		void clear();
 	private:
 		/// <summary>
 		/// 生成SQL片段
