@@ -451,12 +451,16 @@ ylib::mysql::result::~result()
 
 std::string ylib::mysql::result::field_name(uint32 index)
 {
-    return RESULT_SET->getMetaData()->getColumnName(index);
+    if (index>m_fields.size() || index < 1)
+        return "";
+    return m_fields[index-1].name;
 }
 
 std::string ylib::mysql::result::field_type(uint32 index)
 {
-    return strutils::change_case(RESULT_SET->getMetaData()->getColumnTypeName(index),false);
+    if (index  > m_fields.size() || index < 1)
+        return "";
+    return m_fields[index-1].type_name;
 }
 
 std::string ylib::mysql::result::field_type(const std::string& name)
