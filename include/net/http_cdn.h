@@ -47,6 +47,7 @@ namespace ylib
                 cdn();
                 ~cdn();
                 bool start(const cdn_config& config);
+                void close();
                 std::string host();
                 virtual bool run() override;
                 const cdn_config& config() { return m_config; }

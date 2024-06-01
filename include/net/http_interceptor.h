@@ -29,6 +29,7 @@ namespace ylib
                 ~interceptor(); 
                 size_t add(const std::string& regex_express, std::function<bool(network::http::reqpack* rp,const std::string& express)> callback);
                 bool trigger(const std::string& url, network::http::reqpack* rp);
+                void clear();
             private:
                 ylib::nolock_array<interceptor_info*> m_array;
             };

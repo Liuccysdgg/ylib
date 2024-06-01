@@ -159,6 +159,10 @@ bool ylib::network::http::website::start(const website_config& config)
 
 void ylib::network::http::website::close()
 {
+    m_router->close();
+    m_cache->stop();
+    m_cdn->close();
+    m_session_local_storage->close();
 }
 network::http::router* network::http::website::router()
 {

@@ -49,17 +49,17 @@ namespace ylib
                 ylib::nolock_array<network::http::proxy*>* proxy();
             private:
                 // 文件缓存
-                network::http::cache* m_cache;
+                network::http::cache* m_cache = nullptr;
                 // SESSION缓存
-                ylib::local_storage* m_session_local_storage;
+                ylib::local_storage* m_session_local_storage = nullptr;
                 // router路由 服务
-                network::http::router* m_router;
+                network::http::router* m_router = nullptr;
                 // CDN服务
-                network::http::cdn* m_cdn;
+                network::http::cdn* m_cdn = nullptr;
                 // HOST
                 std::vector<network::http::host*> m_hosts;
                 // HTTPS
-                bool m_https;
+                bool m_https = false;
                 // 反向代理
                 ylib::nolock_array<network::http::proxy*> m_proxy;
                 // 配置

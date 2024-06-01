@@ -11,7 +11,7 @@ network::http::interceptor::interceptor()
 }
 network::http::interceptor::~interceptor()
 {
-
+    clear();
 }
 size_t network::http::interceptor::add(const std::string& express, std::function<bool(network::http::reqpack* rp,const std::string&)> callback)
 {
@@ -39,5 +39,11 @@ bool network::http::interceptor::trigger(const std::string& url, network::http::
         }
     }
     return true;
+}
+void ylib::network::http::interceptor::clear()
+{
+    for (size_t i = 0; i < m_array.size(); i++)
+        delete m_array.get(i);
+    m_array.free();
 }
 #endif

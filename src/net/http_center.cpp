@@ -13,6 +13,7 @@ ylib::network::http::center::center()
 
 ylib::network::http::center::~center()
 {
+    close();
 }
 bool ylib::network::http::center::create(const start_config& config)
 {
@@ -80,7 +81,16 @@ void ylib::network::http::center::close()
             delete m_server[i];
         }
     }
+    for (size_t i = 0; i < m_website.size(); i++)
+    {
+        if (m_website[i] != nullptr)
+        {
+            m_website[i]->close();
+            delete m_website[i];
+        }
+    }
     m_server.clear();
+    m_website.clear();
 }
 
 ylib::network::http::server* ylib::network::http::center::server(ushort port)

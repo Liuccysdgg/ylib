@@ -67,7 +67,8 @@ void network::http::router::close()
         delete this->m_threadpool;
         this->m_threadpool = nullptr;
     }
-    
+    m_interceptor->clear();
+    clear_subscribe();
 }
 network::http::interceptor* network::http::router::interceptor(){
     m_interceptor->center(center());
@@ -105,21 +106,12 @@ void network::http::router::subscribe(
     svie->controller_function = function;
     m_subscribe.append(svie);
 }
-#if HTTP_LUA_ENGINE == 1
-void ylib::network::http::router::subscribe(const std::string& lua_filepath, std::string path, network::http::method method, std::function<void(sol::state& state)> init_state)
+void ylib::network::http::router::clear_subscribe()
 {
-#if HTTP_ROUTER_PRINT == 1
-    ylib::log->info("[subscribe][ctl][lua] express:" + path + " method:" + method_to_string(method), "router");
-#endif
-    network::http::subscribe_info* svie = new network::http::subscribe_info;
-    svie->controller = false;
-    svie->method = method;
-    svie->express = std::regex(path.c_str());
-    svie->lua_filepath = lua_filepath;
-    svie->lua_init_state = init_state;
-    m_subscribe.append(svie);
+    for (size_t i = 0; i < m_subscribe.size(); i++)
+        delete m_subscribe.get(i);
+    m_subscribe.free();
 }
-#endif
 void network::http::router::other(std::function<void(network::http::request*,network::http::response*)> callback)
 {
     this->m_callback_other = callback;
@@ -229,12 +221,7 @@ void ylib::network::http::router::__thread_callback(reqpack* rp)
         if (m_callback_other != nullptr) {
             m_callback_other(rp->request(), rp->response());
         }else{ 
-            std::string filepath = rp->request()->filepath();
-            if(filepath == "/")
-                filepath = "/index.html";
-            if(rp->response()->send_file(filepath) == false){
-                rp->response()->send((std::string)"404 Not found",404,"Not Found");
-            }
+            rp->response()->send((std::string)"Services that have not been processed",500,"Service Unavailable");
         }
     }
 }

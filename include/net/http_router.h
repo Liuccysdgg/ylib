@@ -109,14 +109,11 @@ namespace ylib
                     std::string path,
                     network::http::method method
                 ); 
-#if HTTP_LUA_ENGINE == 1
-                void subscribe(
-                    const std::string& lua_filepath,
-                    std::string path,
-                    network::http::method method,
-                    std::function<void(sol::state& state)> init_state = nullptr
-                );
-#endif
+
+                /// <summary>
+                /// 清理所有订阅
+                /// </summary>
+                void clear_subscribe();
                 /******************************************************************
                  * function：其它
                  * desc：未订阅请求触发该回调

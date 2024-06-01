@@ -18,7 +18,12 @@ bool ylib::local_storage::open(const std::string& dirpath)
 
 	// 打开数据库
 	leveldb::Status status = leveldb::DB::Open(options, dirpath, &m_db);
-	return status.ok();
+	if (status.ok() == false)
+	{
+		m_lastErrorDesc = status.ToString();
+		return false;
+	}
+	return true;
 }
 
 void ylib::local_storage::close()

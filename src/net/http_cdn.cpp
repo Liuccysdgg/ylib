@@ -104,6 +104,12 @@ bool network::http::cdn::start(const cdn_config& config){
     ::ithread::start();
     return true;
 }
+void ylib::network::http::cdn::close()
+{
+    ::ithread::stop();
+    ::ithread::wait();
+    m_nodes.clear();
+}
 std::string network::http::cdn::host(){
     int32 score = 0;
     std::string result_host;

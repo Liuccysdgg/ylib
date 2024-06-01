@@ -45,7 +45,7 @@ namespace ylib
             }
             return m_array[index];
         }
-
+        inline size_t size() { return m_count; }
         T* m_array;
         size_t m_count;
     };

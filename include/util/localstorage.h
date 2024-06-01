@@ -3,6 +3,7 @@
 #include <vector>
 #include "util/json.h"
 #include "util/counter.hpp"
+#include "base/error.h"
 namespace leveldb
 {
 	class DB;
@@ -12,7 +13,7 @@ namespace ylib
 	/// <summary>
 	/// 本地存储(LevelDB)
 	/// </summary>
-	class local_storage
+	class local_storage:public ylib::error_base
 	{
 	public: 
 		local_storage();
