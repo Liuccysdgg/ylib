@@ -1,4 +1,5 @@
 ﻿#include "db/mysql.h"
+#if defined(_WIN32) && defined(WIN64) || !defined(_WIN32)
 #include "cppconn/driver.h"
 #include "cppconn/connection.h"
 #include "cppconn/statement.h"
@@ -747,3 +748,4 @@ ylib::json ylib::mysql::result::to_json()
     }
     return result;
 }
+#endif
