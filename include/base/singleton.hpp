@@ -8,7 +8,7 @@
 
 namespace ylib
 {
-    // 单例基类模板
+	// 单例基类模板
 	template <typename T>
 	class singleton {
 	public:
@@ -19,15 +19,12 @@ namespace ylib
 		}
 
 	protected:
-		// 默认构造函数
-		singleton() = default;
-
 		// 禁止拷贝构造函数和拷贝赋值操作
-		singleton(const singleton&) = delete;
-		singleton& operator=(const singleton&) = delete;
+		//singleton(const singleton&) = delete;
+		//singleton& operator=(const singleton&) = delete;
 
 		// 允许析构
-		virtual ~singleton() = default;
+		//virtual ~singleton() = default;
 	};
 }
 
