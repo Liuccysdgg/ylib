@@ -17,7 +17,7 @@ namespace ylib
 			std::string path()
 			{
 				if (__filepath.empty())
-					return ylib::process::getpath(pid);
+					__filepath = ylib::process::getpath(pid);
 				return __filepath;
 			}
 			std::string __filepath;
@@ -32,7 +32,7 @@ namespace ylib
 		// 系统进程列表
 		std::list<ylib::process::proc_info> list();
 		// 是否存在
-		bool exist(const std::string& filepath);
+		size_t exist(const std::string& filepath);
 		// 检测多开
 		bool already_running(const std::string& name);
 		// 设置为启动

@@ -27,9 +27,9 @@ bool ylib::process::create(const std::string& filepath, const std::string& worki
 
     // 构建命令行字符串
     std::stringstream ss;
-    ss << "\"" << filepath << "\"";
+    ss << filepath<<" ";
     for (const auto& arg : args) {
-        ss << " \"" << arg << "\"";
+        ss << " "<<arg<<" ";
     }
     std::string cmd = ss.str();
     std::vector<char> cmdCStr(cmd.begin(), cmd.end());
@@ -129,15 +129,17 @@ std::string ylib::process::getpath(uint32 process_id)
     return path;
 #endif
 }
-bool ylib::process::exist(const std::string& filepath)
+size_t ylib::process::exist(const std::string& filepath)
 {
     auto list = process::list();
     for_iter(iter, list)
     {
         if (strutils::change_case(iter->path(), false) == strutils::change_case(filepath, false))
-            return true;
+        {
+            return iter->pid;
+        }
     }
-    return false;
+    return 0;
 }
 // 检测多开
 bool ylib::process::already_running(const std::string& name)
