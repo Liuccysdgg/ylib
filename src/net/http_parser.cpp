@@ -37,7 +37,7 @@ bool network::http::parser::init(const std::string &url,const network::http::met
         break;
     case network::http::POST:
         {
-            if(content_type == "application/x-www-form-urlencoded")
+            if(content_type.find("application/x-www-form-urlencoded") != -1)
             {
                 parse_url(m_data.to_string(),m_body_param);
             }
@@ -79,11 +79,11 @@ bool network::http::parser::body_param(const std::string &name, std::string &val
 {
     if(m_method == POST)
     {
-        if(m_content_type == "application/x-www-form-urlencoded")
+        if(m_content_type.find("application/x-www-form-urlencoded") != -1)
         {
             return read_url_param(m_body_param,name,value);
         }
-        else if(m_content_type == "application/json")
+        else if(m_content_type.find("application/json") != -1)
         {
             if(!m_json_param.exist(name))
                 return false;
@@ -103,11 +103,11 @@ bool ylib::network::http::parser::body_param_exist(const std::string& name)
 {
     if (m_method == POST)
     {
-        if (m_content_type == "application/x-www-form-urlencoded")
+        if (m_content_type.find("application/x-www-form-urlencoded") != -1)
         {
             return m_body_param.find(name) != m_body_param.end();
         }
-        else if (m_content_type == "application/json")
+        else if (m_content_type.find("application/json") != -1)
         {
             return m_json_param.exist(name);
         }
@@ -121,12 +121,12 @@ std::vector<std::string> network::http::parser::body_param_names()
     std::vector<std::string> names;
     if(m_method == POST)
     {
-        if(m_content_type == "application/x-www-form-urlencoded")
+        if (m_content_type.find("application/x-www-form-urlencoded") != -1)
         {
             for_iter(iter,m_body_param)
                 names.push_back(iter->first);
         }
-        else if(m_content_type == "application/json")
+        else if (m_content_type.find("application/json") != -1)
         {
             return m_json_param.keys();
         }
