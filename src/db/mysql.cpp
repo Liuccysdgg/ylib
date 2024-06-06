@@ -22,8 +22,8 @@
 
 
 
-#define DEBUG_LOG_PPST_SET 1
-#define DEBUG_LOG_SETSQL 1
+#define DEBUG_LOG_PPST_SET 0
+#define DEBUG_LOG_SETSQL 0
 ylib::mysql::conn::conn()
 {
     m_handle = nullptr;

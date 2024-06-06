@@ -65,7 +65,7 @@ bool ylib::file_io::open(const std::string &filepath,bool only_read, bool auto_c
         std::ofstream outfile(filepath, std::ios::binary);
         outfile.close();
         // 再次尝试打开文件
-        m_stream->open(filepath, std::ios::in | std::ios::out | std::ios::binary);
+        m_stream->open(filepath, std::ios::in | std::ios::out | std::ios::binary | std::ios::app);
         if (!m_stream->is_open()) {
             m_lastErrorDesc =  "Failed to open or create file: " + filepath;
             close();
