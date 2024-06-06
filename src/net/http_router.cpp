@@ -166,6 +166,7 @@ void ylib::network::http::router::__thread_callback(reqpack* rp)
         ylib::log->error("(interceptor)business processing exception:" + std::string(e.what()) + ", url:" + rp->filepath() + " ip:" + rp->request()->remote_ipaddress(true), "router");
 #endif
         rp->response()->send((std::string)e.what(), 500, "Internal Server Error");
+        return;
     }
     bool execed = false;
     for(size_t i=0;i<m_subscribe.m_count;i++){
