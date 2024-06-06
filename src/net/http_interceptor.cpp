@@ -13,23 +13,57 @@ network::http::interceptor::~interceptor()
 {
     clear();
 }
-size_t network::http::interceptor::add(const std::string& express, std::function<bool(network::http::reqpack* rp,const std::string&)> callback)
+bool network::http::interceptor::add(const std::string& express, std::function<bool(network::http::reqpack* rp,const std::string&)> callback)
 {
-    network::http::interceptor_info *info = new network::http::interceptor_info;
-    info->express = std::regex(express.c_str());
-    info->callback = callback;
-    info->express_string = express;
-    return m_array.append(info);
+    std::unique_lock<std::shared_mutex> lock(m_rw_mutex);
+    // 判断是否存在
+    for (size_t i = 0; i < m_list.size(); i++)
+    {
+        if (m_list.at(i).express_string == express)
+            return false;
+    }
+    network::http::interceptor_info info;
+    info.express = std::regex(express.c_str());
+    info.callback = callback;
+    info.express_string = express;
+    m_list.push_back(info);
+    return true;
+}
+bool ylib::network::http::interceptor::remove(const std::string& regex_express)
+{
+    std::unique_lock<std::shared_mutex> lock(m_rw_mutex);
+    for(auto iter = m_list.begin();iter != m_list.end();)
+    {
+        if (iter->express_string == regex_express)
+        {
+            m_list.erase(iter);
+            return true;
+        }
+        else
+            iter++;
+    }
+    return false;
+}
+bool ylib::network::http::interceptor::exist(const std::string& regex_express)
+{
+    std::shared_lock<std::shared_mutex> lock(m_rw_mutex);
+    for (size_t i = 0; i < m_list.size(); i++)
+    {
+        if (m_list.at(i).express_string == regex_express)
+            return true;
+    }
+    return false;
 }
 bool network::http::interceptor::trigger(const std::string& url, network::http::reqpack* rp)
 {
-    if(m_array.m_count == 0)
+    std::shared_lock<std::shared_mutex> lock(m_rw_mutex);
+
+    if(m_list.size() == 0)
         return true;
-	for(size_t i=0;i<m_array.m_count;i++)
+	for(size_t i=0;i<m_list.size();i++)
 	{
-        auto info = m_array.get(i);
-        if(std::regex_match(url.c_str(),info->express)){
-            bool result = info->callback(rp,info->express_string);
+        if(std::regex_match(url.c_str(),m_list[i].express)) {
+            bool result = m_list[i].callback(rp, m_list[i].express_string);
             if(result == false){
 #if HTTP_INTERCEPTOR_PRINT == 1
                 ylib::log->warn("["+rp->exec_msec()+" ms] false url:"+url+"\t"+" express:"+info->express_string+" ip:"+rp->request()->remote_ipaddress(true),"interceptor");
@@ -42,8 +76,7 @@ bool network::http::interceptor::trigger(const std::string& url, network::http::
 }
 void ylib::network::http::interceptor::clear()
 {
-    for (size_t i = 0; i < m_array.size(); i++)
-        delete m_array.get(i);
-    m_array.free();
+    std::unique_lock<std::shared_mutex> lock(m_rw_mutex);
+    m_list.clear();
 }
 #endif

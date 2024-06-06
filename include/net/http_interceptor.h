@@ -5,6 +5,7 @@
 #include <functional>
 #include "net/http_interface.h"
 #include "util/array.hpp"
+#include <shared_mutex>
 
 namespace ylib
 {
@@ -27,11 +28,15 @@ namespace ylib
             public:
                 interceptor();
                 ~interceptor(); 
-                size_t add(const std::string& regex_express, std::function<bool(network::http::reqpack* rp,const std::string& express)> callback);
+                bool add(const std::string& regex_express, std::function<bool(network::http::reqpack* rp,const std::string& express)> callback);
+                bool remove(const std::string& regex_express);
+                bool exist(const std::string& regex_express);
                 bool trigger(const std::string& url, network::http::reqpack* rp);
                 void clear();
             private:
-                ylib::nolock_array<interceptor_info*> m_array;
+                std::vector<interceptor_info> m_list;
+
+                std::shared_mutex m_rw_mutex;
             };
         }
     }
