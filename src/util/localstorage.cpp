@@ -65,7 +65,7 @@ bool ylib::local_storage::exist(const std::string& name)
 	return false;
 }
 
-std::string ylib::local_storage::test_make_guid()
-{
-	return codec::md5(std::to_string(time::now_msec()) + std::to_string(m_guid_counter.make()));
-}
+//std::string ylib::local_storage::test_make_guid()
+//{
+//	return codec::md5(std::to_string(time::now_msec()) + std::to_string(m_guid_counter.make()));
+//}

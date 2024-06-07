@@ -220,7 +220,15 @@ void ylib::network::http::router::__thread_callback(reqpack* rp)
     if(execed == false){
         //其它回调
         if (m_callback_other != nullptr) {
-            m_callback_other(rp->request(), rp->response());
+            try
+            {
+                m_callback_other(rp->request(), rp->response());
+            }
+            catch (const std::exception& e)
+            {
+                rp->response()->send((std::string)e.what(), 500, "Internal Server Error");
+            }
+            
         }else{ 
             rp->response()->send((std::string)"Services that have not been processed",500,"Service Unavailable");
         }

@@ -64,7 +64,7 @@ namespace ylib
 		/// [测试] 生成GUID
 		/// </summary>
 		/// <returns></returns>
-		std::string test_make_guid();
+		//std::string test_make_guid();
 	private:
 		// 目录
         std::string m_dirpath;
