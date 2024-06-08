@@ -4,6 +4,7 @@
 #include "net/http_reqpack.h"
 #include "net/http_response.h"
 #include "net/http_request.h"
+#include "net/http_subscribe.h"
 network::http::cnode::cnode(const cdn_config::node_config& config){
 
     m_reply_wait_msec = 0;
@@ -81,7 +82,7 @@ bool network::http::cdn::start(const cdn_config& config){
     else
     {
         std::cout<<"CDN:Node start"<<std::endl;
-        website()->router()->subscribe("/info",network::http::GET,[&](network::http::request* request,network::http::response* response,void* extra){
+       /* website()->router()->subscribe()->add("/info",network::http::GET,[&](network::http::request* request,network::http::response* response,void* extra){
             ylib::json rep;
             std::string value_key;
             if(request->header("key",value_key) == false || m_cdn_node_key != value_key){
@@ -98,7 +99,7 @@ bool network::http::cdn::start(const cdn_config& config){
             rep["up_sec_byte"] = m_cdn_node_bandinfo.up_sec_byte;
             rep["max_band"] = m_cdn_node_max_band;
             response->send(rep);
-        });
+        });*/
 
     }
     ::ithread::start();

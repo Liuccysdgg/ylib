@@ -12,6 +12,7 @@
 #include "net/http_agent.h"
 #include "net/http_cache.h"
 #include "net/http_cdn.h"
+#include "net/http_subscribe.h"
 #include "HPSocket/HPSocket.h"
 #include "util/system.h"
 #if HTTP_LUA_ENGINE == 1
@@ -22,13 +23,13 @@ ylib::network::http::router::router()
 {
     
     m_threadpool = nullptr;
-    m_interceptor = new network::http::interceptor;
+    m_interceptor = std::make_unique<network::http::interceptor>();
+    m_subscribe = std::make_unique<network::http::subscribe>();
 }
 
 ylib::network::http::router::~router()
 {
     close();
-    delete m_interceptor;
 }
 
 bool network::http::router::start(const router_config &config)
@@ -68,49 +69,16 @@ void network::http::router::close()
         this->m_threadpool = nullptr;
     }
     m_interceptor->clear();
-    clear_subscribe();
+    m_subscribe->clear();
 }
 network::http::interceptor* network::http::router::interceptor(){
     m_interceptor->center(center());
-    return m_interceptor;
+    return m_interceptor.get();
 }
-
-void network::http::router::subscribe(const std::string &path, network::http::method method, std::function<void(network::http::request*,network::http::response*,void*)> callback, void* extra)
+network::http::subscribe* ylib::network::http::router::subscribe()
 {
-#if HTTP_ROUTER_PRINT == 1
-    ylib::log->info("[subscribe][func] express:"+path+" method:"+method_to_string(method),"router");
-#endif
-    network::http::subscribe_info *svie = new network::http::subscribe_info;
-    svie->controller = false;
-    svie->method = method;
-    svie->express = std::regex(path.c_str());
-    svie->callback = callback;
-    svie->extra = extra;
-    m_subscribe.append(svie);
-}
-void network::http::router::subscribe(
-    std::function<void* ()> create_controller_callback,
-    network::http::HTTP_CTR_FUNCTION function,
-    std::string path,
-    network::http::method method
-)
-{
-#if HTTP_ROUTER_PRINT == 1
-    ylib::log->info("[subscribe][ctl] express:"+path+" method:"+method_to_string(method),"router");
-#endif
-    network::http::subscribe_info *svie = new network::http::subscribe_info;
-    svie->controller = true;
-    svie->method = method;
-    svie->express = std::regex(path.c_str());
-    svie->create_controller_callback = create_controller_callback;
-    svie->controller_function = function;
-    m_subscribe.append(svie);
-}
-void ylib::network::http::router::clear_subscribe()
-{
-    for (size_t i = 0; i < m_subscribe.size(); i++)
-        delete m_subscribe.get(i);
-    m_subscribe.free();
+    m_subscribe->center(center());
+    return m_subscribe.get();
 }
 void network::http::router::other(std::function<void(network::http::request*,network::http::response*)> callback)
 {
@@ -150,88 +118,26 @@ void ylib::network::http::router::__thread_callback(reqpack* rp)
     if (is_proxy(rp))
         return;
     /*===============正常请求=================*/
-    //拦截器过滤
+   
     try
     {
+        // 拦截器过滤
         if (m_interceptor->trigger(rp->filepath(), rp) == false)
         {
             // 已拒绝继续执行
             return;
         }
+        // 订阅
+        if (m_subscribe->trigger(rp->filepath(), rp))
+            return; // 已被处理
+
+        // 其它
+        if (m_callback_other != nullptr)
+            m_callback_other(rp->request(), rp->response());
     }
     catch (const std::exception& e)
     {
-#if HTTP_ROUTER_PRINT == 1
-        // 通用异常返回
-        ylib::log->error("(interceptor)business processing exception:" + std::string(e.what()) + ", url:" + rp->filepath() + " ip:" + rp->request()->remote_ipaddress(true), "router");
-#endif
         rp->response()->send((std::string)e.what(), 500, "Internal Server Error");
-        return;
-    }
-    bool execed = false;
-    for(size_t i=0;i<m_subscribe.m_count;i++){
-        auto sub = m_subscribe.get(i);
-        if (std::regex_match(rp->filepath().c_str(),sub->express) && (sub->method == rp->method() || sub->method == network::http::ALL))
-        {
-            execed = true;
-            try
-            {
-                //开始回调
-                if (sub->controller)
-                {
-                    //controller 类型回调
-                    std::unique_ptr<network::http::controller> controller((network::http::controller*)sub->create_controller_callback());
-                    controller->m_reqpack = rp;
-                    controller->center(center());
-                    //调用处理函数
-                    (controller.get()->*sub->controller_function)();
-                }
-                else
-                {
-                    //普通回调
-                    if (sub->callback != nullptr)
-                    {
-                        sub->callback(rp->request(), rp->response(),sub->extra);
-                    }
-                    else
-                    {
-#if HTTP_LUA_ENGINE == 1
-                        lua_engine(rp,*sub);
-#endif
-                    }
-                }
-#if HTTP_ROUTER_PRINT == 1
-                ylib::log->info("["+rp->exec_msec()+" ms] controller url:"+rp->filepath()+" ip:"+rp->request()->remote_ipaddress(true),"router"); 
-#endif
-            }
-            catch (const std::exception& e)
-            {
-#if HTTP_ROUTER_PRINT == 1
-                // 通用异常返回
-                ylib::log->error("business processing exception:" + std::string(e.what()) + ", url:" + rp->filepath()+" ip:"+rp->request()->remote_ipaddress(true),"router");
-#endif
-                rp->response()->send((std::string)e.what(), 500, "Internal Server Error");
-            }
-            break;
-
-        }
-        
-    }
-    if(execed == false){
-        //其它回调
-        if (m_callback_other != nullptr) {
-            try
-            {
-                m_callback_other(rp->request(), rp->response());
-            }
-            catch (const std::exception& e)
-            {
-                rp->response()->send((std::string)e.what(), 500, "Internal Server Error");
-            }
-            
-        }else{ 
-            rp->response()->send((std::string)"Services that have not been processed",500,"Service Unavailable");
-        }
     }
 }
 size_t ylib::network::http::router::queue_size()

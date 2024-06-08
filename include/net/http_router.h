@@ -21,37 +21,7 @@ namespace ylib
             class request;
             class response;
             class interceptor;
-            /*************************************
-             * struct：订阅信息
-             *************************************/
-            struct subscribe_info {
-                subscribe_info()
-                {
-                    method = network::http::ALL;
-                    controller = false;
-                    controller_function = nullptr;
-                }
-                // 请求路径
-                std::regex express;
-                // 请求类型
-                network::http::method method;
-                // 回调函数
-                std::function<void(network::http::request*, network::http::response*,void *extra)> callback;
-                // 控制器。为控制器则启动下面两个属性
-                bool controller;
-                // 创建控制器类指针
-                std::function<void* ()> create_controller_callback;
-                // 控制器函数
-                HTTP_CTR_FUNCTION controller_function;
-#if HTTP_LUA_ENGINE == 1
-                // LUA
-                std::string lua_filepath;
-                // LUA虚拟机初始化回调
-                std::function<void(sol::state& state)> lua_init_state;
-#endif
-                // 附加数据
-                void* extra = nullptr;
-            };
+            class subscribe;
             /*************************************************************************
              * class：路由中专服务
              *************************************************************************/
@@ -65,7 +35,6 @@ namespace ylib
                     network::http::router* router;
                     network::http::reqpack* reqpack;
                 };
-
             public:
                 router();
                 ~router();
@@ -86,34 +55,9 @@ namespace ylib
                  ******************************************************************/
                 network::http::interceptor* interceptor();
                 /******************************************************************
-                 * function：订阅
-                 * desc：浏览器请求会首先触发订阅，订阅未找到符合项则触发 other 传入函数。
-                 * param
-                 *      path                    ：           路径
-                 *      method                  ：           请求类型
-                 *      callback                ：           触发回调
-                 * return：
-                 *      同一地址不允许订阅两次
-                 ******************************************************************/
-                void subscribe(
-                    const std::string& path, 
-                    network::http::method method,
-                    std::function<void(network::http::request*, network::http::response*, void*)> callback,
-                    void* extra = nullptr
-                );
-#define SUBSCRIBE(ROUTER,CONTROLLER,FUNCTION,PATH,METHOD) ROUTER->subscribe([]()->void*{return new CONTROLLER;},(ylib::network::http::HTTP_CTR_FUNCTION)&CONTROLLER::FUNCTION,PATH,METHOD)
-
-                void subscribe(
-                    std::function<void* ()> create_controller_callback,
-                    network::http::HTTP_CTR_FUNCTION function,
-                    std::string path,
-                    network::http::method method
-                ); 
-
-                /// <summary>
-                /// 清理所有订阅
-                /// </summary>
-                void clear_subscribe();
+                * function：订阅器
+                ******************************************************************/
+                network::http::subscribe* subscribe();
                 /******************************************************************
                  * function：其它
                  * desc：未订阅请求触发该回调
@@ -155,8 +99,6 @@ namespace ylib
                 void lua_engine(reqpack *rp,const network::http::subscribe_info& info);
 #endif
             private:
-                // 订阅列表
-                ylib::nolock_array<network::http::subscribe_info*> m_subscribe;
                 // 线程池
                 IHPThreadPool* m_threadpool;
                 // [回调] 未订阅请求
@@ -166,7 +108,10 @@ namespace ylib
                 // [回调] 发送前
                 std::function<void(const ylib::buffer& begin, ylib::buffer* end)> m_callback_sendbefore;
                 // 拦截器
-                network::http::interceptor* m_interceptor;
+                std::unique_ptr<network::http::interceptor> m_interceptor;
+                // 订阅器
+                std::unique_ptr<network::http::subscribe> m_subscribe;
+                
             private:
                 ylib::queue<network::http::reqpack*> m_handle_queue;
                 router_config m_config;
