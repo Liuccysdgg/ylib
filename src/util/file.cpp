@@ -389,11 +389,11 @@ void ylib::file::copy_dir(const std::string& src, const std::string& dst)
     auto map = traverse(src,".*");
     for_iter(iter, map) {
         if (iter->second == IS_DIRECTORY)
-            ylib::file::create_dir(dst+"\\"+iter->first,true);
+            ylib::file::create_dir(dst+"/"+iter->first,true);
     }
     for_iter(iter, map) {
         if (iter->second == IS_FILE)
-            ylib::file::copy(src+"\\" + iter->first, dst + "\\" + iter->first);
+            ylib::file::copy(src+"/" + iter->first, dst + "/" + iter->first);
     }
 }
 std::map<std::string, ylib::FileType> ylib::file::traverse(const std::string& dirpath, const std::string& regex_pattern)

@@ -5,13 +5,19 @@
 #include <psapi.h>
 #include <tlhelp32.h>
 #else
+#include <iterator>
 #include <unistd.h>
 #include <limits.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <cstdlib>
+#include <dirent.h>
+#include <fstream>
+#include <sstream>
 #endif
 #include <sstream>
 #include <sys/types.h>
 #include <signal.h>
-#ifdef _WIN32
 bool ylib::process::create(const std::string& filepath, const std::string& working_directory, const std::vector<std::string>& args, bool wait_close, bool show_window, size_t* pid)
 {
 #ifdef _WIN32
@@ -63,7 +69,51 @@ bool ylib::process::create(const std::string& filepath, const std::string& worki
 
     return true;
 #else
-    return false;
+    // 创建一个子进程
+    pid_t pid_fork = fork();
+    if (pid_fork == -1) {
+        // fork失败
+        return false;
+    }
+    else if (pid_fork == 0) {
+        // 在子进程中
+
+        // 如果不显示窗口，设置stdin、stdout和stderr为/dev/null
+        if (!show_window) {
+            int dev_null = open("/dev/null", O_RDWR);
+            dup2(dev_null, STDIN_FILENO);
+            dup2(dev_null, STDOUT_FILENO);
+            dup2(dev_null, STDERR_FILENO);
+            close(dev_null);
+        }
+
+        // 构建参数列表
+        std::vector<char*> argv;
+        argv.push_back(const_cast<char*>(filepath.c_str()));
+        for (const auto& arg : args) {
+            argv.push_back(const_cast<char*>(arg.c_str()));
+        }
+        argv.push_back(nullptr);  // 参数列表以nullptr结尾
+
+        // 执行新的程序
+        execvp(filepath.c_str(), argv.data());
+        // 如果execvp返回，说明发生了错误
+        exit(EXIT_FAILURE);
+    }
+    else {
+        // 在父进程中
+        if (pid != nullptr) {
+            *pid = static_cast<size_t>(pid_fork);
+        }
+
+        // 如果需要等待子进程结束
+        if (wait_close) {
+            int status;
+            waitpid(pid_fork, &status, 0);
+        }
+
+        return true;
+    }
 #endif
 }
 bool ylib::process::destory(uint32 process_id)
@@ -84,6 +134,7 @@ bool ylib::process::destory(uint32 process_id)
 std::list<ylib::process::proc_info> ylib::process::list()
 {
     std::list<ylib::process::proc_info> processList;
+#ifdef _WIN32
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (hSnapshot == INVALID_HANDLE_VALUE) {
         return processList;
@@ -100,6 +151,37 @@ std::list<ylib::process::proc_info> ylib::process::list()
         } while (Process32Next(hSnapshot, &pe32));
     }
     CloseHandle(hSnapshot);
+#else
+    DIR* dir = opendir("/proc");
+    if (dir != nullptr) {
+        struct dirent* entry;
+        while ((entry = readdir(dir)) != nullptr) {
+            int pid = atoi(entry->d_name);
+            if (pid > 0) {  // 过滤掉非数字目录
+                proc_info info;
+                info.pid = pid;
+
+                // 读取进程名和父进程ID
+                std::string pid_path = "/proc/" + std::to_string(pid) + "/stat";
+                std::ifstream stat_file(pid_path);
+                if (stat_file.is_open()) {
+                    std::string line;
+                    std::getline(stat_file, line);
+                    std::istringstream iss(line);
+                    std::vector<std::string> tokens(std::istream_iterator<std::string>{iss},
+                        std::istream_iterator<std::string>());
+
+                    if (tokens.size() > 3) {
+                        info.name = tokens[1];  // 通常是进程名
+                        info.parent_pid = std::stoul(tokens[3]);  // 父进程ID
+                    }
+                    processList.push_back(info);
+                }
+            }
+        }
+        closedir(dir);
+    }
+#endif
     return processList;
 }
 // 取进程路径
@@ -141,6 +223,7 @@ size_t ylib::process::exist(const std::string& filepath)
     }
     return 0;
 }
+#ifdef _WIN32
 // 检测多开
 bool ylib::process::already_running(const std::string& name)
 {

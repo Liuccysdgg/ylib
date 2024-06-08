@@ -98,7 +98,7 @@ bool ylib::network::http::website::start(const website_config& config)
     }
     if (m_session_local_storage->open(m_config.session.dirpath) == false)
     {
-        m_lastErrorDesc = "session open failed, dirpath: " + m_config.session.dirpath;
+        m_lastErrorDesc = "session open failed("+m_session_local_storage->last_error() + "), dirpath: " + m_config.session.dirpath;
         return false;
     }
     if (m_router->start(m_config.router) == false)

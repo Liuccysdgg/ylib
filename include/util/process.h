@@ -8,7 +8,6 @@ namespace ylib
 {
 	namespace process
 	{
-#ifdef _WIN32
 		// 取进程路径
 		std::string getpath(uint32 process_id);
 		/*进程信息*/
@@ -33,6 +32,7 @@ namespace ylib
 		std::list<ylib::process::proc_info> list();
 		// 是否存在
 		size_t exist(const std::string& filepath);
+#ifdef _WIN32
 		// 检测多开
 		bool already_running(const std::string& name);
 		// 设置为启动
