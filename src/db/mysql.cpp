@@ -308,7 +308,7 @@ void ylib::mysql::prepare_statement::set_datetime(uint32 index, const std::strin
 void ylib::mysql::prepare_statement::set_double(uint32 index, double value)
 {
     CHECK_SQL_PPST;
-    PRINT_DEBUG_SET;
+    PRINT_DEBUG_SET; 
     PREPARE_STATEMENT->setDouble(index,value);
 #if DEBUG_LOG_PPST_SET == 1
     std::cout << "set " << index << " = " << value << std::endl;
