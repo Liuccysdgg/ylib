@@ -24,7 +24,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME_DEBUG "${PROJECT_NA
 #target_link_libraries(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/3rdparty/openssl/lib/libcrypto_static_win64.lib")
 
 foreach(source IN LISTS SOURCE_FILES)
-    get_filename_component(source_path "${source}" PATH)
+    get_filename_component(source_path "${source}" PATH) 
     file(RELATIVE_PATH source_path_rel "${PROJECT_SOURCE_DIR}" "${source_path}")
     string(REPLACE "/" "\\" source_path_rel_win "${source_path_rel}") 
     source_group(${source_path_rel_win} FILES "${source}")

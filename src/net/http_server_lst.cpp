@@ -283,7 +283,7 @@ EnHttpParseResult ylib::network::http::http_server_lst::OnMessageComplete(IHttpS
 	auto website = m_server->center()->website(rp->host());
 	if (website == nullptr)
 	{
-	    pSender->SendResponse(dwConnID, 404, "Not Found", nullptr, 0, (const BYTE*)"No such site",12);
+	    pSender->SendResponse(dwConnID, 404, "Not Found", nullptr, 0, (const BYTE*)"No fount site",12);
 #if HTTP_SERVER_PRINT == 1
         logstr.append(" not website("+rp->host()+"):");
         ylib::log->error(logstr,"http_server");
