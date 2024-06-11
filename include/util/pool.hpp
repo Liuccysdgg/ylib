@@ -24,7 +24,6 @@ namespace ylib {
             if(example == NULL)
                 return;
             ((ylib::example_core*)example)->recover();
-
             std::unique_lock<std::mutex> sp(m_mutex);
             m_pop_size--;
             m_queue.push(example);
@@ -40,9 +39,9 @@ namespace ylib {
     };
     enum EXAMPLE_START_RESULT
     {
+        SR_SUCCESS,
         SR_TIMEOUT,
         SR_FAILED,
-        SR_SUCCESS
     };
     template<typename INFO>
     class example:public example_core

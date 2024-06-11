@@ -99,8 +99,9 @@ namespace ylib
 		/// <param name="orderby"></param>
 		/// <param name="limit"></param>
 		void make_sql(std::string& field_name, std::string& where, std::string& orderby, std::string& limit, std::vector<std::any>& insert_values);
-	private:
+	public:
 		mysql::conn* m_conn = nullptr;
+	private:
 		std::vector<ylib::where> m_wheres;
 		std::string m_table_name;
 		std::vector<std::string> m_fields;
@@ -173,7 +174,9 @@ namespace ylib
 		/// <param name="limit"></param>
 		void make_sql(std::string& set, std::string& where, std::string& orderby, std::string& limit, std::vector<std::any>& insert_values);
 	private:
+	public:
 		mysql::conn* m_conn = nullptr;
+	private:
 		std::vector<ylib::where> m_wheres;
 		std::string m_table_name;
 		std::vector<struct ylib::update::set> m_sets;
@@ -205,8 +208,9 @@ namespace ylib
 		uint64 exec();
 
 		void clear();
-	private:
+	public:
 		mysql::conn* m_conn = nullptr;
+	private:
 		std::string m_table_name;
 		std::vector<keyvalue> m_sets;
 	};
@@ -261,8 +265,9 @@ namespace ylib
 		/// <param name="orderby"></param>
 		/// <param name="limit"></param>
 		void make_sql(std::string& where, std::string& orderby, std::string& limit, std::vector<std::any>& insert_values);
-	private:
+	public:
 		mysql::conn* m_conn = nullptr;
+	private:
 		std::vector<ylib::where> m_wheres;
 		std::string m_table_name;
 		ylib::limit m_limit;

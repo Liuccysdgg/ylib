@@ -71,6 +71,9 @@ namespace ylib::mysql
         double get_double(uint32 index);
         double get_double(const std::string& name);
 
+        ylib::buffer get_blob(uint32 index);
+        ylib::buffer get_blob(const std::string& name);
+
         ylib::json to_json();
 
     private:
@@ -95,7 +98,8 @@ namespace ylib::mysql
         void set_uint64(uint32 index, uint64 value);
         void set_null(uint32 index);
         void set_string(uint32 index, const std::string& value);
-        void set_blob(uint32 index, const ylib::buffer& value);
+        void set_string(uint32 index,const char* data,int size);
+        void set_blob(uint32 index, const char* data, int size);
         void clear();
         uint64 update();
         ylib::mysql::result* query();
@@ -104,6 +108,8 @@ namespace ylib::mysql
     private:
         ylib::mysql::result* m_result = nullptr;
         void* m_handle = nullptr;
+
+        std::queue<std::shared_ptr<std::istringstream>> m_blobs;
     };
     class conn :public ylib::example<ylib::mysql::mysql_conn_info>, public ylib::error_base
     {

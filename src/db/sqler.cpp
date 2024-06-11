@@ -28,6 +28,9 @@ bool checkAnyType(const std::any& value)
 	else if (value.type() == typeid(float)) {
 		return true;
 	}
+	else if (value.type() == typeid(std::vector<uchar>)) {
+		return true;
+	}
 	else {
 		return false;
 	}
@@ -60,6 +63,10 @@ void setInsetValue(mysql::prepare_statement*ppst, uint32 index, const std::any& 
 	}
 	else if (value.type() == typeid(float)) {
 		ppst->set_double(index, std::any_cast<float>(value));
+	}
+	else if (value.type() == typeid(std::vector<uchar>)) {
+		auto byte_vct = std::any_cast<std::vector<uchar>>(value);
+		ppst->set_blob(index,(char*)byte_vct.data(),byte_vct.size());
 	}
 	else {
 		throw ylib::exception("Unsupported types("+std::string(value.type().name()) + ")");

@@ -92,6 +92,7 @@ EXAMPLE_START_RESULT ylib::mysql::conn::start(const mysql_conn_info &info)
 
 void ylib::mysql::conn::close()
 {
+    clear();
     if (CONNECTION == nullptr)
         return;
     try
@@ -104,8 +105,6 @@ void ylib::mysql::conn::close()
     }
     delete CONNECTION;
     m_handle = nullptr;
-
-    
 }
 
 void ylib::mysql::conn::recover()
@@ -115,7 +114,6 @@ void ylib::mysql::conn::recover()
         rollback();
     }
     clear();
-
 }
 
 void ylib::mysql::conn::task_out()
@@ -363,19 +361,24 @@ void ylib::mysql::prepare_statement::set_null(uint32 index)
 
 void ylib::mysql::prepare_statement::set_string(uint32 index, const std::string &value)
 {
+    set_string(index, value.c_str(), value.length());
+}
+void ylib::mysql::prepare_statement::set_string(uint32 index, const char* data, int size)
+{
     CHECK_SQL_PPST;
     PRINT_DEBUG_SET_NSTRING;
-    PREPARE_STATEMENT->setString(index,value.c_str());
+    PREPARE_STATEMENT->setString(index,sql::SQLString(data,size));
 #if DEBUG_LOG_PPST_SET == 1
     std::cout << "set " << index << " = " << value << std::endl;
 #endif
 }
-void ylib::mysql::prepare_statement::set_blob(uint32 index, const ylib::buffer& value)
+void ylib::mysql::prepare_statement::set_blob(uint32 index, const char* data, int size)
 {
     CHECK_SQL_PPST;
     PRINT_DEBUG_SET_NSTRING;
-    std::istringstream binaryDataStream(value.to_string());
-    PREPARE_STATEMENT->setBlob(index, &binaryDataStream);
+    auto data_ptr = std::make_shared<std::istringstream>(std::string(data,size));
+    m_blobs.push(data_ptr);
+    PREPARE_STATEMENT->setBlob(index, data_ptr.get());
 #if DEBUG_LOG_PPST_SET == 1
     std::cout << "set " << index << " = " << value.length()<<"(BLOB)" << std::endl;
 #endif
@@ -691,6 +694,44 @@ double ylib::mysql::result::get_double(const std::string &name)
         return RESULT_SET->getDouble(name.c_str());
     }
     catch (const sql::SQLException & e)
+    {
+        throw ylib::exception(e.what());
+    }
+}
+
+ylib::buffer ylib::mysql::result::get_blob(uint32 index)
+{
+    CHECK_SQL_PPST;
+    try
+    {
+        auto stream = RESULT_SET->getBlob(index);
+        ylib::buffer result;
+        char ch;
+        while (stream->get(ch)) {
+            result.append<char>(ch);
+        }
+        return result;
+    }
+    catch (const sql::SQLException& e)
+    {
+        throw ylib::exception(e.what());
+    }
+}
+
+ylib::buffer ylib::mysql::result::get_blob(const std::string& name)
+{
+    CHECK_SQL_PPST;
+    try
+    {
+        auto stream = RESULT_SET->getBlob(name);
+        ylib::buffer result;
+        char ch;
+        while (stream->get(ch)) {
+            result.append<char>(ch);
+        }
+        return result;
+    }
+    catch (const sql::SQLException& e)
     {
         throw ylib::exception(e.what());
     }
