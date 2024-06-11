@@ -49,7 +49,7 @@ bool ylib::network::udp::node::start(const ylib::AddressPort& bind_ap)
 	
 	m_local_ap = bind_ap;
 	//m_local_ap.port = bind_ap.port;
-	if (m_node->Start(bind_ap.address.c_str(), bind_ap.port) == false) 
+	if (m_node->Start(bind_ap.address.empty()==true?nullptr:bind_ap.address.c_str(), bind_ap.port) == false)
 	{
 		this->m_lastErrorDesc = "node start failed, error code:" + std::string(m_node->GetLastErrorDesc());
 		close();
@@ -70,5 +70,13 @@ bool ylib::network::udp::node::close()
 bool ylib::network::udp::node::send(const std::string& remote_ipaddress, ushort remote_port, const char* pData, uint32 len)
 {
 	return m_node->Send(remote_ipaddress.c_str(),remote_port,(const BYTE*)pData,len);
+}
+ushort ylib::network::udp::node::listen_port()
+{
+	TCHAR address[256];
+	int address_len = 256;
+	ushort port = 0;
+	m_node->GetLocalAddress(address, address_len, port);
+	return port;
 }
 #endif

@@ -44,7 +44,7 @@
 #include <sstream>
 #include <sys/types.h>
 #include <signal.h>
-bool ylib::process::create(const std::string& filepath, const std::string& working_directory, const std::vector<std::string>& args, bool wait_close, bool show_window, size_t* pid)
+bool ylib::process::create(const std::string& filepath, const std::string& working_directory, const std::vector<std::string>& args, bool wait_close, bool show_window, int* return_code, size_t* pid)
 {
 #ifdef _WIN32
     STARTUPINFOA si;
@@ -86,6 +86,18 @@ bool ylib::process::create(const std::string& filepath, const std::string& worki
     // 如果需要，等待进程关闭
     if (wait_close) {
         WaitForSingleObject(pi.hProcess, INFINITE);
+
+        // 获取子进程的返回值
+        if (return_code != nullptr)
+        {
+            DWORD exitCode;
+            if (GetExitCodeProcess(pi.hProcess, &exitCode)) {
+                *return_code = exitCode;
+            }
+        }
+        
+
+
     }
     if(pid!=nullptr)
         *pid = pi.dwProcessId;
@@ -248,6 +260,29 @@ size_t ylib::process::exist(const std::string& filepath)
         }
     }
     return 0;
+}
+bool ylib::process::exist(size_t pid)
+{
+#ifdef _WIN32
+    HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
+    if (processHandle == NULL) {
+        return false;
+    }
+    DWORD exitCode;
+    if (!GetExitCodeProcess(processHandle, &exitCode)) {
+        CloseHandle(processHandle);
+        return false;
+    }
+    CloseHandle(processHandle);
+    return (exitCode == STILL_ACTIVE);
+#else
+    if (kill(pid, 0) == 0) {
+        return true;
+    }
+    else {
+        return (errno == EPERM);
+    }
+#endif
 }
 #ifdef _WIN32
 // 检测多开

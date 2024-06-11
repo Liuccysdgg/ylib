@@ -25,13 +25,14 @@ namespace ylib
 			uint32 pid = 0;
 		};
 		// 创建进程
-		bool create(const std::string& filepath, const std::string& working_directory = "", const std::vector<std::string>& args = {}, bool wait_close = false, bool show_window = true, size_t* pid = nullptr);
+		bool create(const std::string& filepath, const std::string& working_directory = "", const std::vector<std::string>& args = {}, bool wait_close = false, bool show_window = true, int* return_code = nullptr, size_t* pid = nullptr);
 		// 销毁进程 
 		bool destory(uint32 process_id);
 		// 系统进程列表
 		std::list<ylib::process::proc_info> list();
 		// 是否存在
 		size_t exist(const std::string& filepath);
+		bool exist(size_t pid);
 #ifdef _WIN32
 		// 检测多开
 		bool already_running(const std::string& name);

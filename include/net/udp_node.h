@@ -21,6 +21,7 @@ namespace ylib
 				bool close();
 				bool send(const std::string& remote_ipaddress, ushort remote_port, const char* pData, uint32 len);
 				void on_recv(std::function<void(ylib::network::udp::node* node, const ylib::AddressPort& remote_ap, const char* data, uint32 len)> callback) { m_callback_recv = callback; }
+				ushort listen_port();
 				const ylib::AddressPort& local() { return m_local_ap; }
 				friend class node_lst;
 			private:
