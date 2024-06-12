@@ -6,7 +6,7 @@ set(PROJECT_NAME ylib)
 project(${PROJECT_NAME})
 
 set(CMAKE_CXX_STANDARD 20)
-
+ 
 #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 # 设置自定义配置类型
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;MinSizeRel;ReleaseMT" CACHE STRING "Build config types" FORCE)

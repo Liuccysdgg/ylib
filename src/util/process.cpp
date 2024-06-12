@@ -284,7 +284,37 @@ bool ylib::process::exist(size_t pid)
     }
 #endif
 }
+std::string ylib::process::work_directory(size_t pid)
+{
 #ifdef _WIN32
+    char buffer[MAX_PATH];
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
+    if (hProcess) {
+        if (GetModuleFileNameEx(hProcess, NULL, buffer, MAX_PATH)) {
+            CloseHandle(hProcess);
+            std::string::size_type pos = std::string(buffer).find_last_of("\\/");
+            return std::string(buffer).substr(0, pos);
+        }
+        CloseHandle(hProcess);
+    }
+#else
+    char buffer[PATH_MAX];
+    std::ostringstream path;
+    path << "/proc/" << pid << "/exe";
+    ssize_t len = readlink(path.str().c_str(), buffer, sizeof(buffer) - 1);
+    if (len != -1) {
+        buffer[len] = '\0';
+        std::string fullPath(buffer);
+        std::string::size_type pos = fullPath.find_last_of("/");
+        return fullPath.substr(0, pos);
+    }
+#endif
+    return "";
+}
+
+
+#ifdef _WIN32
+
 // 检测多开
 bool ylib::process::already_running(const std::string& name)
 {
