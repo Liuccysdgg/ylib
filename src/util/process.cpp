@@ -125,6 +125,12 @@ bool ylib::process::create(const std::string& filepath, const std::string& worki
             close(dev_null);
         }
 
+        // 设置工作目录
+        if (!working_directory.empty() && chdir(working_directory.c_str()) != 0) {
+            // 如果chdir失败，退出子进程
+            exit(EXIT_FAILURE);
+        }
+
         // 构建参数列表
         std::vector<char*> argv;
         argv.push_back(const_cast<char*>(filepath.c_str()));
@@ -148,7 +154,15 @@ bool ylib::process::create(const std::string& filepath, const std::string& worki
         if (wait_close) {
             int status;
             waitpid(pid_fork, &status, 0);
-        }
+            if (return_code != nullptr) {
+                if (WIFEXITED(status)) {
+                    *return_code = WEXITSTATUS(status);
+                }
+                else {
+                    *return_code = -1; // 表示子进程未正常退出
+                }
+            }
+}
 
         return true;
     }
@@ -249,17 +263,18 @@ std::string ylib::process::getpath(uint32 process_id)
     return path;
 #endif
 }
-size_t ylib::process::exist(const std::string& filepath)
+std::vector<size_t> ylib::process::exist(const std::string& filepath)
 {
+    std::vector<size_t> result;
     auto list = process::list();
     for_iter(iter, list)
     {
         if (strutils::change_case(iter->path(), false) == strutils::change_case(filepath, false))
         {
-            return iter->pid;
+            result.push_back(iter->pid);
         }
     }
-    return 0;
+    return result;
 }
 bool ylib::process::exist(size_t pid)
 {
@@ -284,36 +299,10 @@ bool ylib::process::exist(size_t pid)
     }
 #endif
 }
-std::string ylib::process::work_directory(size_t pid)
-{
-#ifdef _WIN32
-    char buffer[MAX_PATH];
-    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
-    if (hProcess) {
-        if (GetModuleFileNameEx(hProcess, NULL, buffer, MAX_PATH)) {
-            CloseHandle(hProcess);
-            std::string::size_type pos = std::string(buffer).find_last_of("\\/");
-            return std::string(buffer).substr(0, pos);
-        }
-        CloseHandle(hProcess);
-    }
-#else
-    char buffer[PATH_MAX];
-    std::ostringstream path;
-    path << "/proc/" << pid << "/exe";
-    ssize_t len = readlink(path.str().c_str(), buffer, sizeof(buffer) - 1);
-    if (len != -1) {
-        buffer[len] = '\0';
-        std::string fullPath(buffer);
-        std::string::size_type pos = fullPath.find_last_of("/");
-        return fullPath.substr(0, pos);
-    }
-#endif
-    return "";
-}
-
 
 #ifdef _WIN32
+
+
 
 // 检测多开
 bool ylib::process::already_running(const std::string& name)

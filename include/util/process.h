@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "base/define.h"
+#include "util/strutils.h"
 namespace ylib
 {
 	namespace process
@@ -16,7 +17,7 @@ namespace ylib
 			std::string path()
 			{
 				if (__filepath.empty())
-					__filepath = ylib::process::getpath(pid);
+					__filepath = strutils::replace(ylib::process::getpath(pid), '\\', '/');
 				return __filepath;
 			}
 			std::string __filepath;
@@ -31,15 +32,8 @@ namespace ylib
 		// 系统进程列表
 		std::list<ylib::process::proc_info> list();
 		// 是否存在
-		size_t exist(const std::string& filepath);
+		std::vector<size_t> exist(const std::string& filepath);
 		bool exist(size_t pid);
-		/// <summary>
-		/// 取工作目录
-		/// </summary>
-		/// <param name="pid"></param>
-		/// <returns></returns>
-		std::string work_directory(size_t pid);
-
 #ifdef _WIN32
 		// 检测多开
 		bool already_running(const std::string& name);
