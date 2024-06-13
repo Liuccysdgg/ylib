@@ -64,7 +64,13 @@ bool ylib::sqlite3::exec(const std::string& sql)
 	std::cout << "[SQLITE3] :\t" << codec::to_gbk(sql) << std::endl;
 #endif
 #endif
-	return sqlite3_exec(m_db, sql.c_str(),nullptr,nullptr,nullptr) == SQLITE_OK;
+	char* cErrMsg = nullptr;
+	if (sqlite3_exec(m_db, sql.c_str(), nullptr, nullptr, &cErrMsg) != SQLITE_OK)
+	{
+		m_lastErrorDesc = cErrMsg;
+		return false;
+	}
+	return true;
 }
 static int QueryResult(void* param, int column, char** argv, char** azColName)
 {
