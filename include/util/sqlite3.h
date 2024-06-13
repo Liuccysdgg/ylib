@@ -17,7 +17,7 @@ namespace ylib
 		bool exec(const std::string& sql);
 		bool query(const std::string& sql, std::vector<std::map<std::string, std::string>>& data);
 		int64 count(const std::string& sql);
-
+		bool is_open() { return m_db != nullptr; }
 		int64 last_insert_id();
 	private:
 		struct ::sqlite3* m_db;
