@@ -29,6 +29,7 @@
 #include "net/tcp_server.h"
 #include "HPSocket/HPSocket.h"
 #include "util/strutils.h"
+#include <string.h>
 ylib::network::tcp::forward::forward()
 {
 }

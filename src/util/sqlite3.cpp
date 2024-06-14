@@ -61,6 +61,8 @@ void ylib::sqlite3::close()
 
 bool ylib::sqlite3::exec(const std::string& sql)
 {
+	if (m_db == nullptr)
+		return false;
 #if DEBUG_PRINT_SQL == 1
 #ifdef _DEBUG
 	std::cout << "[SQLITE3] :\t" << codec::to_gbk(sql) << std::endl;
@@ -88,6 +90,8 @@ static int QueryResult(void* param, int column, char** argv, char** azColName)
 }
 bool ylib::sqlite3::query(const std::string& sql, std::vector<std::map<std::string, std::string>>& data)
 {
+	if (m_db == nullptr)
+		return false;
 #if DEBUG_PRINT_SQL == 1
 #ifdef _DEBUG
 	std::cout << "[SQLITE3] :\t" << codec::to_gbk(sql) << std::endl;
@@ -104,6 +108,7 @@ bool ylib::sqlite3::query(const std::string& sql, std::vector<std::map<std::stri
 
 int64 ylib::sqlite3::count(const std::string& sql)
 {
+
 	SQLITE_RESULT results;
 	if (query(sql, results) == false)
 		return 0;
@@ -113,5 +118,7 @@ int64 ylib::sqlite3::count(const std::string& sql)
 }
 int64 ylib::sqlite3::last_insert_id()
 {
+	if (m_db == nullptr)
+		return 0;
 	return sqlite3_last_insert_rowid(DB_PTR);
 }
