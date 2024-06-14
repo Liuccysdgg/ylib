@@ -46,7 +46,12 @@ bool ylib::sqlite3::open(const std::string& filepath, const std::string& usernam
 	m_db = nullptr;
 	if (sqlite3_open(codec::to_utf8(filepath).c_str(),(::sqlite3**)&m_db) != 0)
 	{
-		this->m_lastErrorDesc = sqlite3_errmsg(DB_PTR);
+		if (m_db != nullptr)
+		{
+			this->m_lastErrorDesc = sqlite3_errmsg(DB_PTR);
+			close();
+		}
+		
 		return false;
 	}
 	return true;
