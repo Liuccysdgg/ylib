@@ -102,7 +102,7 @@ void ylib::sharedmem::destory()
     if (m_handle != -1) {
         close(m_handle);
     }
-    shm_unlink(m_name_.c_str());
+    shm_unlink(m_name.c_str());
     m_handle = -1;
 #endif
     m_memory = nullptr;

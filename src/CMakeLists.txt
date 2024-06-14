@@ -47,9 +47,5 @@ install(DIRECTORY
         ${PROJECT_SOURCE_DIR}/include/util 
         ${PROJECT_SOURCE_DIR}/include/net 
 DESTINATION include)
-install(FILES 
-	${PROJECT_SOURCE_DIR}/3rdparty/openssl/lib/libcrypto_static_win64.lib
-    ${PROJECT_SOURCE_DIR}/3rdparty/openssl/lib/libcrypto_static_win32.lib
-DESTINATION lib)
 
 

@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "sqlite3/sqlite3.h"
+
 #include "base/define.h"
 #include "base/error.h"
 #include <vector>
@@ -20,6 +20,6 @@ namespace ylib
 		bool is_open() { return m_db != nullptr; }
 		int64 last_insert_id();
 	private:
-		struct ::sqlite3* m_db;
+		void* m_db;
 	};
 }

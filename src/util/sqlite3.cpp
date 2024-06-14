@@ -23,12 +23,14 @@
 // EMail：1585346868@qq.com
 
 // QQ：1585346868
-
+#include "sqlite3/sqlite3.h"
 #include "util/sqlite3.h"
 #include "util/codec.h"
 #include "util/file.h"
 #include "base/conversion.h"
 #define DEBUG_PRINT_SQL 0
+
+#define DB_PTR (::sqlite3*)m_db
 ylib::sqlite3::sqlite3()
 {
 	m_db = nullptr;
@@ -42,9 +44,9 @@ bool ylib::sqlite3::open(const std::string& filepath, const std::string& usernam
 	
 	close();
 	m_db = nullptr;
-	if (sqlite3_open(codec::to_utf8(filepath).c_str(), &m_db) != 0)
+	if (sqlite3_open(codec::to_utf8(filepath).c_str(),(::sqlite3**)&m_db) != 0)
 	{
-		this->m_lastErrorDesc = sqlite3_errmsg(m_db);
+		this->m_lastErrorDesc = sqlite3_errmsg(DB_PTR);
 		return false;
 	}
 	return true;
@@ -53,7 +55,7 @@ bool ylib::sqlite3::open(const std::string& filepath, const std::string& usernam
 void ylib::sqlite3::close()
 {
 	if(m_db!= nullptr)
-		sqlite3_close(m_db);
+		sqlite3_close(DB_PTR);
 	m_db = nullptr;
 }
 
@@ -65,7 +67,7 @@ bool ylib::sqlite3::exec(const std::string& sql)
 #endif
 #endif
 	char* cErrMsg = nullptr;
-	if (sqlite3_exec(m_db, sql.c_str(), nullptr, nullptr, &cErrMsg) != SQLITE_OK)
+	if (sqlite3_exec(DB_PTR, sql.c_str(), nullptr, nullptr, &cErrMsg) != SQLITE_OK)
 	{
 		m_lastErrorDesc = cErrMsg;
 		return false;
@@ -92,7 +94,7 @@ bool ylib::sqlite3::query(const std::string& sql, std::vector<std::map<std::stri
 #endif
 #endif
 	char* cErrMsg = nullptr;
-	if (sqlite3_exec(m_db, sql.c_str(), QueryResult, (void*)&data, &cErrMsg) != SQLITE_OK)
+	if (sqlite3_exec(DB_PTR, sql.c_str(), QueryResult, (void*)&data, &cErrMsg) != SQLITE_OK)
 	{
 		this->m_lastErrorDesc = cErrMsg;
 		return false;
@@ -111,5 +113,5 @@ int64 ylib::sqlite3::count(const std::string& sql)
 }
 int64 ylib::sqlite3::last_insert_id()
 {
-	return sqlite3_last_insert_rowid(m_db);
+	return sqlite3_last_insert_rowid(DB_PTR);
 }

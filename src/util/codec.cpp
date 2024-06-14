@@ -32,34 +32,15 @@
 
 #include "zlib/zlib.h"
 #include "HPSocket/HPSocket.h"
+#if USE_OPENSSL== 1
 #include <openssl/evp.h>
+#endif
 #ifdef _WIN32
 #include <windows.h>
 #endif
 #include <iomanip>
 #include <cstring>
 
-
-std::string ylib::codec::md5(const ylib::buffer &input)
-{
-    EVP_MD_CTX* mdctx;
-    const EVP_MD* md;
-    unsigned char md_value[EVP_MAX_MD_SIZE];
-    unsigned int md_len;
-
-    mdctx = EVP_MD_CTX_new();
-    md = EVP_md5();
-    EVP_DigestInit_ex(mdctx, md, NULL);
-    EVP_DigestUpdate(mdctx, input.data(), input.size());
-    EVP_DigestFinal_ex(mdctx, md_value, &md_len);
-    EVP_MD_CTX_free(mdctx);
-    std::ostringstream hexStream;
-    hexStream << std::hex << std::setfill('0');
-    for (unsigned int i = 0; i < md_len; i++) {
-        hexStream << std::setw(2) << (int)md_value[i];
-    }
-    return hexStream.str();
-}
 
 std::string ylib::codec::to_utf8(const std::string &gbk)
 {
@@ -200,7 +181,7 @@ ylib::buffer codec::url::de(const std::string& data)
 
 
 
-
+#if USE_OPENSSL== 1
 ylib::buffer codec::aes::en(const ylib::buffer& data, const std::string& key, ylib::codec::aes::variant var, ylib::codec::aes::mode mod)
 {
     try
@@ -322,3 +303,4 @@ ylib::buffer codec::aes::de(const ylib::buffer& ciphertext, const std::string& k
     }
     return ylib::buffer();
 }
+#endif

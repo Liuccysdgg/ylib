@@ -29,7 +29,7 @@ endif()
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/3rdparty)
 if(MSVC)
-    include_directories(${PROJECT_SOURCE_DIR}/3rdparty/openssl/include)
+
 else()
     include_directories(/usr/local/include)
 endif()
@@ -55,10 +55,12 @@ endif()
 add_subdirectory(src)
 ########################  三方库  ########################
 if(MSVC)
-    add_subdirectory(3rdparty/zlib)
+    add_subdirectory(3rdparty/zlib) 
     add_subdirectory(3rdparty/sqlite3)
     add_subdirectory(3rdparty/libzip)
     add_subdirectory(3rdparty/leveldb)
+else()
+    add_subdirectory(3rdparty/sqlite3)
 endif()
 
 

@@ -8,6 +8,9 @@
 // 是否DEBUG调试内存申请情况
 #define DEBUG_MEM 0
 
+
+#define USE_OPENSSL 0
+
 using namespace ylib;
 
 // 斜杆
