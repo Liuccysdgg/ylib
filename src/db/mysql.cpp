@@ -754,56 +754,56 @@ ylib::buffer ylib::mysql::result::get_blob(const std::string& name)
     }
 }
 
-ylib::json ylib::mysql::result::to_json()
-{
-    CHECK_SQL_PPST;
-    struct __Column
-    {
-        std::string name;
-        std::string type_name;
-    };
-    std::map<int, __Column> column_names;
-    ylib::json result;
-    try
-    {
-        // 取列名称数组
-        {
-            for (uint32 i = 0; i < RESULT_SET->getMetaData()->getColumnCount(); i++)
-            {
-                __Column c;
-                c.name = RESULT_SET->getMetaData()->getColumnName(i+1).c_str();;
-                c.type_name = strutils::change_case(RESULT_SET->getMetaData()->getColumnTypeName(i+1).c_str(), false);
-                column_names[i] = c;
-                std::cout << c.name.c_str() << "\t" << c.type_name.c_str() << std::endl;
-            }
-                
-        }
-        for (uint32 i = 0; i < row_count(); i++)
-        {
-            ylib::json line;
-            next();
-            for (uint32 c = 0; c < field_count(); c++)
-            {
-                if (column_names[c].type_name == "int")
-                    line[column_names[c].name] = get_int32(c+1);
-                else if (column_names[c].type_name == "varchar")
-                    line[column_names[c].name] = get_string(c+1);
-                else if (column_names[c].type_name == "int unsigned")
-                    line[column_names[c].name] = get_uint32(c+1);
-                else if (column_names[c].type_name == "bigint")
-                    line[column_names[c].name] = get_int64(c+1);
-                else
-                    abort();
-            }
-            result.push_back(line);
-        }
-        
-        //return RESULT_SET->getDouble(name.c_str());
-    }
-    catch (const sql::SQLException& e)
-    {
-        throw ylib::exception(e.what());
-    }
-    return result;
-}
+//ylib::json ylib::mysql::result::to_json()
+//{
+//    CHECK_SQL_PPST;
+//    struct __Column
+//    {
+//        std::string name;
+//        std::string type_name;
+//    };
+//    std::map<int, __Column> column_names;
+//    ylib::json result;
+//    try
+//    {
+//        // 取列名称数组
+//        {
+//            for (uint32 i = 0; i < RESULT_SET->getMetaData()->getColumnCount(); i++)
+//            {
+//                __Column c;
+//                c.name = RESULT_SET->getMetaData()->getColumnName(i+1).c_str();;
+//                c.type_name = strutils::change_case(RESULT_SET->getMetaData()->getColumnTypeName(i+1).c_str(), false);
+//                column_names[i] = c;
+//                std::cout << c.name.c_str() << "\t" << c.type_name.c_str() << std::endl;
+//            }
+//                
+//        }
+//        for (uint32 i = 0; i < row_count(); i++)
+//        {
+//            ylib::json line;
+//            next();
+//            for (uint32 c = 0; c < field_count(); c++)
+//            {
+//                if (column_names[c].type_name == "int")
+//                    line[column_names[c].name] = get_int32(c+1);
+//                else if (column_names[c].type_name == "varchar")
+//                    line[column_names[c].name] = get_string(c+1);
+//                else if (column_names[c].type_name == "int unsigned")
+//                    line[column_names[c].name] = get_uint32(c+1);
+//                else if (column_names[c].type_name == "bigint")
+//                    line[column_names[c].name] = get_int64(c+1);
+//                else
+//                    abort();
+//            }
+//            result.push_back(line);
+//        }
+//        
+//        //return RESULT_SET->getDouble(name.c_str());
+//    }
+//    catch (const sql::SQLException& e)
+//    {
+//        throw ylib::exception(e.what());
+//    }
+//    return result;
+//}
 #endif
