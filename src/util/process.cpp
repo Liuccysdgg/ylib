@@ -256,11 +256,13 @@ std::string ylib::process::getpath(uint32 process_id)
 }
 std::vector<size_t> ylib::process::exist(const std::string& filepath)
 {
+    std::string src_path = strutils::replace(strutils::change_case(filepath, false), '\\', '/');
+
     std::vector<size_t> result;
     auto list = process::list();
     for_iter(iter, list)
     {
-        if (strutils::change_case(iter->path(), false) == strutils::change_case(filepath, false))
+        if (strutils::replace(strutils::change_case(iter->path(), false), '\\', '/') == src_path)
         {
             result.push_back(iter->pid);
         }
