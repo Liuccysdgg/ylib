@@ -80,7 +80,19 @@ EnHandleResult ylib::network::http::http_server_lst::OnReceive(ITcpServer* pSend
 #if HTTP_SERVER_DEBUG_PRINT == 1
      ylib::log->info("OnReceive ("+std::to_string((uint64)dwConnID)+")","http_server");
 #endif
-
+	 //if (m_server->config().max_upload_size > 0)
+	 //{
+		// PVOID extra = 0;
+		// if (pSender->GetConnectionExtra(dwConnID, &extra))
+		// {
+		//	 if (extra != 0)
+		//	 {
+		//		 temp_recv* tr = (temp_recv*)extra;
+		//		 tr
+		//	 }
+		// }
+	 //}
+	 
 	return HR_OK;
 }
 
@@ -235,6 +247,15 @@ EnHttpParseResult ylib::network::http::http_server_lst::OnBody(IHttpServer* pSen
 	{
 		if (extra != 0)
             ((temp_recv*)extra)->data.append((char*)pData, iLength);
+		if (m_server->config().max_upload_size > 0)
+		{
+			if (((temp_recv*)extra)->data.length() > m_server->config().max_upload_size*1024*1024)
+			{
+				const char *error_body = "exceeded maximum upload limit";
+				pSender->SendResponse(dwConnID,500,"Internal Server Error",nullptr,0,(const BYTE*)error_body,strlen(error_body));
+				return HPR_ERROR;
+			}
+		}
 	}
 #endif
 	return HPR_OK;

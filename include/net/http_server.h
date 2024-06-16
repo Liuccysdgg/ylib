@@ -24,7 +24,7 @@ namespace ylib
             public:
                 server();
                 ~server();
-                bool create(bool https, ushort port);
+                bool create(server_config config);
                 /******************************************************************
                  * Function：启动
                  * Param：
@@ -53,12 +53,17 @@ namespace ylib
                  * Function：每秒请求数
                  ******************************************************************/
                 network::qps* qps();
-                inline const ushort port() { return m_port; }
+                
+                /// <summary>
+                /// 取配置
+                /// </summary>
+                /// <returns></returns>
+                const server_config& config() { return m_config; }
 #if USE_NET_HTTP_AGENT == 1
                 inline network::http::agent* agent() { return m_agent; }
 #endif
             public:
-                bool m_init_ssl;
+                bool m_init_ssl = false;
             private:
                 friend class http_server_lst;
             private:
@@ -66,10 +71,8 @@ namespace ylib
                 void* m_server;
                 // HP Listener 指针
                 network::http::http_server_lst* m_listener;
-                // https
-                bool m_https;
-                // 端口
-                ushort m_port;
+                // 配置
+                server_config m_config;
                 // QPS
                 network::qps m_qps;
 #if USE_NET_HTTP_AGENT == 1

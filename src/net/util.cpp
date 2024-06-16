@@ -38,90 +38,64 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 #endif
 #include <cmath>
 #include <string.h>
-
+#include <unordered_map>
 #include "util/strutils.h"
 #ifdef _WIN32
 #pragma warning(disable: 4996)
 #endif
 void ylib::network::content_type(const std::string& extName, std::string& type)
 {
-    if (extName == "html")
+    static const std::unordered_map<std::string, std::string> mimeTypes = {
+         {"html", "text/html"},
+         {"htm", "text/html"},
+         {"css", "text/css"},
+         {"text", "text/plain"},
+         {"txt", "text/plain"},
+         {"icon", "image/x-icon"},
+         {"ico", "image/x-icon"},
+         {"jpeg", "image/jpeg"},
+         {"jpg", "image/jpeg"},
+         {"mp3", "audio/mpeg"},
+         {"pdf", "application/pdf"},
+         {"swf", "application/x-shockwave-flash"},
+         {"wav", "audio/x-wav"},
+         {"zip", "application/zip"},
+         {"mp4", "video/mpeg4"},
+         {"png", "image/png"},
+         {"gif", "image/gif"},
+         {"bmp", "image/bmp"},
+         {"svg", "image/svg+xml"},
+         {"rmvb", "application/vnd.rn-realmedia-vbr"},
+         {"js", "application/javascript"},
+         {"json", "application/json"},
+         {"xml", "application/xml"},
+         {"ttf", "application/octet-stream"},
+         {"woff", "application/font-woff"},
+         {"woff2", "application/font-woff2"},
+         {"eot", "application/vnd.ms-fontobject"},
+         {"otf", "font/otf"},
+         {"webp", "image/webp"},
+         {"avi", "video/x-msvideo"},
+         {"mov", "video/quicktime"},
+         {"flv", "video/x-flv"},
+         {"mkv", "video/x-matroska"},
+         {"doc", "application/msword"},
+         {"docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
+         {"ppt", "application/vnd.ms-powerpoint"},
+         {"pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"},
+         {"xls", "application/vnd.ms-excel"},
+         {"xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
+    };
+
+    auto it = mimeTypes.find(extName);
+    if (it != mimeTypes.end())
     {
-        type = "text/html";
-    }
-    else if (extName == "htm")
-    {
-        type = "text/html";
-    }
-    else if (extName == "css")
-    {
-        type = "text/css";
-    }
-    else if (extName == "text")
-    {
-        type = "text/plain";
-    }
-    else if (extName == "icon")
-    {
-        type = "image/x-icon";
-    }
-    else if (extName == "jpeg")
-    {
-        type = "image/jpeg";
-    }
-    else if (extName == "mp3")
-    {
-        type = "audio/mpeg";
-    }
-    else if (extName == "pdf")
-    {
-        type = "application/pdf";
-    }
-    else if (extName == "swf")
-    {
-        type = "application/x-shockwave-flash";
-    }
-    else if (extName == "wav")
-    {
-        type = "audio/x-wav";
-    }
-    else if (extName == "zip")
-    {
-        type = "application/zip";
-    }
-    else if (extName == "mp4")
-    {
-        type = "video/mpeg4";
-    }
-    else if (extName == "png")
-    {
-        type = "image/png";
-    }
-    else if (extName == "rmvb")
-    {
-        type = "application/vnd.rn-realmedia-vbr";
-    }
-    else if (extName == "js")
-    {
-        type = "application/x-javascript";
-    }
-    else if (extName == "ttf")
-    {
-        type = "application/octet-stream";
-    }
-    else if (extName == "woff")
-    {
-        type = "application/x-font-woff";
-    }
-    else if (extName == "woff2")
-    {
-        type = "application/x-font-woff";
+        type = it->second;
     }
     else
     {
-        type = extName;
+        type = "application/octet-stream"; // default MIME type for unknown extensions
     }
-
 }
 
 bool ylib::network::parse_url(const std::string& url, std::string& httpType,std::string&host, std::string& ipaddress, ushort& port, std::string& urlField)

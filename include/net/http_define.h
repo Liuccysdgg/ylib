@@ -161,11 +161,21 @@ namespace ylib
                 cdn_config cdn;
                 // 代理
                 std::vector<proxy_config> proxy;
-
+               
                 // GZIP
                 bool gzip = false;
             };
-
+            /// <summary>
+            /// HTTP服务配置
+            /// </summary>
+            struct server_config {
+                // 最大上传大小限制
+                uint64 max_upload_size = 0;
+                // Https
+                bool https = false;
+                // 端口
+                ushort port = 0;
+            };
             /// <summary>
             /// 启动信息
             /// </summary>
@@ -174,7 +184,10 @@ namespace ylib
                 std::vector<website_config> website;
                 // 证书
                 std::map<std::string, ssl_config> cert;
+                // 最大上传大小限制
+                uint64 max_upload_size = 0;
             };
+            
             class agent;
             class website;
             // 临时接收

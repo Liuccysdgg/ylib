@@ -46,7 +46,11 @@ bool ylib::network::http::center::create(const start_config& config)
             //std::cout<<"ListenPort:"<<ports[i]<<std::endl;
             auto server = new network::http::server;
             server->center(this);
-            server->create(port_have_ssl(ports[i]),ports[i]);
+            server_config sc;
+            sc.https = port_have_ssl(ports[i]);
+            sc.port = ports[i];
+            sc.max_upload_size = m_config.max_upload_size;
+            server->create(sc);
             m_server.push_back(server);
         }
     }
@@ -75,7 +79,7 @@ bool ylib::network::http::center::start()
         {
             if (m_server[i]->start() == false)
             {
-                m_lastErrorDesc = "listen "+std::to_string(m_server[i]->port()) + " failed." + m_server[i]->last_error();
+                m_lastErrorDesc = "listen "+std::to_string(m_server[i]->config().port) + " failed." + m_server[i]->last_error();
                 return false;
             }
         }
@@ -115,7 +119,7 @@ ylib::network::http::server* ylib::network::http::center::server(ushort port)
 
     for (size_t i = 0; i < m_server.size(); i++)
     {
-        if (m_server[i]->port() == port)
+        if (m_server[i]->config().port == port)
         {
             return m_server[i];
         }

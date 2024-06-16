@@ -35,8 +35,6 @@ ylib::network::http::server::server()
 {
     m_server = nullptr;
     m_listener = nullptr;
-    m_https = false;
-    m_port = 0;
 
     m_init_ssl = false;
 #if USE_NET_HTTP_AGENT == 1
@@ -55,7 +53,7 @@ bool ylib::network::http::server::start()
     //HPSERVER->SetAcceptSocketCount(10000);
     //HPSERVER->SetMaxConnectionCount(100000);
     HPSERVER->SetWorkerThreadCount(5);
-    if (HPSERVER->Start("0.0.0.0", m_port) == false)
+    if (HPSERVER->Start("0.0.0.0", m_config.port) == false)
     {
 #ifndef _WIN32
         this->m_lastErrorDesc = "start failed, error code:" + std::string(SYS_GetLastErrorStr());
@@ -75,13 +73,12 @@ bool ylib::network::http::server::start()
     return true;
 }
 
-bool ylib::network::http::server::create(bool https, ushort port)
+bool ylib::network::http::server::create(server_config config)
 {
     m_listener = new http_server_lst(this);
     m_listener->m_server = this;
-    m_https = https;
-    m_port = port;
-    if (m_https)
+    m_config = config;
+    if (m_config.https)
     {
         m_server = HP_Create_HttpsServer(m_listener);
     }
@@ -89,6 +86,7 @@ bool ylib::network::http::server::create(bool https, ushort port)
     {
         m_server = HP_Create_HttpServer(m_listener);
     }
+    
     return true;
 }
 
@@ -113,7 +111,7 @@ bool ylib::network::http::server::close()
     }
     HPSERVER->Wait(-1);
     //销毁释放
-    if(m_https)
+    if(m_config.https)
         HP_Destroy_HttpsServer(HPSERVER);
     else
         HP_Destroy_HttpServer(HPSERVER);
