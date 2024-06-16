@@ -52,7 +52,6 @@ namespace ylib
 		 */
 		bool write(const std::string& filepath, const ylib::buffer& data);
 		bool write(const std::string& filepath, const char* data, size_t len);
-#ifdef _WIN32
 		/**
 		 * @brief 列出目录文件
 		 * @param rootPath
@@ -60,7 +59,6 @@ namespace ylib
 		 * @return
 		 */
 		bool list(const std::string& rootPath, std::map<std::string, bool>& list);
-#endif
 		/**
 		 * @brief 取扩展名
 		 * @param path

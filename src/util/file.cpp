@@ -23,6 +23,9 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 #ifdef _WIN32
 #include <io.h>
 #include <Windows.h>
+#else
+#include <dirent.h>
+#include <sys/stat.h>
 #endif
 #include "util/strutils.h"
 #include "util/system.h"
@@ -244,7 +247,7 @@ bool ylib::file::write(const std::string &filepath, const char *data, size_t len
     return f.write(data,len);
 }
 
-#ifdef _WIN32
+
 bool ylib::file::list(const std::string &rootPath, std::map<std::string, bool> &list)
 {
     list.clear();
@@ -271,10 +274,33 @@ bool ylib::file::list(const std::string &rootPath, std::map<std::string, bool> &
     _findclose(handle);    // 关闭搜索句柄
     return true;
 #else
-    return false;
+    DIR* dir;
+    struct dirent* entry;
+    struct stat info;
+
+    if ((dir = opendir(rootPath.c_str())) == NULL)
+    {
+        list.insert(std::make_pair(rootPath, false));
+        return false;
+    }
+
+    while ((entry = readdir(dir)) != NULL)
+    {
+        std::string fullPath = rootPath + "/" + entry->d_name;
+        if (stat(fullPath.c_str(), &info) != 0)
+        {
+            list.insert(std::make_pair(entry->d_name, false));
+        }
+        else
+        {
+            bool isDirectory = S_ISDIR(info.st_mode);
+            list.insert(std::make_pair(entry->d_name, isDirectory));
+        }
+    }
+    closedir(dir);
+    return true;
 #endif // _WIN32
 }
-#endif
 bool ylib::file::remove_dir(const std::string &dirpath
 #if _WIN32
     , bool recycle
