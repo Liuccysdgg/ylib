@@ -330,6 +330,9 @@ bool ylib::network::http::response::forward(const std::string& filepath)
     network::http::reqpack* reqpack = new network::http::reqpack;
     reqpack->init(m_reqpack->url(),m_reqpack->host(), m_reqpack->data(), m_reqpack->connid(), m_reqpack->server());
     reqpack->filepath(filepath);
+    reqpack->website(this->website());
+    reqpack->extra(m_reqpack->extra());
+
     m_reqpack->website()->router()->push(reqpack);
     return true;
 }

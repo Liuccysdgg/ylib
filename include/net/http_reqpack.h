@@ -77,6 +77,7 @@ namespace ylib
                     return m_remote_ipaddress;
                 }
                 ylib::json& extra() { return m_extra; }
+                void extra(ylib::json& e) { m_extra = e; }
             private:
                 // 请求主机
                 std::string m_host;
