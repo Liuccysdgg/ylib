@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <queue>
+#include <memory>
 #ifndef _WIN32 
 #include <stddef.h>
 #endif
