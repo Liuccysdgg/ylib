@@ -6,6 +6,7 @@ namespace ylib
 {
     namespace codec
     {
+        ylib::buffer sha1(const ylib::buffer& data);
         std::string md5(const ylib::buffer& data);
         std::string to_utf8(const std::string& gbk);
         std::string to_gbk(const std::string& utf8);

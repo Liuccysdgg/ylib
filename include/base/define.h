@@ -9,7 +9,7 @@
 #define DEBUG_MEM 0
 
 
-#define USE_OPENSSL 0
+#define USE_OPENSSL 1
 
 using namespace ylib;
 

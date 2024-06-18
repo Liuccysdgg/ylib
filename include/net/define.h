@@ -35,11 +35,13 @@
 #define USE_NET_HTTP_CLIENT 1
 #define USE_NET_HTTP_UTIL 1
 #define USE_NET_HTTP_AGENT 0
+#define USE_NET_HTTP_WS 1
 #else
 #define USE_NET_HTTP_WEBSITE 0
 #define USE_NET_HTTP_CLIENT 0
 #define USE_NET_HTTP_UTIL 0
 #define USE_NET_HTTP_AGENT 0
+#define USE_NET_HTTP_WS 0
 #endif
 
 

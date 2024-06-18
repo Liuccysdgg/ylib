@@ -19,6 +19,7 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 /* system implementation headers */
 #include <stdio.h>
 #include <cstdio>
+#include "util/codec.h"
 
 
 // Constants for MD5Transform routine.
@@ -353,6 +354,7 @@ namespace ylib
 {
     namespace codec
     {
+        
         std::string md5(const ylib::buffer& data)
         {
             MD5 md5 = MD5(data);

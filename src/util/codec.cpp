@@ -25,14 +25,31 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 #include "HPSocket/HPSocket.h"
 #if USE_OPENSSL== 1
 #include <openssl/evp.h>
+#include <openssl/sha.h>
 #endif
 #ifdef _WIN32
 #include <windows.h>
 #endif
 #include <iomanip>
 #include <cstring>
+#if USE_OPENSSL== 1
+ylib::buffer ylib::codec::sha1(const ylib::buffer& data)
+{
+    ylib::buffer result;
+    result.resize(20);
+    SHA_CTX sha1;
+    SHA1_Init(&sha1);
+    SHA1_Update(&sha1, data.data(), data.size());
+    SHA1_Final((unsigned char*)result.data(), &sha1);
 
-
+    return result;
+    //std::stringstream ss;
+    //for (int i = 0; i < SHA_DIGEST_LENGTH; i++) {
+    //    ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
+    //}
+    //return ss.str();
+}
+#endif
 std::string ylib::codec::to_utf8(const std::string &gbk)
 {
 #ifdef _WIN32

@@ -12,8 +12,9 @@ file(GLOB_RECURSE HEADER_FILES
 )
 
 if(MSVC)
-    #set(MYSQL_CPPCONN_INCLUDE  CACHE PATH "mysql-connector include")
     set(MYSQL_CPPCONN_INCLUDE "$ENV{USERPROFILE}/MySQL/MySQL Connector C++ 8.2.0/include/jdbc")
+    set(OPENSSL_INCLUDE "D:/3rdparty/OpenSSL-Win64/include")
+    include_directories(${OPENSSL_INCLUDE})
     include_directories(${MYSQL_CPPCONN_INCLUDE})
 	include_directories(${PROJECT_SOURCE_DIR}/3rdparty/HP-Socket/Windows/Include)
 endif()
