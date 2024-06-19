@@ -37,10 +37,8 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 #else
 #define HEADER_SET(NAME,VALUE) m_headers.emplace(NAME,VALUE)
 #endif
-ylib::network::http::response::response()
+ylib::network::http::response::response(network::http::reqpack* reqpack):m_reqpack(reqpack)
 {
-    m_reqpack = nullptr;
-    m_response = false;
 }
 
 ylib::network::http::response::~response()
@@ -55,11 +53,6 @@ ylib::network::http::response::~response()
     {
         send((std::string)"The server does not return any data to the browser", 500, "Internal Server Error");
     }
-}
-
-void ylib::network::http::response::init(reqpack* rp)
-{
-    this->m_reqpack = rp;
 }
 bool ylib::network::http::response::send(const char* buf, size_t buf_len, ushort stateNum, const std::string& stateDesc)
 {
@@ -327,11 +320,8 @@ bool ylib::network::http::response::forward(const std::string& filepath)
     if(m_response == true)
         return false;
     m_response = true;
-    network::http::reqpack* reqpack = new network::http::reqpack;
-    reqpack->init(m_reqpack->url(),m_reqpack->host(), m_reqpack->data(), m_reqpack->connid(), m_reqpack->server());
-    reqpack->filepath(filepath);
-    reqpack->website(this->website());
-    reqpack->extra(m_reqpack->extra());
+    network::http::reqpack* reqpack = new network::http::reqpack(filepath,m_reqpack->host(),m_reqpack->body(),m_reqpack->connid(), m_reqpack->server(), m_reqpack->website());
+    reqpack->extra() = m_reqpack->extra();
 
     m_reqpack->website()->router()->push(reqpack);
     return true;

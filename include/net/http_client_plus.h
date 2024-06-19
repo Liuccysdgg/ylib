@@ -26,7 +26,7 @@ namespace ylib
                 bool post(const std::string& url, const std::map<std::string, std::string>& value, bool to_utf8 = false);
                 bool post(const std::string& url, const ylib::json& value, bool to_utf8 = false);
                 bool post(const std::string& url, const ylib::buffer& value);
-                bool post(const std::string& url, const http::make_form& value);
+                //bool post(const std::string& url, const http::make_form& value);
                 bool head(const std::string& url);
                 /// <summary>
                 /// 连接代理服务器
@@ -90,7 +90,7 @@ namespace ylib
                 // 请求路径
                 std::string m_path;
                 // 请求方式
-                network::http::method m_method;
+                std::string m_method;
                 // 请求数据
                 ylib::buffer m_request_body;
                 // [header] 请求

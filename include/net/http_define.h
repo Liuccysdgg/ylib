@@ -263,89 +263,13 @@ namespace ylib
                 uint64 connid;
                 uint64 index;
             };
-            //struct website_info
-            //{
-            //    website_info()
-            //    {
-            //        gzip = false;
-            //        download_maxbaud = 0;
-            //    }
-            //    // 根目录
-            //    std::string rootdir;
-            //    // GZIP
-            //    bool gzip;
-            //    // 默认编码方式
-            //    std::string default_codec;
-            //    // 带宽限制
-            //    uint32 download_maxbaud;
-            //};
-            /*表单信息*/
-            struct form_info
-            {
-                form_info()
-                {
-                    start = -1;
-                    length = -1;
-                }
-                std::string disposition;
-                std::string content_type;
-                std::string name;
-                std::string filename;
-                int64 start;
-                int64 length;
-                ylib::buffer data;
+
+            struct multipart {
+                std::map<std::string,std::string> param;
+                size_t offset = 0;
+                size_t length = 0;
             };
-            class controller;
-            //请求类型
-            enum content_type
-            {
-                CT_FORM = 0,			//表单：	application/x-www-CT_FORM-urlencoded
-                CT_JSON = 1,				//CT_JSON:	application/CT_JSON
-                CT_TEXT = 2,             //文本：   text/plain
-                CT_NIL = 3,               //无
-                CT_ALL = 4               //所有
-            };
-            /*HTTP请求类型*/
-            enum method
-            {
-                GET = 0,
-                POST = 1,
-                PUT = 2,
-                DEL = 3,
-                OTHER = 4,
-                HEAD = 5,
-                ALL = 100
-            };
-            inline std::string method_to_string(enum method m) {
-                switch (m) {
-                case GET:
-                    return "GET";
-                case POST:
-                    return "POST";
-                case PUT:
-                    return "PUT";
-                case DEL:
-                    return "DEL";
-                case OTHER:
-                    return "OTHER";
-                case ALL:
-                    return "ALL";
-                default:
-                    return "unknown";
-                }
-                return "";
-            };
-            /*控制器内返回结果*/
-            enum response_type
-            {
-                RT_OK,          //成功或已处理
-                RT_500,         //服务器内部错误
-                RT_406,         //服务器解析客户端数据失败或格式不正确拒绝解析
-                RT_401          //需要鉴权，无权限
-            };
-            //控制器指针
-            typedef response_type(network::http::controller::* HTTP_CTR_FUNCTION)();
-            
         }
+
     }
 }

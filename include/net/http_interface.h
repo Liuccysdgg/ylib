@@ -23,8 +23,8 @@ namespace ylib
                 inline void center(network::http::center* center) { m_center = center; }
                 inline network::http::center* center() { return m_center; }
             private:
-                network::http::website* m_website;
-                network::http::center* m_center;
+                network::http::website* m_website = nullptr;
+                network::http::center* m_center = nullptr;
             };
         }
     }

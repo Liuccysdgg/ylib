@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include "http_session.h"
-#include "http_parser.h"
 #include "http_interface.h"
 namespace ylib
 {
@@ -14,64 +13,93 @@ namespace ylib
         {
             class reqpack;
             class server;
-            /********************************************************************
-             * class：Http请求解析类
-             ********************************************************************/
+            /// <summary>
+            /// HTTP请求
+            /// </summary>
             class request :public network::http::interface_
             {
             public: 
-                request();
+                request(network::http::reqpack* reqpack);
                 ~request(); 
 
-                /***************************************************************************
-                 * function：取协议头
-                 * param
-                 *		name                        ：               名称
-                 *      value                       ：               内容
-                 ***************************************************************************/
-                bool header(const std::string& name, std::string& value);
-
-                /***************************************************************************
-                 * function：取请求类型
-                 ***************************************************************************/
-                network::http::method method();
-                /***************************************************************************
-                 * function：取请求路径
-                 ***************************************************************************/
-                std::string filepath();
-                /***************************************************************************
-                 * function：取请求主机
-                 ***************************************************************************/
-                std::string host();
-                /***************************************************************************
-                 * function：取Session
-                 ***************************************************************************/
-                network::http::session& session(const std::string& session_id);
                 /// <summary>
-                /// 取TOKEN
+                /// 取请求头
+                /// </summary>
+                /// <param name="name"></param>
+                /// <param name="value"></param>
+                /// <returns></returns>
+                bool header(const std::string& name, std::string& value);
+                /// <summary>
+                /// 请求动作
                 /// </summary>
                 /// <returns></returns>
-                std::string token();
-
-
-                /***************************************************************************
-                 * function：取reqpack
-                 ***************************************************************************/
+                std::string method();
+                /// <summary>
+                /// 取请求路径
+                /// </summary>
+                /// <returns></returns>
+                std::string filepath();
+                /// <summary>
+                /// 取请求主机
+                /// </summary>
+                /// <returns></returns>
+                std::string host();
+                /// <summary>
+                /// session
+                /// </summary>
+                /// <param name="session_id"></param>
+                /// <returns></returns>
+                network::http::session& session(const std::string& session_id);
                 network::http::reqpack* reqpack();
-                /***************************************************************************
-                 * function：解析器
-                 ***************************************************************************/
-                network::http::parser* parser();
-                /***************************************************************************
-                 * function：Get Browserr Remote Ipaddress
-                 ***************************************************************************/
-                std::string remote_ipaddress(bool find_header = false, const std::string& inside_ipaddress = "");
-                ushort remote_port();
-                friend class reqpack;
+                /// <summary>
+                /// 远程信息
+                /// </summary>
+                /// <returns></returns>
+                ylib::AddressPort remote();
+                /// <summary>
+                /// 取请求参数
+                /// </summary>
+                /// <param name="name"></param>
+                /// <param name="value"></param>
+                /// <returns></returns>
+                bool get_url_param(const std::string& name,std::string& value);
+                bool get_body_param(const std::string& name, std::string& value);
+                std::shared_ptr<std::map<std::string, std::string>>& url_param() { return m_url_param; }
+                std::shared_ptr<std::map<std::string, std::string>>& body_param() { return m_body_param; }
+
+                /// <summary>
+                /// 表单数据
+                /// </summary>
+                /// <returns></returns>
+                const std::shared_ptr<std::vector<network::http::multipart>>& multipart();
+                /// <summary>
+                /// 是否为请求类型
+                /// </summary>
+                /// <returns></returns>
+                bool content_type(std::string type_name);
+
+                /// <summary>
+                /// Body
+                /// </summary>
+                /// <returns></returns>
+                ylib::buffer& body();
+
             private:
-                network::http::reqpack* m_reqpack;
+
+                // reqpack
+                network::http::reqpack* m_reqpack = nullptr;
+                // session
                 network::http::session m_session;
-                network::http::parser m_parser;
+                // 请求动作
+                std::string m_method;
+            private:
+                // 请求参数[URL]
+                std::shared_ptr<std::map<std::string, std::string>> m_url_param;
+                // 请求参数[BODY]
+                std::shared_ptr<std::map<std::string, std::string>> m_body_param;
+                // FORM数据
+                std::shared_ptr<std::vector<network::http::multipart>> m_form;
+
             };
         }
     }

@@ -25,12 +25,13 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 #include "net/http_reqpack.h"
 #include "net/http_center.h"
 #include "net/http_website.h"
+#include "net/util.h"
 #include "HPSocket/HPSocket.h"
 #define HPSERVER ((IHttpServer*)m_reqpack->server()->hpserver())
 
-ylib::network::http::request::request()
+ylib::network::http::request::request(network::http::reqpack* reqpack):m_reqpack(reqpack)
 {
-    m_reqpack = nullptr;
+
 }
 ylib::network::http::request::~request()
 {
@@ -46,10 +47,11 @@ bool ylib::network::http::request::header(const std::string &name, std::string &
     return true;
 }
 
-ylib::network::http::method ylib::network::http::request::method()
+std::string ylib::network::http::request::method()
 {
-
-    return m_reqpack->method();
+    if (m_method.empty())
+        m_method = strutils::change_case(strutils::F(HPSERVER->GetMethod((CONNID)m_reqpack->connid())),true);
+    return m_method;
 }
 
 std::string ylib::network::http::request::filepath()
@@ -61,16 +63,6 @@ std::string ylib::network::http::request::host()
 {
     return m_reqpack->host();
 }
-#if 0       
-bool ylib::network::http::request::cookie(const std::string &name, std::string &value)
-{
-    LPCSTR lpszValue = nullptr;
-    if (HPSERVER->GetCookie((CONNID)m_reqpack->connid(), name.c_str(), &lpszValue) == false)
-        return false;
-    value = strutils::F(lpszValue);
-    return true;
-}
-#endif
 network::http::session& ylib::network::http::request::session(const std::string& session_id)
 {
     if (session_id.empty())
@@ -78,51 +70,140 @@ network::http::session& ylib::network::http::request::session(const std::string&
     m_session.init(website(), session_id);
     return m_session;
 }
-std::string ylib::network::http::request::token()
-{
-    std::string token;
-    header("token", token);
-    return token;
-}
 network::http::reqpack* ylib::network::http::request::reqpack()
 {
     return m_reqpack;
 }
-network::http::parser* ylib::network::http::request::parser()
+ylib::AddressPort ylib::network::http::request::remote()
 {
-    std::string content_type;
+    ylib::AddressPort ap;
+    m_reqpack->server()->remote(m_reqpack->connid(), ap.address, ap.port);
+    return ap;
+}
+bool ylib::network::http::request::get_url_param(const std::string& name, std::string& value)
+{
+    if (m_url_param == nullptr)
     {
-        header("Content-Type", content_type);
-        if (content_type == "")
+        m_url_param = std::make_shared<std::map<std::string, std::string>>();
+        // 解析URL参数
+        std::string url_query = strutils::F(HPSERVER->GetUrlField((CONNID)m_reqpack->connid(), HUF_QUERY));
+        auto results = strutils::split(url_query, "&");
+        for (size_t i = 0; i < results.size(); i++)
         {
-            content_type = "application/x-www-form-urlencoded";
+            std::string key;
+            std::string value;
+            auto arr = strutils::split(results[i], '=');
+            if (arr.size() > 0)
+                key = arr[0];
+            if (arr.size() > 1)
+                value = arr[1];
+            m_url_param->emplace(key, value);
         }
     }
-    
-    m_parser.init(strutils::F(HPSERVER->GetUrlField((CONNID)m_reqpack->connid(), HUF_QUERY)), m_reqpack->method(), m_reqpack->data(), content_type);
-    return &m_parser;
+    // 查找
+    auto iter = m_url_param->find(name);
+    if (iter == m_url_param->end())
+        return false;
+    value = iter->second;
+    return true;
 }
-
-std::string ylib::network::http::request::remote_ipaddress(bool find_header,const std::string& inside_ipaddress)
+bool ylib::network::http::request::get_body_param(const std::string& name, std::string& value)
 {
-    bool is_inside = false;
-    std::string ipaddress;
-    ushort port;
-    reqpack()->server()->remote(reqpack()->connid(),ipaddress,port);
+    if (m_body_param == nullptr)
     {
-        if(strutils::left(ipaddress,2) == "10" || strutils::left(ipaddress,6) == "172.16" || strutils::left(ipaddress,7) == "192.168" || (ipaddress == inside_ipaddress && inside_ipaddress != ""))
-            is_inside = true;
+        m_body_param = std::make_shared<std::map<std::string, std::string>>();
+        if (content_type("application/x-www-form-urlencoded"))
+        {
+            auto results = strutils::split(m_reqpack->body(), "&");
+            for (size_t i = 0; i < results.size(); i++)
+            {
+                std::string key;
+                std::string value;
+                auto arr = strutils::split(results[i], '=');
+                if (arr.size() > 0)
+                    key = arr[0];
+                if (arr.size() > 1)
+                    value = arr[1];
+                m_body_param->emplace(key, value);
+            }
+        }
+        else if (content_type("application/json"))
+        {
+            auto data_json = ylib::json::from(m_reqpack->body());
+            auto keys = data_json.keys();
+            for (size_t i = 0; i < keys.size(); i++)
+            {
+                std::string strvalue = data_json[keys[i]].to<std::string>();
+                double dobvalue = data_json[keys[i]].to<double>();
+
+                if (strvalue.empty())
+                {
+                    if (dobvalue == 0.0)
+                        continue;
+                    else
+                        m_body_param->emplace(keys[i], std::to_string(dobvalue));
+                }
+                else
+                    m_body_param->emplace(keys[i],strvalue);
+            }
+        }
     }
 
-    if(find_header && is_inside)
-        header("X-Real-IP",ipaddress);
-    return ipaddress;
+    // 查找
+    auto iter = m_body_param->find(name);
+    if (iter == m_body_param->end())
+        return false;
+    value = iter->second;
+    return true;
 }
-ushort ylib::network::http::request::remote_port()
+const std::shared_ptr<std::vector<network::http::multipart>>& ylib::network::http::request::multipart()
 {
-    std::string ipaddress;
-    ushort port;
-    reqpack()->server()->remote(reqpack()->connid(), ipaddress, port);
-    return port;
+    if (m_form == nullptr)
+    {
+        m_form = std::make_shared<std::vector<network::http::multipart>>();
+        if (content_type("multipart/form-data"))
+        {
+            std::string header_value;
+            if (header("Content-Type", header_value))
+            {
+                auto arr = strutils::split(header_value, ';');
+                for (size_t i = 0; i < arr.size(); i++)
+                {
+                    if (arr[i].find("boundary") != -1)
+                    {
+                        auto kv = strutils::split(strutils::trim(arr[i], { ' ' }), "=");
+                        if (kv.size() == 2)
+                        {
+                            network::parse_multipart_form_data(m_reqpack->body(), kv[1], *m_form.get());
+                        }
+                        break;
+                    }
+                }
+                
+            }
+            
+        }
+    }
+    return m_form;
 }
+bool  ylib::network::http::request::content_type(std::string type_name)
+{
+    type_name = strutils::change_case(type_name, false);
+    std::string header_value;
+    if (header("Content-Type", header_value))
+    {
+        auto results = strutils::split(header_value, ';');
+        for (size_t i = 0; i < results.size(); i++)
+        {
+            if (strutils::change_case(results[i], false).find(type_name) != -1)
+                return true;
+        }
+    }
+    return false;
+}
+ylib::buffer& ylib::network::http::request::body()
+{
+    return m_reqpack->body();
+}
+
 #endif

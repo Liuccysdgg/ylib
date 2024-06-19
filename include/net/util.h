@@ -53,6 +53,17 @@ namespace ylib
         bool is_ipv6(const std::string& value);
         // 是否为域名
         bool is_domain(const std::string& value);
+
+
+        /// <summary>
+        /// 解析 multipart/form 数据
+        /// </summary>
+        /// <param name="body"></param>
+        /// <param name="body_length"></param>
+        /// <param name="boundary"></param>
+        /// <param name="parts"></param>
+        /// <returns></returns>
+        bool parse_multipart_form_data(const ylib::buffer& data, const std::string& boundary, std::vector<network::http::multipart>& parts);
     }
 }
 #endif

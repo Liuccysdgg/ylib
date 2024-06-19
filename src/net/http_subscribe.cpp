@@ -81,7 +81,7 @@ bool network::http::subscribe::trigger(const std::string& url, network::http::re
     for (size_t i = 0; i < m_list.size(); i++)
     {
         if (std::regex_match(url.c_str(), m_list[i].regex)) {
-            m_list[i].callback(rp->request(),rp->response(), m_list[i].pattern,m_list[i].extra);
+            m_list[i].callback(rp->request().get(), rp->response().get(), m_list[i].pattern, m_list[i].extra);
             return true;
         }
     }

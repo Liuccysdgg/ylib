@@ -150,7 +150,7 @@ void ylib::network::http::router::__thread_callback(reqpack* rp)
 
         // 其它
         if (m_callback_other != nullptr)
-            m_callback_other(rp->request(), rp->response());
+            m_callback_other(rp->request().get(), rp->response().get());
     }
     catch (const std::exception& e)
     {

@@ -327,7 +327,7 @@ void ylib::network::http::client_plus::set_timeout(uint32 connect_msec, uint32 r
 }
 bool ylib::network::http::client_plus::del(const std::string& url, const std::map<std::string, std::string>& value)
 {
-	m_method = network::http::DEL;
+	m_method = "DELETE";
 	std::string param_str;
 	for_iter(iter, value)
 		param_str += (param_str.length() == 0 ? "" : "&") + iter->first + "=" + iter->second;
@@ -343,7 +343,7 @@ bool ylib::network::http::client_plus::del(const std::string& url, const std::ma
 bool ylib::network::http::client_plus::get(const std::string& url, const std::map<std::string, std::string>& value,bool wait)
 {
     m_request_wait = wait;
-	m_method = network::http::GET;
+	m_method = "GET";
 
 	std::string param_str;
 	for_iter(iter, value)
@@ -391,16 +391,16 @@ bool ylib::network::http::client_plus::post(const std::string& url, const ylib::
 	m_request_body = value;
 	return post(url);
 }
-bool ylib::network::http::client_plus::post(const std::string& url, const http::make_form& value)
-{
-	std::string boundary;
-	value.make(m_request_body, boundary);
-	m_headers_request.set("Content-Type", "boundary=" + boundary + "; multipart/form-data");
-	return post(url);
-}
+//bool ylib::network::http::client_plus::post(const std::string& url, const http::make_form& value)
+//{
+//	std::string boundary;
+//	value.make(m_request_body, boundary);
+//	m_headers_request.set("Content-Type", "boundary=" + boundary + "; multipart/form-data");
+//	return post(url);
+//}
 bool ylib::network::http::client_plus::head(const std::string& url)
 {
-	m_method = network::http::HEAD;
+	m_method = "HEAD";
 	if (!init())
 		return false;
 	if (!parseurl(url))
@@ -551,34 +551,14 @@ bool ylib::network::http::client_plus::request()
 	
 	m_listener->m_recv_state = 0;
 	const char* method;
-	switch (m_method)
+
+	if (m_method == "GET")
 	{
-	case ylib::network::http::GET:
-		method = "GET";
+		//【缓存】置头
+		if (m_cache != nullptr)
 		{
-            //【缓存】置头
-			if (m_cache != nullptr && m_method == GET)
-			{
-				m_cache->set_header(this, m_url);
-			}
+			m_cache->set_header(this, m_url);
 		}
-		break;
-	case ylib::network::http::POST:
-		method = "POST";
-		break;
-	case ylib::network::http::PUT:
-		method = "PUT";
-		break;
-	case ylib::network::http::DEL:
-		method = "DELETE";
-		break;
-	case ylib::network::http::HEAD:
-		method = "HEAD";
-		break;
-	default:
-		m_lastErrorDesc = "Unsupported request type";
-		return false;
-		break;
 	}
     //置Cookie
 	{
@@ -653,7 +633,7 @@ bool ylib::network::http::client_plus::request()
     if(!result)
         return false;
     //【缓存】判断缓存
-	if (m_cache != nullptr && m_method == GET)
+	if (m_cache != nullptr && m_method == "GET")
 	{
 		bool cache = false;
 		if (this->status() == 304)
@@ -675,7 +655,7 @@ bool ylib::network::http::client_plus::request()
 
 bool ylib::network::http::client_plus::post(const std::string& url)
 {
-	m_method = network::http::POST;
+	m_method = "POST";
     if(!init())
         return false;
     if(!parseurl(url))

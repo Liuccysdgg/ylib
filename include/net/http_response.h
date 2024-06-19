@@ -18,9 +18,8 @@ namespace ylib
             class response :public network::http::interface_
             {
             public:
-                response();
+                response(network::http::reqpack* reqpack);
                 ~response();
-                void init(reqpack* rp);
                 bool send(const char* buf, size_t buf_len, ushort stateNum = 200, const std::string& stateDesc = "OK");
                 bool send(const ylib::buffer& value, ushort stateNum = 200, const std::string& stateDesc = "OK");
                 bool send(const std::string& value, ushort stateNum = 200, const std::string& stateDesc = "OK");
@@ -36,8 +35,8 @@ namespace ylib
                 bool fileoffset(long filesize, long& start, long& len);
             private:
                 std::map<std::string, std::string> m_headers;
-                bool m_response;
-                network::http::reqpack* m_reqpack;
+                bool m_response = false;
+                network::http::reqpack* m_reqpack = nullptr;
 
             };
         }

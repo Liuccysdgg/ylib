@@ -270,9 +270,10 @@ EnHttpParseResult ylib::network::http::http_server_lst::OnMessageComplete(IHttpS
 	pSender->SendResponse(dwConnID, 200, "OK", nullptr, 0, (const BYTE*)"ONLY_HP_OK", 3);
 	return HPR_OK;
 #endif
-    reqpack* rp = nullptr;
+    network::http::reqpack* rp = nullptr;
+	temp_recv* tr = nullptr;
     {
-		temp_recv* tr = nullptr;
+		
         PVOID extra = 0;
 		if (pSender->GetConnectionExtra((CONNID)dwConnID, &extra))
 		{
@@ -283,84 +284,37 @@ EnHttpParseResult ylib::network::http::http_server_lst::OnMessageComplete(IHttpS
 		}
 		else
 			return HPR_OK;
-		
-		m_server->qps()->request(tr->data.length()); 
+    }
 
-		rp = new reqpack;
-        rp->init(tr->url,tr->host,tr->data,(uint64)dwConnID,m_server);
-    }
-	//ylib::log->info("OnRecv:"+codec::to_gbk(rp->data()->to_string()));
-    std::string size_name;
-    {
-        double size_ld = 0;
-        if(!rp->data().empty()){
-            size_ld = (double)rp->data().length();
-        }
-        size_name = ylib::network::size_name(size_ld,2);
-        /*if(nstring(pSender->GetMethod(dwConnID)) == "GET" && rp->data()->length() != 0){
-            ylib::log->warn("GET have body:"+rp->data()->to_string(),"http_server");
-        }*/
-    }
-#if HTTP_SERVER_PRINT == 1
-	// LOG
-	std::string logstr;
-	{
-		logstr.append("[recv   ]\t");
-		logstr.append(rp->remote());
-        logstr.append("\t(");
-        logstr.append(std::to_string(rp->connid()));
-		logstr.append(")\t\t");
-        logstr.append(pSender->GetMethod(dwConnID));
-		logstr.append("\t");
-		logstr.append(size_name);
-		logstr.append("\t");
-		logstr.append(rp->host());
-		logstr.append(rp->url());
-	}
-#endif
-	auto website = m_server->center()->website(rp->host());
+	// QPS记录
+	m_server->qps()->request(tr->data.length());
+	// 查找所属网站
+	auto website = m_server->center()->website(tr->host);
 	if (website == nullptr)
 	{
-	    pSender->SendResponse(dwConnID, 404, "Not Found", nullptr, 0, (const BYTE*)"No fount site",12);
-#if HTTP_SERVER_PRINT == 1
-        logstr.append(" not website("+rp->host()+"):");
-        ylib::log->error(logstr,"http_server");
-#endif
+		pSender->SendResponse(dwConnID, 404, "Not Found", nullptr, 0, (const BYTE*)"No fount site", 12);
 		delete rp;
 		return HPR_OK;
 	}
-#if HTTP_SERVER_PRINT == 1
-    ylib::log->info(logstr,"http_server");
-#endif
-	rp->website(website);
-#if 0
-	rp->request();
-	rp->response();
-	reqpack::destory(rp);
-	pSender->SendResponse(dwConnID, 200, "OK", nullptr, 0, (const BYTE*)"V24", 3);
-	return HPR_OK;
+	// 创建请求包
+	rp = new network::http::reqpack(tr->url, tr->host, tr->data, (uint64)dwConnID, m_server, website);
 
-#endif
-	auto recvd_callback = website->router()->m_callback_recved;
-	ylib::buffer end_data;
-	if (recvd_callback != nullptr)
+	// 开始前处理请求包
 	{
-		recvd_callback(rp->data(), &end_data);
-		if (end_data.length() != 0)
-			rp->data() = end_data;
+		auto recvd_callback = website->router()->m_callback_recved;
+		ylib::buffer end_data;
+		if (recvd_callback != nullptr)
+		{
+			recvd_callback(rp->body(), &end_data);
+			if (end_data.length() != 0)
+				rp->body() = end_data;
+		}
 	}
+	
         
 
-
+	// 追加置路由
     website->router()->push(rp);
-#if 0
-    std::string filepath = pSender->GetUrlField((CONNID)dwConnID, EnHttpUrlField::HUF_PATH);
-
-    filepath = "/home/nianhua/project/mysql_demo/www"+filepath;
-    pSender->SendLocalFile(dwConnID,filepath.c_str(),HSC_OK);
-#endif
-
-	
 	return HPR_OK;
 
 }

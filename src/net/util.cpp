@@ -328,6 +328,61 @@ bool ylib::network::is_domain(const std::string& value)
 {
     return !is_ipv4(value) && !is_ipv6(value);
 }
+bool ylib::network::parse_multipart_form_data(const ylib::buffer& data, const std::string& boundary, std::vector<network::http::multipart>& parts)
+{
+    ylib::buffer bbd;
+    bbd.append("--"+boundary+"\r\n");
+    auto bbd_start_list = data.find_list(bbd);
+    if (bbd_start_list.size() == 0)
+        return true;
+    ylib::buffer bbd2;
+    bbd2.append("--" + boundary + "--\r\n");
+    auto bbda_end = data.find(bbd2,bbd_start_list[bbd_start_list.size()-1]);
+    for (size_t i = 0; i < bbd_start_list.size(); i++)
+    {
+        size_t bbd_end = bbd_start_list[i] + bbd.length();
+
+        auto body_start = data.find("\r\n\r\n",4, bbd_start_list[i] + bbd.length());
+        network::http::multipart mult;
+        // 头部
+        std::string header = data.sub(bbd_end, body_start - bbd_end);
+        {
+            header = strutils::replace(header,"\r\n",";");
+            auto parr = strutils::split(header,";");
+            for (size_t f = 0; f < parr.size(); f++)
+            {
+                auto aarr = strutils::split(parr[f], ": ");
+                if (aarr.size() == 1)
+                    aarr = strutils::split(parr[f], '=');
+
+                std::string key, value;
+                if (aarr.size() > 0)
+                    key = strutils::trim(aarr[0], { ' ' });
+                if (aarr.size() > 1)
+                    value = strutils::trim(aarr[1], { ' ' });
+                if (key == "name" || key == "filename")
+                    value = strutils::trim(value, {'\"'});
+                mult.param.emplace(key, value);
+            }
+        }
+        body_start += 4;
+
+        mult.offset = body_start;
+        if (i + 1 == bbd_start_list.size())
+        {
+            mult.length = bbda_end - mult.offset - 2;
+        }
+        else
+        {
+            mult.length = bbd_start_list[i + 1] - mult.offset - 2;
+        }
+        body_start += mult.length;
+        parts.push_back(mult);
+    }
+    
+
+    return true;
+}
 #endif
 
 
