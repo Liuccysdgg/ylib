@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "http_define.h"
 #if USE_NET_HTTP_WS == 1
+#include <string_view>
 #include <functional>
 #include "base/define.h"
 #include "base/error.h"
@@ -55,7 +56,7 @@ namespace ylib
                 wsserver_lst* m_listener = nullptr;
                 // HPServer
                 void* m_server = nullptr;
-
+            public:
                 std::function<bool(int64)> m_callback_accept;
                 std::function<bool(int64,const char* data, int len)> m_callback_recv;
                 std::function<void(int64)> m_callback_close;
