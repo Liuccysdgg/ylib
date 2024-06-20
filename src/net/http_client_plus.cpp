@@ -550,7 +550,6 @@ bool ylib::network::http::client_plus::request()
 //	std::cout << CLIENT->GetSSLCipherList() << std::endl;
 	
 	m_listener->m_recv_state = 0;
-	const char* method;
 
 	if (m_method == "GET")
 	{
@@ -601,7 +600,7 @@ bool ylib::network::http::client_plus::request()
 	}
 	
 	bool result =  CLIENT->SendRequest(
-		method,
+		m_method.c_str(),
 		m_path.c_str(),
 		pHeader,
 		(int)nHeader,
