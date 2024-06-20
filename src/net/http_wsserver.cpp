@@ -1,5 +1,4 @@
 ﻿#include "net/http_wsserver.h"
-//#include "HPSocket/HPSocket.h"
 #include "HPSocket/HPSocket-SSL.h"
 #include "util/codec.h"
 
@@ -231,10 +230,16 @@ void ylib::network::http::wsserver::stop()
 
 bool ylib::network::http::wsserver::send(int64 conn, std::string_view value)
 {
+    
     BOOL bFinal;
     BYTE iReserved;
     BYTE iOperationCode;
     if (HPSERVER->GetWSMessageState(conn,&bFinal,&iReserved,&iOperationCode,nullptr,nullptr,nullptr) == false)
         return false;
     return HPSERVER->SendWSMessage(conn,bFinal,iReserved,iOperationCode,(const BYTE*)value.data(),value.length());
+}
+
+void ylib::network::http::wsserver::disconn(int64 conn)
+{
+    HPSERVER->Disconnect(conn);
 }

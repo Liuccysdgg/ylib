@@ -37,6 +37,9 @@ namespace ylib
                 /// 发送
                 /// </summary>
                 bool send(int64 conn, std::string_view value);
+                /// @brief 断开连接
+                /// @param conn 
+                void disconn(int64 conn);
 
                 void on_accept(std::function<bool(int64)> callback) { m_callback_accept = callback; }
                 void on_recv(std::function<bool(int64,const char* data, int len)> callback) { m_callback_recv = callback; }
