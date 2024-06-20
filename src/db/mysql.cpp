@@ -39,8 +39,14 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 
 
 
-#define DEBUG_LOG_PPST_SET 0
+
+#ifdef _DEBUG
+#define DEBUG_LOG_SETSQL 1
+#define DEBUG_LOG_PPST_SET 1
+#else
 #define DEBUG_LOG_SETSQL 0
+#define DEBUG_LOG_PPST_SET 0
+#endif
 ylib::mysql::conn::conn()
 {
     m_handle = nullptr;
@@ -139,7 +145,7 @@ void ylib::mysql::conn::task_out()
     {
         if(m_sw != 0 || CONNECTION->isValid() == false) {
             close();
-            if (start(m_info) == false)
+            if (start(m_info) != SR_SUCCESS)
             {
                 throw ylib::exception(this->last_error());
             }
@@ -386,7 +392,7 @@ void ylib::mysql::prepare_statement::set_string(uint32 index, const char* data, 
     PRINT_DEBUG_SET_NSTRING;
     PREPARE_STATEMENT->setString(index,sql::SQLString(data,size));
 #if DEBUG_LOG_PPST_SET == 1
-    std::cout << "set " << index << " = " << value << std::endl;
+    std::cout << "set " << index << " = " << std::string_view(data,size) << std::endl;
 #endif
 }
 void ylib::mysql::prepare_statement::set_blob(uint32 index, const char* data, int size)
@@ -397,7 +403,7 @@ void ylib::mysql::prepare_statement::set_blob(uint32 index, const char* data, in
     m_blobs.push(data_ptr);
     PREPARE_STATEMENT->setBlob(index, data_ptr.get());
 #if DEBUG_LOG_PPST_SET == 1
-    std::cout << "set " << index << " = " << value.length()<<"(BLOB)" << std::endl;
+    std::cout << "set " << index << " = " << size<<"(BLOB)" << std::endl;
 #endif
 }
 
