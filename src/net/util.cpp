@@ -309,9 +309,14 @@ bool ylib::network::parse_url_host(const std::string &url, std::string &host)
     }
     __arr = strutils::split(temp,':');
     if (__arr.size() == 2)
-        host = __arr[0];
+    {
+        host = __arr[0]+":"+__arr[1];
+    }
+        
     else
         host = temp;
+
+
     return true;
 }
 bool ylib::network::is_ipv4(const std::string& value)
