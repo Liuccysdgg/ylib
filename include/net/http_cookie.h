@@ -17,6 +17,7 @@ namespace ylib
                 void merge(const std::string& ck);
                 std::string to_string();
                 void clear();
+                std::map<std::string, std::string>& toSTL();
             private:
                 std::map<std::string, std::string> m_param;
             };

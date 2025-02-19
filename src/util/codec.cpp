@@ -160,30 +160,51 @@ ylib::buffer codec::base64::de(const std::string &data)
     return result.left(resultLen);
 }
 
-std::string codec::url::en(const buffer& data)
+std::string codec::url::en(const std::string& data)
 {
-    DWORD resultLen = SYS_GuessUrlEncodeBound((const BYTE*)data.data(),(DWORD)data.length());
-    if (resultLen <= 0)
-        return ylib::buffer();
-    if (resultLen > 8589934592)
-        return ylib::buffer();
-    ylib::buffer result;
-    result.resize(resultLen);
-    auto rcode = SYS_UrlEncode((BYTE*)data.data(), (DWORD)data.length(), (BYTE*)result.data(), resultLen);
-    return result.left(resultLen);
+    std::ostringstream encoded;
+    for (char c : data) {
+        // 保留字母、数字和特定符号
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+            encoded << c;
+        }
+        else {
+            // 对其他字符进行编码为 %xx 格式
+            encoded << '%' << std::uppercase << std::hex << static_cast<int>(static_cast<unsigned char>(c));
+        }
+    }
+    return encoded.str();
 }
 
-ylib::buffer codec::url::de(const std::string& data)
+ylib::buffer codec::url::de(const std::string& str)
 {
-    DWORD resultLen = SYS_GuessUrlDecodeBound((const BYTE*)data.c_str(), (DWORD)data.length());
-    if (resultLen <= 0)
-        return ylib::buffer();
-    if (resultLen > 8589934592)
-        return ylib::buffer();
-    ylib::buffer result;
-    result.resize(resultLen);
-    auto rcode = SYS_UrlDecode((BYTE*)data.c_str(), (DWORD)data.length(), (BYTE*)result.data(), resultLen);
-    return result.left(resultLen);
+    std::ostringstream decoded;
+    for (size_t i = 0; i < str.length(); ++i) {
+        char c = str[i];
+        if (c == '%') {
+            // 确保后面至少有两个字符供解析
+            if (i + 2 >= str.length()) {
+                throw std::invalid_argument("Invalid URL encoding: incomplete percent-encoded sequence.");
+            }
+            // 获取两个十六进制字符
+            char hex[3] = { str[i + 1], str[i + 2], '\0' };
+            if (!isxdigit(hex[0]) || !isxdigit(hex[1])) {
+                throw std::invalid_argument("Invalid URL encoding: invalid hex digits.");
+            }
+            // 转换为实际字符
+            decoded << static_cast<char>(std::strtol(hex, nullptr, 16));
+            i += 2; // 跳过已处理的两个字符
+        }
+        else if (c == '+') {
+            // '+' 在 URL 编码中表示空格
+            decoded << ' ';
+        }
+        else {
+            // 保留普通字符
+            decoded << c;
+        }
+    }
+    return decoded.str();
 }
 
 

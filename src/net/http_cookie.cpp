@@ -82,4 +82,8 @@ void ylib::network::http::cookie::clear()
 {
     m_param.clear();
 }
+std::map<std::string, std::string>& ylib::network::http::cookie::toSTL()
+{
+    return m_param;
+}
 #endif

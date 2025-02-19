@@ -23,7 +23,7 @@ namespace ylib
             ylib::buffer de(const std::string& data);
         }
         namespace url {
-            std::string en(const ylib::buffer& data);
+            std::string en(const std::string& data);
             ylib::buffer de(const std::string& data);
         }
 #if 1

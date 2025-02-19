@@ -183,10 +183,9 @@ ylib::select& ylib::select::limit(uint32 start, uint32 count)
 	return *this;
 }
 
-ylib::select& ylib::select::orderby(const std::string& field, sort sort)
+ylib::select& ylib::select::orderby(const std::string& expression)
 {
-	m_orderby.field = field;
-	m_orderby.sort = sort;
+	m_orderby = expression;
 	return *this;
 }
 uint64 ylib::select::count()
@@ -238,7 +237,7 @@ void ylib::select::clear()
 	m_fields.clear();
 	m_limit.count = -1;
 	m_limit.start = -1;
-	m_orderby.field = "";
+	m_orderby = "";
 }
 void ylib::select::make_sql(std::string& field_name, std::string& where, std::string& orderby, std::string& limit, std::vector<std::any>& insert_values)
 {
@@ -278,9 +277,9 @@ void ylib::select::make_sql(std::string& field_name, std::string& where, std::st
 		insert_values.push_back(m_limit.start);
 		insert_values.push_back(m_limit.count);
 	}
-	if (m_orderby.field.empty() == false)
+	if (m_orderby.empty() == false)
 	{
-		orderby = " ORDER BY " + m_orderby.field + " " + std::string(m_orderby.sort == DESC ? "DESC" : "ASC");
+		orderby = " ORDER BY " + m_orderby;
 	}
 }
 
@@ -373,10 +372,9 @@ ylib::update& ylib::update::limit(uint32 start, uint32 count)
 	return *this;
 }
 
-ylib::update& ylib::update::orderby(const std::string& field, sort sort)
+ylib::update& ylib::update::orderby(const std::string& expression)
 {
-	m_orderby.field = field;
-	m_orderby.sort = sort;
+	m_orderby = expression;
 	return *this;
 }
 
@@ -406,7 +404,7 @@ void ylib::update::clear()
 	m_table_name = "";
 	m_limit.count = -1;
 	m_limit.start = -1;
-	m_orderby.field = "";
+	m_orderby = "";
 	m_sets.clear();
 }
 
@@ -463,9 +461,9 @@ void ylib::update::make_sql(std::string& set, std::string& where, std::string& o
 		insert_values.push_back(m_limit.start);
 		insert_values.push_back(m_limit.count);
 	}
-	if (m_orderby.field.empty() == false)
+	if (m_orderby.empty() == false)
 	{
-		orderby = " ORDER BY " + m_orderby.field + " " + std::string(m_orderby.sort == DESC ? "DESC" : "ASC");
+		orderby = " ORDER BY " + m_orderby;
 	}
 }
 
@@ -618,10 +616,9 @@ ylib::delete_& ylib::delete_::limit(uint32 start, uint32 count)
 	return *this;
 }
 
-ylib::delete_& ylib::delete_::orderby(const std::string& field, sort sort)
+ylib::delete_& ylib::delete_::orderby(const std::string& exp)
 {
-	m_orderby.field = field;
-	m_orderby.sort = sort;
+	m_orderby = exp;
 	return *this;
 }
 
@@ -650,7 +647,7 @@ void ylib::delete_::clear()
 	m_table_name = "";
 	m_limit.count = -1;
 	m_limit.start = -1;
-	m_orderby.field = "";
+	m_orderby = "";
 }
 
 void ylib::delete_::make_sql(std::string& where, std::string& orderby, std::string& limit, std::vector<std::any>& insert_values)
@@ -685,8 +682,8 @@ void ylib::delete_::make_sql(std::string& where, std::string& orderby, std::stri
 		insert_values.push_back(m_limit.start);
 		insert_values.push_back(m_limit.count);
 	}
-	if (m_orderby.field.empty() == false)
+	if (m_orderby.empty() == false)
 	{
-		orderby = " ORDER BY " + m_orderby.field + " " + std::string(m_orderby.sort == DESC ? "DESC" : "ASC");
+		orderby = " ORDER BY " + m_orderby;
 	}
 }

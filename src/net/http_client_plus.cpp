@@ -583,7 +583,10 @@ bool ylib::network::http::client_plus::request()
 				m_headers_request.set("Connection", "close");
 		}
 		if (m_headers_request.exist("Host") == false)
-			m_headers_request.set("Host", m_ipaddress);
+		{
+			m_headers_request.set("Host", m_ipaddress+(m_port==80?"":(":"+std::to_string(m_port))));
+		}
+			
 	}
 
 	THeader* pHeader = nullptr;

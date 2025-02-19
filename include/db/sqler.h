@@ -15,14 +15,6 @@ namespace ylib
 		int64 start = -1;
 		int64 count = -1;
 	};
-	enum sort {
-		ASC,
-		DESC
-	};
-	struct order_by {
-		std::string field;
-		ylib::sort sort;
-	};
 	struct keyvalue {
 		std::string name;
 		std::any value;
@@ -71,7 +63,7 @@ namespace ylib
 		/// <summary>
 		/// 排序
 		/// </summary>
-		select& orderby(const std::string& field, sort sort = DESC);
+		select& orderby(const std::string& expression);
 		/// <summary>
 		/// 查询数量
 		/// </summary>
@@ -106,7 +98,7 @@ namespace ylib
 		std::string m_table_name;
 		std::vector<std::string> m_fields;
 		ylib::limit m_limit;
-		order_by m_orderby;
+		std::string m_orderby;
 
 	};
 	/// <summary>
@@ -157,7 +149,7 @@ namespace ylib
 		/// <summary>
 		/// 排序
 		/// </summary>
-		update& orderby(const std::string& field, sort sort = DESC);
+		update& orderby(const std::string& expression);
 		/// <summary>
 		/// 查询
 		/// </summary>
@@ -181,7 +173,7 @@ namespace ylib
 		std::string m_table_name;
 		std::vector<struct ylib::update::set> m_sets;
 		ylib::limit m_limit;
-		order_by m_orderby;
+		std::string m_orderby;
 
 	};
 	/// <summary>
@@ -250,7 +242,7 @@ namespace ylib
 		/// <summary>
 		/// 排序
 		/// </summary>
-		delete_& orderby(const std::string& field, sort sort = DESC);
+		delete_& orderby(const std::string& expression);
 		/// <summary>
 		/// 查询
 		/// </summary>
@@ -271,7 +263,7 @@ namespace ylib
 		std::vector<ylib::where> m_wheres;
 		std::string m_table_name;
 		ylib::limit m_limit;
-		order_by m_orderby;
+		std::string m_orderby;
 
 	};
 }

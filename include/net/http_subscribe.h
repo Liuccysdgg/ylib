@@ -19,7 +19,8 @@ namespace ylib
                 std::regex regex;
                 std::string pattern;
                 std::string extra;
-                std::function<void(network::http::request* request,network::http::response* response,const std::string& pattern,const std::string& extra)> callback;
+				std::function<void(network::http::request* request, network::http::response* response, const std::string& pattern, const std::string& extra)> callback;
+                std::function<void(network::http::request* request, network::http::response* response)> callback2;
             };
             /******************************************************
              * class：订阅器
