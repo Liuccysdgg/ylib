@@ -31,7 +31,7 @@ fi
 ######3rdparty######
 cd $src_dir/3rdparty
 hp_socket_lib ="/usr/local/lib64/libhpsocket.a"
-if [ -e "$file" ]; then
+if [ -e "$hp_socket_lib" ]; then
     echo "hpsocket installed"
 else
     # 下载HPSOCKET
