@@ -12,6 +12,7 @@ sudo apt install -y libboost-dev
 sudo apt install -y libleveldb-dev
 sudo apt install -y libsoci-dev
 sudo apt install -y unixodbc-dev
+sudo apt install -y libmysqlcppconn-dev
 
 
 # 初始化变量 
@@ -29,41 +30,50 @@ fi
 
 ######3rdparty######
 cd $src_dir/3rdparty
-if [ ! -d "HP-Socket" ]; then
-	# 下载HPSOCKET
-	git clone -b v5.9.1 https://github.com/ldcsaa/HP-Socket.git
-	cd HP-Socket/Linux
-	chmod 777 script/*
-	echo "Y" | ./script/compile.sh
-	echo "Y" | ./script/install.sh
+hp_socket_lib ="/usr/local/lib64/libhpsocket.a"
+if [ -e "$file" ]; then
+    echo "hpsocket installed"
+else
+    # 下载HPSOCKET
+	if [ ! -d "HP-Socket" ]; then
+		git clone -b v5.9.1 https://github.com/ldcsaa/HP-Socket.git
+		cd HP-Socket/Linux
+		chmod 777 script/*
+		echo "Y" | ./script/compile.sh
+		echo "Y" | ./script/install.sh
+		cd $src_dir/3rdparty
+		# 安装HPSocket
+		sudo cp HP-Socket/Linux/lib/hpsocket/x64/*.a /usr/local/lib/
+		sudo cp HP-Socket/Linux/lib/hpsocket/x64/*.so /lib/x86_64-linux-gnu/
+		sudo cp HP-Socket/Linux/lib/hpsocket/x64/*.so.5 /lib/x86_64-linux-gnu/
+		sudo cp -r HP-Socket/Linux/include/* /usr/local/include/
+		sudo mv /usr/local/include/hpsocket /usr/local/include/HPSocket
+	fi	
+	
 fi
-cd $src_dir/3rdparty
-# 安装HPSocket
-sudo cp HP-Socket/Linux/lib/hpsocket/x64/*.a /usr/local/lib/
-sudo cp HP-Socket/Linux/lib/hpsocket/x64/*.so /lib/x86_64-linux-gnu/
-sudo cp HP-Socket/Linux/lib/hpsocket/x64/*.so.5 /lib/x86_64-linux-gnu/
-sudo cp -r HP-Socket/Linux/include/* /usr/local/include/
-sudo mv /usr/local/include/hpsocket /usr/local/include/HPSocket
+
+
+
 # 安装mysql-connector-cpp
 cd $src_dir/3rdparty
-if [ ! -d "mysql-connector-cpp" ]; then
-	git clone --branch 8.4.0 https://github.com/mysql/mysql-connector-cpp.git
-	cd mysql-connector-cpp
-	mkdir build
-	cd build
-	# 设置临时SWAP交换空间16G
-	sudo dd if=/dev/zero of=/tempswap bs=1M count=16384
-	sudo mkswap /tempswap
-	sudo swapon /tempswap
-	echo "MySQL Connector 编译较慢请耐心等待..."
-	cmake ../ -DCMAKE_BUILD_TYPE=Release -DWITH_JDBC=true  
-	make
-	sudo cp build/jdbc/libmysqlcppconn.so /lib/x86_64-linux-gnu/libmysqlcppconn.so
-	sudo cp -r jdbc/cppconn /usr/local/include
-	# 删除交换
-	sudo swapoff /tempswap
-	sudo rm /tempswap
-fi
+#if [ ! -d "mysql-connector-cpp" ]; then
+#	git clone --branch 8.4.0 https://github.com/mysql/mysql-connector-cpp.git
+#	cd mysql-connector-cpp
+#	mkdir build
+#	cd build
+#	# 设置临时SWAP交换空间16G
+#	sudo dd if=/dev/zero of=/tempswap bs=1M count=16384
+#	sudo mkswap /tempswap
+#	sudo swapon /tempswap
+#	echo "MySQL Connector 编译较慢请耐心等待..."
+#	cmake ../ -DCMAKE_BUILD_TYPE=Release -DWITH_JDBC=true  
+#	make
+#	sudo cp build/jdbc/libmysqlcppconn.so /lib/x86_64-linux-gnu/libmysqlcppconn.so
+#	sudo cp -r jdbc/cppconn /usr/local/include
+#	# 删除交换
+#	sudo swapoff /tempswap
+#	sudo rm /tempswap
+#fi
 
 ######核心######
 cd $install_dir
