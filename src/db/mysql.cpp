@@ -17,7 +17,7 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 
 #include "db/mysql.h"
 #if defined(_WIN64) || defined(__linux__)
-#include "cppconn/driver.h"
+
 #include "cppconn/connection.h"
 #include "cppconn/statement.h"
 #include "cppconn/prepared_statement.h"
@@ -26,6 +26,7 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 #include "cppconn/resultset_metadata.h"
 #include "cppconn/exception.h"
 #include "cppconn/warning.h"
+#include "mysql_driver.h"
 
 #include "util/strutils.h"
 #define CHECK_SQL_CONNECTION if(m_handle == nullptr){throw ylib::exception("current connection is invalid");}
