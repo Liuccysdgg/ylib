@@ -3,15 +3,14 @@
 sudo apt update
 sudo apt install -y g++
 sudo apt install -y cmake
-sudo apt install -y libmysqlclient-dev
-sudo apt install -y libssl-dev
-sudo apt install -y xorg libx11-dev libgl1-mesa-dev
-sudo apt install -y openssl
+#sudo apt install -y libssl-dev
+#sudo apt install -y xorg libx11-dev libgl1-mesa-dev
+#sudo apt install -y openssl
 sudo apt install -y libboost-dev 
 #sudo apt install -y libmysqlcppconn-dev
 sudo apt install -y libleveldb-dev
-sudo apt install -y libsoci-dev
-sudo apt install -y unixodbc-dev
+#sudo apt install -y libsoci-dev
+#sudo apt install -y unixodbc-dev
 sudo apt install -y libmysqlcppconn-dev
 
 
