@@ -26,6 +26,7 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 #if USE_OPENSSL== 1
 #include <openssl/evp.h>
 #include <openssl/sha.h>
+#include <openssl/hmac.h>
 #endif
 #ifdef _WIN32
 #include <windows.h>
@@ -53,6 +54,18 @@ ylib::buffer ylib::codec::sha256(const ylib::buffer& data)
     SHA256_Init(&sha256);
     SHA256_Update(&sha256, data.data(), data.size());
     SHA256_Final((unsigned char*)result.data(), &sha256);
+    return result;
+}
+// 带密钥的 HMAC-SHA256 计算
+ylib::buffer ylib::codec::hmac_sha256(const ylib::buffer& key, const ylib::buffer& data)
+{
+    unsigned int len = 32;  // HMAC-SHA256 的输出长度为 32 字节
+    ylib::buffer result;
+    result.resize(len);
+    // 使用 HMAC 计算，EVP_sha256() 指定使用 SHA256 算法
+    HMAC(EVP_sha256(), key.data(), key.size(),
+        (const unsigned char*)data.data(), data.size(),
+        (unsigned char*)result.data(), &len);
     return result;
 }
 #endif
