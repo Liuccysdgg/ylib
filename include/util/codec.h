@@ -8,7 +8,7 @@ namespace ylib
     {
         ylib::buffer sha1(const ylib::buffer& data);
         ylib::buffer sha256(const ylib::buffer& data);
-        ylib::buffer ylib::codec::hmac_sha256(const ylib::buffer& key, const ylib::buffer& data);
+        ylib::buffer hmac_sha256(const ylib::buffer& key, const ylib::buffer& data);
         std::string md5(const ylib::buffer& data);
         std::string to_utf8(const std::string& gbk);
         std::string to_gbk(const std::string& utf8);
