@@ -43,11 +43,17 @@ ylib::buffer ylib::codec::sha1(const ylib::buffer& data)
     SHA1_Final((unsigned char*)result.data(), &sha1);
 
     return result;
-    //std::stringstream ss;
-    //for (int i = 0; i < SHA_DIGEST_LENGTH; i++) {
-    //    ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
-    //}
-    //return ss.str();
+}
+ylib::buffer ylib::codec::sha256(const ylib::buffer& data)
+{
+    ylib::buffer result;
+    // SHA256 输出 32 字节
+    result.resize(32);
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, data.data(), data.size());
+    SHA256_Final((unsigned char*)result.data(), &sha256);
+    return result;
 }
 #endif
 std::string ylib::codec::to_utf8(const std::string &gbk)
