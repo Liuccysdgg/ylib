@@ -27,6 +27,7 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <openssl/hmac.h>
+#include <openssl/aes.h>
 #endif
 #ifdef _WIN32
 #include <windows.h>

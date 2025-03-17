@@ -65,6 +65,14 @@ namespace ylib
 		/// </summary>
 		select& orderby(const std::string& expression);
 		/// <summary>
+		/// 分组查询
+		/// </summary>
+		select& groupby(const std::string& expression);
+		/// <summary>
+		/// 过滤
+		/// </summary>
+		select& having(const std::string& expression);
+		/// <summary>
 		/// 查询数量
 		/// </summary>
 		/// <returns></returns>
@@ -90,7 +98,7 @@ namespace ylib
 		/// <param name="where"></param>
 		/// <param name="orderby"></param>
 		/// <param name="limit"></param>
-		void make_sql(std::string& field_name, std::string& where, std::string& orderby, std::string& limit, std::vector<std::any>& insert_values);
+		void make_sql(std::string& field_name, std::string& where,std::string& groupby,std::string& having,std::string& orderby, std::string& limit, std::vector<std::any>& insert_values);
 	public:
 		mysql::conn* m_conn = nullptr;
 	private:
@@ -99,6 +107,8 @@ namespace ylib
 		std::vector<std::string> m_fields;
 		ylib::limit m_limit;
 		std::string m_orderby;
+		std::string m_groupby;
+		std::string m_having;
 
 	};
 	/// <summary>

@@ -188,6 +188,18 @@ ylib::select& ylib::select::orderby(const std::string& expression)
 	m_orderby = expression;
 	return *this;
 }
+select& ylib::select::groupby(const std::string& expression)
+{
+	// TODO: 在此处插入 return 语句
+	m_groupby = expression;
+	return *this;
+}
+select& ylib::select::having(const std::string& expression)
+{
+	// TODO: 在此处插入 return 语句
+	m_having = expression;
+	return *this;
+}
 uint64 ylib::select::count()
 {
 	if (m_table_name.empty())
@@ -196,12 +208,14 @@ uint64 ylib::select::count()
 	std::string field_name;
 	std::string where;
 	std::string orderby;
+	std::string groupby;
+	std::string having;
 	std::string limit;
 	std::vector<std::any> insert_values;
-	make_sql(field_name, where, orderby, limit, insert_values);
+	make_sql(field_name, where,groupby,having,orderby, limit, insert_values);
 
 
-	std::string sql = "SELECT COUNT(1) FROM " + m_table_name + " " + where + " " + orderby + " " + limit;
+	std::string sql = "SELECT COUNT(1) FROM " + m_table_name + " " + where + " " +groupby+" "+having+" " + orderby + " " + limit;
 	auto ppst = m_conn->setsql(sql);
 	for (size_t i = 0; i < insert_values.size(); i++)
 		setInsetValue(ppst, i + 1, insert_values[i]);
@@ -219,12 +233,14 @@ ylib::mysql::result* ylib::select::query()
 	std::string field_name;
 	std::string where;
 	std::string orderby;
+	std::string groupby;
+	std::string having;
 	std::string limit;
 	std::vector<std::any> insert_values;
-	make_sql(field_name,where, orderby,limit,insert_values);
+	make_sql(field_name, where, groupby, having, orderby, limit, insert_values);
 
 
-	std::string sql = "SELECT "+field_name+" FROM "+m_table_name+" " + where + " " + orderby + " " + limit;
+	std::string sql = "SELECT "+field_name+" FROM "+m_table_name+" " + where + " " + groupby + " " + having + " " + orderby + " " + limit;
 	auto ppst = m_conn->setsql(sql);
 	for (size_t i = 0; i < insert_values.size(); i++)
 		setInsetValue(ppst, i + 1, insert_values[i]);
@@ -235,11 +251,13 @@ void ylib::select::clear()
 	m_wheres.clear();
 	m_table_name = "";
 	m_fields.clear();
+	m_groupby = "";
+	m_having = "";
 	m_limit.count = -1;
 	m_limit.start = -1;
 	m_orderby = "";
 }
-void ylib::select::make_sql(std::string& field_name, std::string& where, std::string& orderby, std::string& limit, std::vector<std::any>& insert_values)
+void ylib::select::make_sql(std::string& field_name, std::string& where, std::string& groupby, std::string& having, std::string& orderby, std::string& limit, std::vector<std::any>& insert_values)
 {
 	if (m_fields.size() == 0)
 		field_name = "*";
@@ -280,6 +298,14 @@ void ylib::select::make_sql(std::string& field_name, std::string& where, std::st
 	if (m_orderby.empty() == false)
 	{
 		orderby = " ORDER BY " + m_orderby;
+	}
+	if (m_groupby.empty() == false)
+	{
+		groupby = " GROUP BY " + m_groupby;
+	}
+	if (m_having.empty() == false)
+	{
+		having = " HAVING " + m_having;
 	}
 }
 
