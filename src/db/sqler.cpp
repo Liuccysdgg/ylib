@@ -188,13 +188,13 @@ ylib::select& ylib::select::orderby(const std::string& expression)
 	m_orderby = expression;
 	return *this;
 }
-select& ylib::select::groupby(const std::string& expression)
+ylib::select& ylib::select::groupby(const std::string& expression)
 {
 	// TODO: 在此处插入 return 语句
 	m_groupby = expression;
 	return *this;
 }
-select& ylib::select::having(const std::string& expression)
+ylib::select& ylib::select::having(const std::string& expression)
 {
 	// TODO: 在此处插入 return 语句
 	m_having = expression;
