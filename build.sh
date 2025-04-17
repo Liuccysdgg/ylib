@@ -36,7 +36,7 @@ if [ -e "$hp_socket_lib" ]; then
 else
     # 下载HPSOCKET
 	if [ ! -d "HP-Socket" ]; then
-		git clone -b v5.9.1 https://github.com/ldcsaa/HP-Socket.git
+		git clone https://github.com/ldcsaa/HP-Socket.git
 		cd HP-Socket/Linux
 		# 删除已经存在的库
 		rm -rf dependent/x64/include/openssl
