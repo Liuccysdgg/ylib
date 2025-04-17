@@ -46,7 +46,26 @@ bool ylib::network::http::request::header(const std::string &name, std::string &
     value = strutils::F(lpszValue);
     return true;
 }
-
+std::vector<ylib::KeyValue<std::string, std::string>> ylib::network::http::request::headers()
+{
+	std::vector<ylib::KeyValue<std::string, std::string>> hs;
+    DWORD dwHeaderCount = 0;
+    HPSERVER->GetAllHeaders((CONNID)m_reqpack->connid(), nullptr, dwHeaderCount);
+	if (dwHeaderCount > 0)
+	{
+        THeader* headers = new THeader[dwHeaderCount];
+        HPSERVER->GetAllHeaders((CONNID)m_reqpack->connid(), headers, dwHeaderCount);
+        for (DWORD i = 0; i < dwHeaderCount; i++)
+        {
+            ylib::KeyValue<std::string,std::string  > kv;
+			kv.name = strutils::F(headers[i].name);
+			kv.value = strutils::F(headers[i].value);
+            hs.push_back(kv);
+        }
+        delete[] headers;
+    }
+    return hs;
+}
 std::string ylib::network::http::request::method()
 {
     if (m_method.empty())

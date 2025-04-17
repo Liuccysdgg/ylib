@@ -29,6 +29,7 @@ namespace ylib
                 /// <param name="value"></param>
                 /// <returns></returns>
                 bool header(const std::string& name, std::string& value);
+                std::vector<ylib::KeyValue<std::string, std::string>> headers();
                 /// <summary>
                 /// 请求动作
                 /// </summary>
