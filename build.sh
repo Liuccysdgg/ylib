@@ -29,38 +29,38 @@ fi
 ##########################开始编译#########################
 
 ######3rdparty######
-cd $src_dir/3rdparty
-hp_socket_lib ="/usr/local/lib64/libhpsocket.a"
-if [ -e "$hp_socket_lib" ]; then
-    echo "hpsocket installed"
-else
-    # 下载HPSOCKET
-	if [ ! -d "HP-Socket" ]; then
-		git clone https://github.com/ldcsaa/HP-Socket.git
-		cd HP-Socket/Linux
-		# 删除已经存在的库
-		rm -rf dependent/x64/include/openssl
-		rm -rf dependent/x64/include/zconf.h
-		rm -rf dependent/x64/include/zlib.h
-		rm -rf dependent/x64/lib/libcrypto.a
-		rm -rf dependent/x64/lib/libjemalloc_pic.a
-		rm -rf dependent/x64/lib/libmimalloc.a
-		rm -rf dependent/x64/lib/libssl.a
-		rm -rf dependent/x64/lib/libz.a
+# cd $src_dir/3rdparty
+# hp_socket_lib ="/usr/local/lib64/libhpsocket.a"
+# if [ -e "$hp_socket_lib" ]; then
+#     echo "hpsocket installed"
+# else
+#     # 下载HPSOCKET
+# 	if [ ! -d "HP-Socket" ]; then
+# 		git clone https://github.com/ldcsaa/HP-Socket.git
+# 		cd HP-Socket/Linux
+# 		# 删除已经存在的库
+# 		rm -rf dependent/x64/include/openssl
+# 		rm -rf dependent/x64/include/zconf.h
+# 		rm -rf dependent/x64/include/zlib.h
+# 		rm -rf dependent/x64/lib/libcrypto.a
+# 		rm -rf dependent/x64/lib/libjemalloc_pic.a
+# 		rm -rf dependent/x64/lib/libmimalloc.a
+# 		rm -rf dependent/x64/lib/libssl.a
+# 		rm -rf dependent/x64/lib/libz.a
 
-		chmod 777 script/*
-		echo "Y" | ./script/compile.sh
-		echo "Y" | ./script/install.sh
-		cd $src_dir/3rdparty
-		# 安装HPSocket
-		sudo cp -f HP-Socket/Linux/lib/hpsocket/x64/*.a /usr/local/lib/
-		sudo cp -f HP-Socket/Linux/lib/hpsocket/x64/*.so /lib/x86_64-linux-gnu/
-		sudo cp -f HP-Socket/Linux/lib/hpsocket/x64/*.so.5 /lib/x86_64-linux-gnu/
-		sudo cp -r -f HP-Socket/Linux/include/* /usr/local/include/
-		sudo mv /usr/local/include/hpsocket /usr/local/include/HPSocket
-	fi	
+# 		chmod 777 script/*
+# 		echo "Y" | ./script/compile.sh
+# 		echo "Y" | ./script/install.sh
+# 		cd $src_dir/3rdparty
+# 		# 安装HPSocket
+# 		sudo cp -f HP-Socket/Linux/lib/hpsocket/x64/*.a /usr/local/lib/
+# 		sudo cp -f HP-Socket/Linux/lib/hpsocket/x64/*.so /lib/x86_64-linux-gnu/
+# 		sudo cp -f HP-Socket/Linux/lib/hpsocket/x64/*.so.5 /lib/x86_64-linux-gnu/
+# 		sudo cp -r -f HP-Socket/Linux/include/* /usr/local/include/
+# 		sudo mv /usr/local/include/hpsocket /usr/local/include/HPSocket
+# 	fi	
 	
-fi
+# fi
 
 
 
