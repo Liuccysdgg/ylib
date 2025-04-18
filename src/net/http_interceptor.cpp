@@ -81,13 +81,12 @@ bool network::http::interceptor::trigger(const std::string& url, network::http::
     for (size_t i = 0; i < m_list.size(); i++)
     {
         if (std::regex_match(url.c_str(), m_list[i].regex)) {
-            bool result = m_list[i].callback(rp, m_list[i].pattern, m_list[i].extra);
-            if (result == false) {
-#if HTTP_INTERCEPTOR_PRINT == 1
-                ylib::log->warn("[" + rp->exec_msec() + " ms] false url:" + url + "\t" + " express:" + info->express_string + " ip:" + rp->request()->remote_ipaddress(true), "interceptor");
-#endif
+            if (m_list[i].callback(rp, m_list[i].pattern, m_list[i].extra)== false) {
+//#if HTTP_INTERCEPTORRINT == 1
+		    //std::cout<<"[trigger] false url:" << url << "\t" << " express:" << m_list[i].pattern << std::endl;
+//#endif
+		return false;
             }
-            return result;
         }
     }
     return true;
