@@ -460,7 +460,7 @@ ylib::mysql::result::result(void* handle):m_handle(handle)
     {
         ylib::mysql::field field;
         field.name = rsmd->getColumnLabel(i + 1);
-        field.type_name = rsmd->getColumnTypeName(i + 1);
+        field.type_name = strutils::change_case(rsmd->getColumnTypeName(i + 1), false);
         field.index = i;
         m_fields.push_back(field);
     }
