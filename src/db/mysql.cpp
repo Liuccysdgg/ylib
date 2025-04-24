@@ -511,17 +511,8 @@ std::string ylib::mysql::result::field_type(const std::string& name)
 
 uint32 ylib::mysql::result::field_count()
 {
-    CHECK_SQL_PPST;
-    try
-    {
-        return RESULT_SET->getMetaData()->getColumnCount();
-    }
-    catch (const sql::SQLException & e)
-    {
-        throw ylib::exception(e.what());
-    }
+    return m_fields.size();
 }
-
 size_t ylib::mysql::result::row_count()
 {
     CHECK_SQL_PPST;
