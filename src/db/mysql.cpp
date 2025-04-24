@@ -448,11 +448,19 @@ ylib::mysql::result *ylib::mysql::prepare_statement::query()
 
 ylib::mysql::result::result(void* handle):m_handle(handle)
 {
-    for (uint32 i = 0; i < RESULT_SET->getMetaData()->getColumnCount(); i++)
+    sql::ResultSetMetaData *rsmd = RESULT_SET->getMetaData();
+    if (rsmd == nullptr)
+        return;
+    uint32 column_count = rsmd->getColumnCount();
+    if (column_count > 1024)
+        return;
+
+
+    for (uint32 i = 0; i < column_count; i++)
     {
         ylib::mysql::field field;
-        field.name = RESULT_SET->getMetaData()->getColumnLabel(i + 1);
-        field.type_name = strutils::change_case(RESULT_SET->getMetaData()->getColumnTypeName(i + 1).c_str(), false);
+        field.name = rsmd->getColumnLabel(i + 1);
+        field.type_name = rsmd->getColumnTypeName(i + 1);
         field.index = i;
         m_fields.push_back(field);
     }
