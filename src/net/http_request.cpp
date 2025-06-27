@@ -101,6 +101,29 @@ ylib::AddressPort ylib::network::http::request::remote()
 }
 bool ylib::network::http::request::get_url_param(const std::string& name, std::string& value)
 {
+
+    url_param();
+    // 查找
+    auto iter = m_url_param->find(name);
+    if (iter == m_url_param->end())
+        return false;
+    value = iter->second;
+    return true;
+}
+bool ylib::network::http::request::get_body_param(const std::string& name, std::string& value)
+{
+
+    body_param();
+    // 查找
+    auto iter = m_body_param->find(name);
+    if (iter == m_body_param->end())
+        return false;
+    value = iter->second;
+    return true;
+}
+
+std::shared_ptr<std::map<std::string, std::string>>& ylib::network::http::request::url_param()
+{
     if (m_url_param == nullptr)
     {
         m_url_param = std::make_shared<std::map<std::string, std::string>>();
@@ -119,14 +142,9 @@ bool ylib::network::http::request::get_url_param(const std::string& name, std::s
             m_url_param->emplace(key, value);
         }
     }
-    // 查找
-    auto iter = m_url_param->find(name);
-    if (iter == m_url_param->end())
-        return false;
-    value = iter->second;
-    return true;
+    return m_url_param;
 }
-bool ylib::network::http::request::get_body_param(const std::string& name, std::string& value)
+std::shared_ptr<std::map<std::string, std::string>>& ylib::network::http::request::body_param()
 {
     if (m_body_param == nullptr)
     {
@@ -163,18 +181,13 @@ bool ylib::network::http::request::get_body_param(const std::string& name, std::
                         m_body_param->emplace(keys[i], std::to_string(dobvalue));
                 }
                 else
-                    m_body_param->emplace(keys[i],strvalue);
+                    m_body_param->emplace(keys[i], strvalue);
             }
         }
     }
-
-    // 查找
-    auto iter = m_body_param->find(name);
-    if (iter == m_body_param->end())
-        return false;
-    value = iter->second;
-    return true;
 }
+
+
 const std::shared_ptr<std::vector<network::http::multipart>>& ylib::network::http::request::multipart()
 {
     if (m_form == nullptr)

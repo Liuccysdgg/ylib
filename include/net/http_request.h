@@ -65,8 +65,8 @@ namespace ylib
                 /// <returns></returns>
                 bool get_url_param(const std::string& name,std::string& value);
                 bool get_body_param(const std::string& name, std::string& value);
-                std::shared_ptr<std::map<std::string, std::string>>& url_param() { return m_url_param; }
-                std::shared_ptr<std::map<std::string, std::string>>& body_param() { return m_body_param; }
+                std::shared_ptr<std::map<std::string, std::string>>& url_param();
+                std::shared_ptr<std::map<std::string, std::string>>& body_param();
 
                 /// <summary>
                 /// 表单数据
