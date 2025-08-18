@@ -584,7 +584,10 @@ bool ylib::network::http::client_plus::request()
 		}
 		if (m_headers_request.exist("Host") == false)
 		{
-			m_headers_request.set("Host", m_ipaddress+(m_port==80?"":(":"+std::to_string(m_port))));
+			std::string header_host = m_ipaddress;
+			if (m_port != 80 && m_port != 443)
+				header_host += (":" + std::to_string(m_port));
+			m_headers_request.set("Host", header_host);
 		}
 			
 	}
