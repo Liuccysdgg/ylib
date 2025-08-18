@@ -5,22 +5,22 @@
 namespace ylib
 {
 	template <typename KEY, typename VAL>
-	class map:private std::map<KEY,VAL>
+	class map :private std::map<KEY, VAL>
 	{
 	public:
 		map() {}
 		~map() {}
 		const std::map<KEY, VAL> to_stl()
 		{
-            std::unique_lock<std::mutex> __guard_lock__(m_mutex);
-            return *this;
+			std::unique_lock<std::mutex> __guard_lock__(m_mutex);
+			return *this;
 		}
 
 		bool add(const KEY& key_, const VAL val, bool lock = true)
 		{
 			if (lock)
 				this->m_mutex.lock();
-			typename std::map<KEY, VAL>::iterator iter = ::std::map<KEY,VAL>::find(key_);
+			typename std::map<KEY, VAL>::iterator iter = ::std::map<KEY, VAL>::find(key_);
 			if (iter != ::std::map<KEY, VAL>::end()) {
 				if (lock)
 					this->m_mutex.unlock();
@@ -39,7 +39,7 @@ namespace ylib
 
 			if (lock)
 				this->m_mutex.lock();
-			auto iter = ::std::map<KEY,VAL>::find(key_);
+			auto iter = ::std::map<KEY, VAL>::find(key_);
 			bool ret = iter != ::std::map<KEY, VAL>::end();
 			if (lock)
 				this->m_mutex.unlock();
@@ -47,7 +47,7 @@ namespace ylib
 		}
 		bool set(const KEY& key_, VAL val, bool insert = false)
 		{
-            std::unique_lock<std::mutex> __guard_lock__(m_mutex);
+			std::unique_lock<std::mutex> __guard_lock__(m_mutex);
 			typename std::map<KEY, VAL>::iterator iter = ::std::map<KEY, VAL>::find(key_);
 			if (iter == ::std::map<KEY, VAL>::end())
 			{
@@ -86,32 +86,32 @@ namespace ylib
 				this->m_mutex.unlock();
 			return true;
 		}
-		bool del(const KEY& key_,bool locked = true)
-        {
-            if(locked)
-                m_mutex.lock();
-            typename std::map<KEY, VAL>::iterator iter = ::std::map<KEY, VAL>::find(key_);
-            if (iter == ::std::map<KEY, VAL>::end()){
-                if(locked)
-                    m_mutex.unlock();
-                return false;
-            }
+		bool del(const KEY& key_, bool locked = true)
+		{
+			if (locked)
+				m_mutex.lock();
+			typename std::map<KEY, VAL>::iterator iter = ::std::map<KEY, VAL>::find(key_);
+			if (iter == ::std::map<KEY, VAL>::end()) {
+				if (locked)
+					m_mutex.unlock();
+				return false;
+			}
 
-            ::std::map<KEY, VAL>::erase(iter);
-            if(locked)
-                m_mutex.unlock();
+			::std::map<KEY, VAL>::erase(iter);
+			if (locked)
+				m_mutex.unlock();
 			return true;
 		}
 		void clear()
 		{
-            std::unique_lock<std::mutex> __guard_lock__(m_mutex);
+			std::unique_lock<std::mutex> __guard_lock__(m_mutex);
 			//::std::map<KEY,VAL>::swap();
-			::std::map<KEY,VAL>::clear();
+			::std::map<KEY, VAL>::clear();
 		}
 		size_t size()
 		{
-            std::unique_lock<std::mutex> __guard_lock__(m_mutex);
-			return ::std::map<KEY,VAL>::size();
+			std::unique_lock<std::mutex> __guard_lock__(m_mutex);
+			return ::std::map<KEY, VAL>::size();
 		}
 		void lock()
 		{
@@ -123,14 +123,14 @@ namespace ylib
 		}
 		VAL operator[](const KEY& key)
 		{
-            std::unique_lock<std::mutex> __guard_lock__(m_mutex);
+			std::unique_lock<std::mutex> __guard_lock__(m_mutex);
 			VAL val;
-			get(key, val,false);
+			get(key, val, false);
 			return val;
 		}
 		bool find(std::function<bool(const KEY& key, const VAL& value)> delegate)
 		{
-            std::unique_lock<std::mutex> __guard_lock__(m_mutex);
+			std::unique_lock<std::mutex> __guard_lock__(m_mutex);
 			for_iter(iter, (*this))
 			{
 				if (delegate(iter->first, iter->second))
@@ -138,20 +138,23 @@ namespace ylib
 			}
 			return false;
 		}
-		void loop(std::function<void(const KEY& key,const VAL& value)> callback)
+		void loop(std::function<void(KEY& key,VAL& value)> callback, bool lock = true)
 		{
-            std::unique_lock<std::mutex> __guard_lock__(m_mutex);
+			if (lock)
+				m_mutex.lock();
 			for_iter(iter, (*this))
 			{
-				callback(iter->first,iter->second);
+				callback(iter->first, iter->second);
 			}
+			if (lock)
+				m_mutex.unlock();
 		}
 		std::map<KEY, VAL>* parent()
 		{
 			return this;
 		}
 	public:
-        std::mutex m_mutex;
+		std::mutex m_mutex;
 	};
 }
 
