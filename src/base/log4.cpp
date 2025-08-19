@@ -56,6 +56,7 @@ ylib::log4::log4(const std::string& filepath)
     APPENDER_CONSOLE->setLayout(std::unique_ptr<log4cplus::Layout>(new log4cplus::PatternLayout("%D{%Y-%m-%d %H:%M:%S.%q} [%-5p] [%c] -  %m %n")));
 #else
     m_appender = new ylib::file_io;
+    ((ylib::file_io*)m_appender)->open(filepath);
 #endif
 
 }
@@ -78,8 +79,12 @@ inline void append_log(const char* name,const std::string& value)
 inline void append_log(void* appender, const std::string& type, const std::string& name, const std::string& value)
 {
     auto file = (ylib::file_io*)appender;
-    std::string content = "[" + time::now_time() + "][" + name + "][" + type + "]: " + value;
-    file->appead(content.c_str(),content.length());
+    if (file->is_open())
+    {
+        std::string content = "[" + time::now_time() + "][" + name + "][" + type + "]: " + value;
+        file->appead(content.c_str(), content.length());
+    }
+    
 }
 #endif
 ylib::log4& ylib::log4::warn(const std::string& value,const std::string& name)

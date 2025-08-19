@@ -16,8 +16,9 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 */
 
 #include "base/environment.h"
+#include "util/system.h"
 namespace ylib
 {
     extern ylib::environment *env = new ylib::environment();
-    extern ylib::log4 *log = new ylib::log4("./log/log.log");
+    extern ylib::log4* log = nullptr;
 }

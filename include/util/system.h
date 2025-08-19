@@ -11,6 +11,8 @@ namespace ylib
 		int64 random(int64 min, int64 max);
 		//取运行目录
 		std::string current_dir();
+		//取EXE目录
+		std::string application_dir();
 		//取运行全路径
 		std::string current_filepath();
 		//取临时目录

@@ -167,6 +167,7 @@ bool ylib::file_io::read(int64 size, buffer &data)
 
 void ylib::file_io::jump(int64 offset, std::ios_base::seekdir way)
 {
+
     // 清楚所有错误状态
     m_stream->clear();
     // 根据提供的方向参数way来确定如何应用偏移量offset
