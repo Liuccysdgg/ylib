@@ -30,6 +30,9 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 #include "log4cplus/log4cplus.h"
 #include "log4cplus/consoleappender.h"
 #include "log4cplus/fileappender.h"
+#else
+
+#include "util/file.h"
 #endif
 #define APPENDER (*(log4cplus::SharedAppenderPtr*)m_appender)
 #define APPENDER_CONSOLE (*(log4cplus::SharedAppenderPtr*)m_appender_console)
@@ -51,6 +54,8 @@ ylib::log4::log4(const std::string& filepath)
     APPENDER->setLayout(std::unique_ptr<log4cplus::Layout>(new log4cplus::PatternLayout("%D{%Y-%m-%d %H:%M:%S.%q} [%-5p] [%c] -  %m %n")));
     APPENDER_CONSOLE->setName("console");
     APPENDER_CONSOLE->setLayout(std::unique_ptr<log4cplus::Layout>(new log4cplus::PatternLayout("%D{%Y-%m-%d %H:%M:%S.%q} [%-5p] [%c] -  %m %n")));
+#else
+    m_appender = new ylib::file_io;
 #endif
 
 }
@@ -60,6 +65,8 @@ ylib::log4::~log4()
 #if LIB_LOG4CPLUS
     delete (log4cplus::SharedAppenderPtr*)m_appender;
     log4cplus::Logger::shutdown();
+#else
+    delete (ylib::file_io*)m_appender;
 #endif
 }
 #if LIB_LOG4CPLUS
@@ -68,9 +75,11 @@ inline void append_log(const char* name,const std::string& value)
     printf("%s: %s [%s]\r\n", time::now_time().c_str(), name, value.c_str());
 }
 #else
-inline void append_log(const char* name, const char* value)
+inline void append_log(void* appender, const std::string& type, const std::string& name, const std::string& value)
 {
-    printf("%s: %s [%s]\r\n",time::now_time().c_str(), name, value);
+    auto file = (ylib::file_io*)appender;
+    std::string content = "[" + time::now_time() + "][" + name + "][" + type + "]: " + value;
+    file->appead(content.c_str(),content.length());
 }
 #endif
 ylib::log4& ylib::log4::warn(const std::string& value,const std::string& name)
@@ -80,7 +89,7 @@ ylib::log4& ylib::log4::warn(const std::string& value,const std::string& name)
 #if LIB_LOG4CPLUS
     APPENDER_LOG(name.c_str(), value.c_str(), WARN_LOG_LEVEL);
 #else
-    append_log(name.c_str(), value.c_str());
+    append_log(m_appender, "WARN",name, value);
 #endif
     return *this;
 }
@@ -89,7 +98,7 @@ ylib::log4& ylib::log4::info(const std::string& value,const std::string& name)
 #if LIB_LOG4CPLUS
     APPENDER_LOG(name.c_str(), value.c_str(), INFO_LOG_LEVEL);
 #else
-    append_log(name.c_str(), value.c_str());
+    append_log(m_appender, "INFO", name, value);
 #endif
     return *this;
 }
@@ -99,7 +108,7 @@ ylib::log4& ylib::log4::error(const std::string& value,const std::string& name)
 #if LIB_LOG4CPLUS
     APPENDER_LOG(name.c_str(), value.c_str(), ERROR_LOG_LEVEL);
 #else
-    append_log(name.c_str(), value.c_str());
+    append_log(m_appender, "ERROR", name, value);
 #endif
     return *this;
 }
@@ -108,7 +117,7 @@ ylib::log4& ylib::log4::fatal(const std::string& value,const std::string& name)
 #if LIB_LOG4CPLUS
     APPENDER_LOG(name.c_str(), value.c_str(), FATAL_LOG_LEVEL);
 #else
-    append_log(name.c_str(), value.c_str());
+    append_log(m_appender, "FATAL", name, value);
 #endif
     return *this;
 }
@@ -117,7 +126,7 @@ ylib::log4& ylib::log4::debug(const std::string& value,const std::string& name)
 #if LIB_LOG4CPLUS
     APPENDER_LOG(name.c_str(), value.c_str(), DEBUG_LOG_LEVEL);
 #else
-    append_log(name.c_str(), value.c_str());
+    append_log(m_appender, "DEBUG", name, value);
 #endif
     return *this;
 }
