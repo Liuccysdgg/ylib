@@ -138,13 +138,26 @@ namespace ylib
 			}
 			return false;
 		}
-		void loop(std::function<void(KEY& key,VAL& value)> callback, bool lock = true)
+		void loop(std::function<void(const KEY& key, const VAL& value)> callback)
 		{
-			if (lock)
-				m_mutex.lock();
+			std::unique_lock<std::mutex> __guard_lock__(m_mutex);
 			for_iter(iter, (*this))
 			{
 				callback(iter->first, iter->second);
+			}
+		}
+		void loop2(std::function<bool(const KEY& key, VAL& value)> callback, bool lock = true)
+		{
+			if (lock)
+				m_mutex.lock();
+			for (auto iter = this->begin(); iter != this->end(); ++iter)
+			{
+				if (callback(iter->first, iter->second) == false)
+				{
+					if (lock)
+						m_mutex.unlock();
+					return;
+				}
 			}
 			if (lock)
 				m_mutex.unlock();
