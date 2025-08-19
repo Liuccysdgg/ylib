@@ -30,6 +30,7 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 #include <cstdlib>
 #endif
 #include "util/strutils.h"
+#include "util/file.h"
 void ylib::system::sleep_msec(uint32 msec)
 {
     std::this_thread::sleep_for(std::chrono::milliseconds(msec));
@@ -46,6 +47,10 @@ int64 ylib::system::random(int64 min, int64 max)
 std::string ylib::system::current_dir()
 {
     return std::filesystem::current_path().string();
+}
+std::string ylib::system::application_dir()
+{
+    return ylib::file::parent_dir(ylib::system::current_filepath());
 }
 std::string ylib::system::current_filepath()
 {
