@@ -154,25 +154,25 @@ bool ylib::network::http::response::send_file(const std::string& filepath, int32
 
     //ylib::log->info(filepath2,"response");
     //取文件信息
-    /*{
+    {
         struct _stat64 statbuf;
         if (_stat64(filepath2.c_str(), &statbuf) != 0)
             return false;
        
         filesize = statbuf.st_size;
         last_modify_time = statbuf.st_mtime;
-    }*/
-    {
-        auto filesize = std::filesystem::file_size(filepath2);
-        auto ftime = std::filesystem::last_write_time(filepath2);
-        // 把 file_time_type 转为 system_clock::time_point
-        auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
-            ftime - decltype(ftime)::clock::now() + std::chrono::system_clock::now()
-        );
-
-        // 转为 time_t（UNIX 时间戳）
-        last_modify_time = std::chrono::system_clock::to_time_t(sctp);
     }
+    //{
+    //    auto filesize = std::filesystem::file_size(filepath2);
+    //    auto ftime = std::filesystem::last_write_time(filepath2);
+    //    // 把 file_time_type 转为 system_clock::time_point
+    //    auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+    //        ftime - decltype(ftime)::clock::now() + std::chrono::system_clock::now()
+    //    );
+
+    //    // 转为 time_t（UNIX 时间戳）
+    //    last_modify_time = std::chrono::system_clock::to_time_t(sctp);
+    //}
     // 设置为已发送
     m_response = true;
     //if (filesize != 0)
