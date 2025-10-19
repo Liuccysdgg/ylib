@@ -153,12 +153,11 @@ bool ylib::network::http::response::send_file(const std::string& filepath, int32
     time_t last_modify_time = 0;
 
     //ylib::log->info(filepath2,"response");
-    //取文件信息
+      //取文件信息
     {
-        struct _stat64 statbuf;
-        if (_stat64(filepath2.c_str(), &statbuf) != 0)
+        struct stat statbuf;
+        if (stat(filepath2.c_str(), &statbuf) != 0)
             return false;
-       
         filesize = statbuf.st_size;
         last_modify_time = statbuf.st_mtime;
     }
