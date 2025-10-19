@@ -32,6 +32,9 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 #include "net/http_website.h"
 #include <sys/stat.h>
 #include <filesystem>
+#include <chrono>
+#include <ctime>
+#include <iostream>
 #define HPSERVER ((IHttpServer*)m_reqpack->server()->hpserver())
 #ifdef MSVC_2010
 #define HEADER_SET(NAME,VALUE) m_headers.insert(std::pair<std::string,std::string>(NAME,VALUE))
