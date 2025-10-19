@@ -164,8 +164,13 @@ bool ylib::network::http::response::send_file(const std::string& filepath, int32
     }*/
     {
         auto filesize = std::filesystem::file_size(filepath2);
-        auto ftime =std::filesystem::last_write_time(filepath2);
-        auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(ftime);
+        auto ftime = std::filesystem::last_write_time(filepath2);
+        // 把 file_time_type 转为 system_clock::time_point
+        auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+            ftime - decltype(ftime)::clock::now() + std::chrono::system_clock::now()
+        );
+
+        // 转为 time_t（UNIX 时间戳）
         last_modify_time = std::chrono::system_clock::to_time_t(sctp);
     }
     // 设置为已发送
