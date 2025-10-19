@@ -31,6 +31,7 @@ If you have any questions, please contact us: 1585346868@qq.com Or visit our web
 #include "net/http_router.h"
 #include "net/http_website.h"
 #include <sys/stat.h>
+#include <filesystem>
 #define HPSERVER ((IHttpServer*)m_reqpack->server()->hpserver())
 #ifdef MSVC_2010
 #define HEADER_SET(NAME,VALUE) m_headers.insert(std::pair<std::string,std::string>(NAME,VALUE))
@@ -150,13 +151,19 @@ bool ylib::network::http::response::send_file(const std::string& filepath, int32
 
     //ylib::log->info(filepath2,"response");
     //取文件信息
-    {
+    /*{
         struct _stat64 statbuf;
         if (_stat64(filepath2.c_str(), &statbuf) != 0)
             return false;
        
         filesize = statbuf.st_size;
         last_modify_time = statbuf.st_mtime;
+    }*/
+    {
+        auto filesize = std::filesystem::file_size(filepath2);
+        auto ftime =std::filesystem::last_write_time(filepath2);
+        auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(ftime);
+        last_modify_time = std::chrono::system_clock::to_time_t(sctp);
     }
     // 设置为已发送
     m_response = true;
