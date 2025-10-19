@@ -136,20 +136,25 @@ bool ylib::network::http::response::send(const ylib::json& json, ushort stateNum
 
 bool ylib::network::http::response::send_file(const std::string& filepath, int32 downbaud, ushort stateNum, const std::string& stateDesc)
 {
+
+
+    
+
     std::string filepath2;
     filepath2.append(filepath);
     if(m_response == true)
         return false;
 
-    long filesize = 0;
+    long long filesize = 0;
     time_t last_modify_time = 0;
 
     //ylib::log->info(filepath2,"response");
     //取文件信息
     {
-        struct stat statbuf;
-        if (stat(filepath2.c_str(), &statbuf) != 0)
+        struct _stat64 statbuf;
+        if (_stat64(filepath2.c_str(), &statbuf) != 0)
             return false;
+       
         filesize = statbuf.st_size;
         last_modify_time = statbuf.st_mtime;
     }
@@ -192,13 +197,13 @@ bool ylib::network::http::response::send_file(const std::string& filepath, int32
     ylib::buffer send_data;
 
     //计算断点续传
-    long start = 0, len = 0;
+    long long start = 0, len = 0;
     if(direct_send == false){
         if (fileoffset(filesize, start, len))
             stateNum = 206;
         if (m_headers.find("Transfer-Encoding") == m_headers.end())
         {
-            HEADER_SET("Content-Length", std::to_string((uint64)len));
+            HEADER_SET("Content-Length", std::to_string(len));
         }
 
     }else{
@@ -247,7 +252,7 @@ bool ylib::network::http::response::send_file(const std::string& filepath, int32
 
     /***************计算发送文件**************/
     //读取块大小
-    long blocksize = 0;
+    long long blocksize = 0;
 
     if (downbaud == -1)
         blocksize = 4096;
@@ -260,44 +265,84 @@ bool ylib::network::http::response::send_file(const std::string& filepath, int32
     }
     if (blocksize > len)
         blocksize = len;
+    // ==== 修复后版本，支持大文件 / 中文路径 / 跨平台 ====
     FILE* pFile = nullptr;
+
 #ifdef _WIN32
-    fopen_s(&pFile, filepath2.c_str(), "rb");
+    // Windows: 使用宽字符接口，支持中文路径
+    std::wstring wpath(filepath2.begin(), filepath2.end());
+    _wfopen_s(&pFile, wpath.c_str(), L"rb");
 #else
+    // Linux/macOS: 直接使用 fopen
     pFile = fopen(filepath2.c_str(), "rb");
 #endif
-    if (pFile == NULL)
+
+    if (pFile == nullptr)
         return false;
-    fseek(pFile, start, SEEK_SET);
+#ifdef _WIN32
+    if (_fseeki64(pFile, start, SEEK_SET) != 0)
+#else
+    if (fseeko(pFile, start, SEEK_SET) != 0)
+#endif
+    {
+        fclose(pFile);
+        return false;
+    }
+
+   
 
     char* read_buffer = new char[blocksize];
     size_t readlen = 0;
     timestamp begin_sec = time::now_sec();
-    long read_size = 0;
 
+    long long read_size = 0;
+    int ipending_count = 0;
+    int ipending_detect_loop = 0;
     while ((readlen = fread(read_buffer, 1, blocksize, pFile)) > 0)
     {
-        read_size += blocksize;
-        if (HPSERVER->Send((CONNID)m_reqpack->connid(), (const BYTE*)read_buffer, (int)readlen, 0) == false)
+        read_size += readlen;
+
+        if (!HPSERVER->Send((CONNID)m_reqpack->connid(),
+            (const BYTE*)read_buffer,
+            (int)readlen, 0))
         {
             fclose(pFile);
             delete[] read_buffer;
             return false;
         }
-        //判断是否读够了
-        if (read_size == len)
+
+        // 判断是否读够了
+        if (read_size >= len)
             break;
+
         if (len - read_size < blocksize)
-        {
-            blocksize = len - read_size;
-        }
-        //等待，压缩带宽
+            blocksize = (long)(len - read_size);
+
+        // 可选带宽限制
         if (downbaud != -1) {
-            while ((time::now_sec()-begin_sec)*downbaud < read_size) {
+            while ((time::now_sec() - begin_sec) * downbaud < read_size) {
                 system::sleep_msec(100);
             }
         }
+        if (ipending_detect_loop > 1024)
+        {
+            while (HPSERVER->GetPendingDataLength(m_reqpack->connid(), ipending_count))
+            {
+                if (ipending_count > 1024 * 1024 * 10)
+                {
+                    system::sleep_msec(100);
+                }
+                else
+                    break;
+            }
+            ipending_detect_loop = 0;
+        }
+        else
+            ipending_detect_loop++;
+
+       
     }
+
     fclose(pFile);
     delete[] read_buffer;
 
@@ -347,7 +392,7 @@ bool ylib::network::http::response::filecache(const uint64& last_modify_time)
     return false;
 }
 
-bool ylib::network::http::response::fileoffset(long filesize, long& start, long& len)
+bool ylib::network::http::response::fileoffset(long long filesize, long long& start, long long& len)
 {
     start = 0, len = filesize;
 
@@ -362,8 +407,8 @@ bool ylib::network::http::response::fileoffset(long filesize, long& start, long&
     auto __arr = strutils::split(hValue,"-");
     if (__arr.size() == 2)
     {
-        start = atol(__arr[0].c_str());
-        len = atol(__arr[1].c_str());
+        start = atoll(__arr[0].c_str());
+        len = atoll(__arr[1].c_str());
         if (len == 0)
             len = filesize - start;
     }
@@ -372,7 +417,7 @@ bool ylib::network::http::response::fileoffset(long filesize, long& start, long&
         if (hValue[0] == '-')
         {
             //下载最后x字节
-            len = atol(std::string(hValue.substr(1, hValue.length() - 2)).c_str());
+            len = atoll(std::string(hValue.substr(1, hValue.length() - 2)).c_str());
             if (len > filesize)
                 return false;
             start = filesize - len;
@@ -380,7 +425,7 @@ bool ylib::network::http::response::fileoffset(long filesize, long& start, long&
         else if (hValue[hValue.length() - 1] == '-')
         {
             //从x字节开始下载
-            start = atol(std::string(hValue.substr(0, hValue.length() - 2)).c_str());
+            start = atoll(std::string(hValue.substr(0, hValue.length() - 2)).c_str());
             if (start > filesize)
                 return false;
             len = filesize - start;

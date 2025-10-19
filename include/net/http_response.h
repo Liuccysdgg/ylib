@@ -32,7 +32,7 @@ namespace ylib
                 ylib::json sjson;
             private:
                 bool filecache(const uint64& last_modify_time);
-                bool fileoffset(long filesize, long& start, long& len);
+                bool fileoffset(long long filesize, long long& start, long long& len);
             private:
                 std::map<std::string, std::string> m_headers;
                 bool m_response = false;
